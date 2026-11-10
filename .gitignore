@@ -1,0 +1,23 @@
+# Secretos
+.env
+.env.local
+.env.*.local
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Node
+node_modules/
+.next/
+out/
+test-results/
+playwright-report/
+
+# Despliegue y sistema
+.vercel/
+supabase/.temp/
+supabase/.branches/
+.DS_Store

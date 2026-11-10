@@ -1,0 +1,29 @@
+{
+  "tipo": "u",
+  "titulo": "Defectos por unidad u con unidades de inspección variables, 4 muestras",
+  "fuente": "Montgomery, Introduction to Statistical Quality Control, cap. 7, sección 7.2.4 (gráfico u con n_i variable: u-barra = total de defectos / total de unidades, límites u-barra +- 3 raíz(u-barra / n_i)).",
+  "nota": "Caso de cálculo a mano sin constantes de tabla. Se calcula un límite por muestra.",
+  "datos": {
+    "muestras": [
+      {"subgrupo": 1, "defectos": 3, "unidades": 5},
+      {"subgrupo": 2, "defectos": 2, "unidades": 4},
+      {"subgrupo": 3, "defectos": 4, "unidades": 6},
+      {"subgrupo": 4, "defectos": 13, "unidades": 5}
+    ]
+  },
+  "calculo": [
+    "Total de defectos = 3+2+4+13 = 22; total de unidades = 5+4+6+5 = 20.",
+    "u-barra = 22/20 = 1,1.",
+    "Tasas: u1 = 3/5 = 0,6; u2 = 2/4 = 0,5; u3 = 4/6 = 0,6667; u4 = 13/5 = 2,6.",
+    "Muestra 1 (n = 5): raíz(1,1/5) = raíz(0,22) = 0,4690416; UCL = 1,1 + 3 * 0,4690416 = 1,1 + 1,4071248 = 2,5071248; LCL < 0, se toma 0.",
+    "Muestra 2 (n = 4): raíz(1,1/4) = raíz(0,275) = 0,5244044; UCL = 1,1 + 1,5732132 = 2,6732132; LCL = 0.",
+    "Muestra 3 (n = 6): raíz(1,1/6) = raíz(0,1833333) = 0,4281744; UCL = 1,1 + 1,2845232 = 2,3845232; LCL = 0.",
+    "Comparación: u1, u2, u3 (0,5 a 0,67) dentro de sus límites. u4 = 2,6 > 2,5071248 (UCL de la muestra 4, n = 5), fuera de control."
+  ],
+  "esperado": {
+    "u_barra": 1.1,
+    "ucl_por_muestra": [2.5071248, 2.6732132, 2.3845232, 2.5071248],
+    "lcl_por_muestra": [0, 0, 0, 0],
+    "puntos_fuera": [4]
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "tipo": "xbar_r",
+  "titulo": "X-barra y R, n = 3, 4 subgrupos (Fase I, límites de prueba)",
+  "fuente": "Montgomery, Introduction to Statistical Quality Control, cap. 6, ecuaciones 6.8 a 6.11 (límites de X-barra y R con R-barra); constantes A2, D3, D4 del Apéndice VI para n = 3.",
+  "nota": "Caso pequeño diseñado para cálculo a mano. Las constantes de tabla (A2 = 1,023; D3 = 0; D4 = 2,574 para n = 3) deben confirmarse con el validador-estadistico.",
+  "datos": {
+    "n": 3,
+    "subgrupos": [
+      {"subgrupo": 1, "x": [10, 12, 11]},
+      {"subgrupo": 2, "x": [13, 11, 12]},
+      {"subgrupo": 3, "x": [8, 10, 12]},
+      {"subgrupo": 4, "x": [14, 16, 15]}
+    ]
+  },
+  "calculo": [
+    "Medias de subgrupo: x1 = (10+12+11)/3 = 11; x2 = (13+11+12)/3 = 12; x3 = (8+10+12)/3 = 10; x4 = (14+16+15)/3 = 15.",
+    "Rangos: R1 = 12-10 = 2; R2 = 13-11 = 2; R3 = 12-8 = 4; R4 = 16-14 = 2.",
+    "Gran media: X-doble-barra = (11+12+10+15)/4 = 48/4 = 12.",
+    "R-barra = (2+2+4+2)/4 = 10/4 = 2,5.",
+    "Límites de X-barra: A2 * R-barra = 1,023 * 2,5 = 2,5575. UCL = 12 + 2,5575 = 14,5575; LCL = 12 - 2,5575 = 9,4425.",
+    "Límites de R: UCL = D4 * R-barra = 2,574 * 2,5 = 6,435; LCL = D3 * R-barra = 0 * 2,5 = 0.",
+    "Comparación: medias 11, 12, 10 dentro de [9,4425; 14,5575]; media 15 > 14,5575, fuera de control. Rangos 2, 2, 4, 2 dentro de [0; 6,435]."
+  ],
+  "esperado": {
+    "gran_media": 12,
+    "r_barra": 2.5,
+    "ucl_xbar": 14.5575,
+    "lcl_xbar": 9.4425,
+    "ucl_r": 6.435,
+    "lcl_r": 0,
+    "puntos_fuera_xbar": [4],
+    "puntos_fuera_r": []
+  }
+}

@@ -1,0 +1,49 @@
+# Configuración de Supabase local (`npx supabase start`).
+# Solo se declara lo que difiere de los valores por defecto de la CLI.
+project_id = "cep-v2"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed.sql"]
+
+[studio]
+enabled = true
+port = 54323
+
+[inbucket]
+# Bandeja de correos de prueba (confirmaciones y recuperación de contraseña).
+enabled = true
+port = 54324
+
+[auth]
+enabled = true
+# URL del sitio y URLs de redirección permitidas. Para producción, añadir la
+# URL de Vercel en el panel (Authentication > URL Configuration); ver README.
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/**", "http://127.0.0.1:3000/**"]
+jwt_expiry = 3600
+enable_refresh_token_rotation = true
+enable_signup = true
+enable_anonymous_sign_ins = false
+minimum_password_length = 8
+
+[auth.email]
+enable_signup = true
+# En local no se exige confirmar el correo; en producción conviene activarlo.
+enable_confirmations = false
+double_confirm_changes = true
+secure_password_change = false
+max_frequency = "1s"
+

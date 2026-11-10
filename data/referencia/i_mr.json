@@ -1,0 +1,27 @@
+{
+  "tipo": "i_mr",
+  "titulo": "Individuales y rango móvil de longitud 2, 5 observaciones",
+  "fuente": "Montgomery, Introduction to Statistical Quality Control, cap. 6, sección 6.4 (gráficos de individuales); E2 = 3/d2 = 2,66 y D4 = 3,267 para rangos móviles de longitud 2 (Apéndice VI, d2 = 1,128).",
+  "nota": "Constantes de tabla (d2 = 1,128; E2 = 2,66; D4 = 3,267) a confirmar por el validador-estadistico.",
+  "datos": {
+    "valores": [10, 12, 11, 15, 12]
+  },
+  "calculo": [
+    "Media de individuales: X-barra = (10+12+11+15+12)/5 = 60/5 = 12.",
+    "Rangos móviles: MR2 = |12-10| = 2; MR3 = |11-12| = 1; MR4 = |15-11| = 4; MR5 = |12-15| = 3.",
+    "MR-barra = (2+1+4+3)/4 = 10/4 = 2,5.",
+    "Límites de individuales: 2,66 * 2,5 = 6,65. UCL = 12 + 6,65 = 18,65; LCL = 12 - 6,65 = 5,35.",
+    "Límites de MR: UCL = D4 * MR-barra = 3,267 * 2,5 = 8,1675; LCL = 0 (D3 no aplica a longitud 2).",
+    "Comparación: todos los valores entre 5,35 y 18,65; todos los rangos móviles entre 0 y 8,1675. Sin puntos fuera de control."
+  ],
+  "esperado": {
+    "media": 12,
+    "mr_barra": 2.5,
+    "ucl_i": 18.65,
+    "lcl_i": 5.35,
+    "ucl_mr": 8.1675,
+    "lcl_mr": 0,
+    "puntos_fuera_i": [],
+    "puntos_fuera_mr": []
+  }
+}

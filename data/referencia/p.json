@@ -1,0 +1,29 @@
+{
+  "tipo": "p",
+  "titulo": "Fracción defectuosa p con tamaño de muestra variable, 5 muestras",
+  "fuente": "Montgomery, Introduction to Statistical Quality Control, cap. 7, ecuaciones 7.4 a 7.6 (p-barra y límites con n_i variable).",
+  "nota": "Caso con n variable: el límite se calcula para cada muestra. No requiere constantes de tabla.",
+  "datos": {
+    "muestras": [
+      {"subgrupo": 1, "defectuosos": 4, "n": 100},
+      {"subgrupo": 2, "defectuosos": 6, "n": 100},
+      {"subgrupo": 3, "defectuosos": 3, "n": 100},
+      {"subgrupo": 4, "defectuosos": 5, "n": 100},
+      {"subgrupo": 5, "defectuosos": 12, "n": 80}
+    ]
+  },
+  "calculo": [
+    "Total de defectuosos = 4+6+3+5+12 = 30; total inspeccionado = 100+100+100+100+80 = 480.",
+    "p-barra = 30/480 = 0,0625.",
+    "Fracciones: p1 = 0,04; p2 = 0,06; p3 = 0,03; p4 = 0,05; p5 = 12/80 = 0,15.",
+    "Muestras de n = 100: sigma = raíz(0,0625 * 0,9375 / 100) = raíz(0,000585938) = 0,0242061. UCL = 0,0625 + 3 * 0,0242061 = 0,0625 + 0,0726184 = 0,1351184. LCL = 0,0625 - 0,0726184 < 0, se toma 0.",
+    "Muestra de n = 80: sigma = raíz(0,0625 * 0,9375 / 80) = raíz(0,000732422) = 0,0270641. UCL = 0,0625 + 3 * 0,0270641 = 0,0625 + 0,0811922 = 0,1436922. LCL = 0.",
+    "Comparación: p1 a p4 (0,03 a 0,06) dentro de sus límites. p5 = 0,15 > 0,1436922, fuera de control."
+  ],
+  "esperado": {
+    "p_barra": 0.0625,
+    "ucl_por_muestra": [0.1351184, 0.1351184, 0.1351184, 0.1351184, 0.1436922],
+    "lcl_por_muestra": [0, 0, 0, 0, 0],
+    "puntos_fuera": [5]
+  }
+}

@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+/* Tokens de color: claro por defecto, oscuro según el sistema. Los gráficos
+   leen estos mismos valores (components/charts/theme.ts). */
+:root {
+  color-scheme: light;
+  --background: #f5f6f8;
+  --surface: #ffffff;
+  --surface-2: #eef0f4;
+  --ink: #14171c;
+  --muted: #566070;
+  --line: #d8dce3;
+  --brand: #1c5cab;
+  --brand-strong: #184f95;
+  --brand-ink: #ffffff;
+  --brand-soft: #e4eefb;
+  --danger: #b92b2b;
+  --danger-soft: #fdeaea;
+  --warn: #7a5200;
+  --warn-soft: #fff4d6;
+  --ok: #0b6b25;
+  --ok-soft: #e3f5e8;
+  --info-soft: #e4eefb;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --background: #0e1014;
+    --surface: #171a20;
+    --surface-2: #20242c;
+    --ink: #eceef1;
+    --muted: #a3abb8;
+    --line: #2f343e;
+    --brand: #6da7ec;
+    --brand-strong: #86b6ef;
+    --brand-ink: #0b1626;
+    --brand-soft: #172a44;
+    --danger: #f08a8a;
+    --danger-soft: #3a1b1b;
+    --warn: #f1c56a;
+    --warn-soft: #3a2d10;
+    --ok: #6fd08a;
+    --ok-soft: #14301c;
+    --info-soft: #172a44;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-soft: var(--brand-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-ok: var(--ok);
+  --color-ok-soft: var(--ok-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--background);
+  color: var(--ink);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Foco visible para quien navega con teclado. */
+:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 2px;
+}
+
+/* Tablas numéricas: cifras de ancho fijo. */
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Impresión (reporte a PDF): sin navegación ni controles. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #fff;
+    color: #000;
+  }
+  .print-break {
+    break-inside: avoid;
+  }
+}

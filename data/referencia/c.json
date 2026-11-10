@@ -1,0 +1,22 @@
+{
+  "tipo": "c",
+  "titulo": "Defectos por unidad c, 8 unidades de tamaño constante",
+  "fuente": "Montgomery, Introduction to Statistical Quality Control, cap. 7, sección 7.2.3 (gráfico c: c-barra con límites de 3 raíz de c-barra).",
+  "nota": "Caso de cálculo a mano sin constantes de tabla.",
+  "datos": {
+    "defectos": [2, 4, 1, 3, 5, 2, 6, 11]
+  },
+  "calculo": [
+    "Total de defectos = 2+4+1+3+5+2+6+11 = 34.",
+    "c-barra = 34/8 = 4,25.",
+    "Raíz de c-barra = raíz(4,25) = 2,0615528.",
+    "UCL = 4,25 + 3 * 2,0615528 = 4,25 + 6,1846584 = 10,4346584. LCL = 4,25 - 6,1846584 < 0, se toma 0.",
+    "Comparación: 2, 4, 1, 3, 5, 2, 6 dentro de [0; 10,43466]; 11 > 10,43466 en la unidad 8, fuera de control."
+  ],
+  "esperado": {
+    "c_barra": 4.25,
+    "ucl": 10.43466,
+    "lcl": 0,
+    "puntos_fuera": [8]
+  }
+}

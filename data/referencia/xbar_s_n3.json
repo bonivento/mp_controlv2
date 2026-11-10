@@ -1,0 +1,37 @@
+{
+  "tipo": "xbar_s",
+  "titulo": "X-barra y S, n = 3, mismos 4 subgrupos que xbar_r_n3",
+  "fuente": "Montgomery, Introduction to Statistical Quality Control, cap. 6, ecuaciones 6.12 a 6.15 (límites de X-barra y S con S-barra); constantes A3, B3, B4 del Apéndice VI para n = 3.",
+  "nota": "Constantes de tabla (A3 = 1,954; B3 = 0; B4 = 2,568 para n = 3) a confirmar por el validador-estadistico.",
+  "datos": {
+    "n": 3,
+    "subgrupos": [
+      {"subgrupo": 1, "x": [10, 12, 11]},
+      {"subgrupo": 2, "x": [13, 11, 12]},
+      {"subgrupo": 3, "x": [8, 10, 12]},
+      {"subgrupo": 4, "x": [14, 16, 15]}
+    ]
+  },
+  "calculo": [
+    "Medias de subgrupo: 11, 12, 10, 15 (igual que en xbar_r_n3). Gran media = 12.",
+    "Desviaciones estándar muestrales, s = raíz( suma de (x - media)^2 / (n-1) ), con n-1 = 2:",
+    "  s1: desviaciones -1, 1, 0; suma de cuadrados 2; s1 = raíz(2/2) = 1.",
+    "  s2: desviaciones 1, -1, 0; suma de cuadrados 2; s2 = raíz(2/2) = 1.",
+    "  s3: desviaciones -2, 0, 2; suma de cuadrados 8; s3 = raíz(8/2) = 2.",
+    "  s4: desviaciones -1, 1, 0; suma de cuadrados 2; s4 = raíz(2/2) = 1.",
+    "S-barra = (1+1+2+1)/4 = 5/4 = 1,25.",
+    "Límites de X-barra: A3 * S-barra = 1,954 * 1,25 = 2,4425. UCL = 12 + 2,4425 = 14,4425; LCL = 12 - 2,4425 = 9,5575.",
+    "Límites de S: UCL = B4 * S-barra = 2,568 * 1,25 = 3,21; LCL = B3 * S-barra = 0.",
+    "Comparación: media 15 > 14,4425, fuera. Desviaciones 1, 1, 2, 1 dentro de [0; 3,21]."
+  ],
+  "esperado": {
+    "gran_media": 12,
+    "s_barra": 1.25,
+    "ucl_xbar": 14.4425,
+    "lcl_xbar": 9.5575,
+    "ucl_s": 3.21,
+    "lcl_s": 0,
+    "puntos_fuera_xbar": [4],
+    "puntos_fuera_s": []
+  }
+}

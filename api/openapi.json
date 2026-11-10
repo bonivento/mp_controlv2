@@ -1,0 +1,3298 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "CEP API",
+  "description": "Motor de cálculo de Control Estadístico de Procesos. Sin estado.",
+  "version": "0.1.0"
+ },
+ "paths": {
+  "/api/health": {
+   "get": {
+    "summary": "Health",
+    "description": "Comprueba que la función arranca y que numpy y scipy cargan.",
+    "operationId": "health_api_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "type": "object",
+         "title": "Response Health Api Health Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/data/parse": {
+   "post": {
+    "tags": [
+     "datos"
+    ],
+    "summary": "Parse File",
+    "operationId": "parse_file_api_data_parse_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_parse_file_api_data_parse_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ParsedFile"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/data/summary": {
+   "post": {
+    "tags": [
+     "datos"
+    ],
+    "summary": "Summary",
+    "operationId": "summary_api_data_summary_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SummaryRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SummaryResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/charts/variables": {
+   "post": {
+    "tags": [
+     "graficos"
+    ],
+    "summary": "Variables Chart",
+    "operationId": "variables_chart_api_charts_variables_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/VariablesChartRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ChartResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/charts/attributes": {
+   "post": {
+    "tags": [
+     "graficos"
+    ],
+    "summary": "Attributes Chart",
+    "operationId": "attributes_chart_api_charts_attributes_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AttributesChartRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ChartResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/charts/attributes/recommend": {
+   "post": {
+    "tags": [
+     "graficos"
+    ],
+    "summary": "Recommend Chart",
+    "operationId": "recommend_chart_api_charts_attributes_recommend_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/RecommendRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/RecommendResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/assumptions": {
+   "post": {
+    "tags": [
+     "supuestos"
+    ],
+    "summary": "Check Assumptions",
+    "operationId": "check_assumptions_api_assumptions_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AssumptionsRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AssumptionsResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/capability": {
+   "post": {
+    "tags": [
+     "capacidad"
+    ],
+    "summary": "Process Capability",
+    "operationId": "process_capability_api_capability_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CapabilityRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CapabilityResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/design/arl": {
+   "post": {
+    "tags": [
+     "diseno"
+    ],
+    "summary": "Arl",
+    "operationId": "arl_api_design_arl_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ArlRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ArlResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/design/compare": {
+   "post": {
+    "tags": [
+     "diseno"
+    ],
+    "summary": "Compare Designs",
+    "operationId": "compare_designs_api_design_compare_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/CompareRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/CompareResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/sampling/single/design": {
+   "post": {
+    "tags": [
+     "muestreo"
+    ],
+    "summary": "Design Single Plan",
+    "operationId": "design_single_plan_api_sampling_single_design_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SingleDesignRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SinglePlanResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/sampling/single/evaluate": {
+   "post": {
+    "tags": [
+     "muestreo"
+    ],
+    "summary": "Evaluate Single Plan",
+    "operationId": "evaluate_single_plan_api_sampling_single_evaluate_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SingleEvaluateRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SinglePlanResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/sampling/double/evaluate": {
+   "post": {
+    "tags": [
+     "muestreo"
+    ],
+    "summary": "Evaluate Double Plan",
+    "operationId": "evaluate_double_plan_api_sampling_double_evaluate_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/DoubleEvaluateRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DoublePlanResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/reports/excel": {
+   "post": {
+    "tags": [
+     "reportes"
+    ],
+    "summary": "Excel Report",
+    "operationId": "excel_report_api_reports_excel_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ExcelReportRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "ArlRequest": {
+    "properties": {
+     "chart": {
+      "type": "string",
+      "enum": [
+       "xbar",
+       "individuals",
+       "p",
+       "c"
+      ],
+      "title": "Chart"
+     },
+     "n": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "N",
+      "description": "Tamaño de subgrupo (xbar, p). Ignorado en individuals y c",
+      "default": 1
+     },
+     "limit_width": {
+      "type": "number",
+      "exclusiveMinimum": 0.0,
+      "title": "Limit Width",
+      "description": "L",
+      "default": 3.0
+     },
+     "sampling_interval": {
+      "type": "number",
+      "exclusiveMinimum": 0.0,
+      "title": "Sampling Interval",
+      "description": "h, en horas",
+      "default": 1.0
+     },
+     "shifts": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Shifts",
+      "default": [
+       0.5,
+       1.0,
+       1.5,
+       2.0,
+       3.0
+      ]
+     },
+     "p0": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMaximum": 1.0,
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "P0"
+     },
+     "p1": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "number"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "P1",
+      "description": "Si es null: 1.5, 2, 2.5 y 3 veces p0"
+     },
+     "c0": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "C0"
+     },
+     "c1": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "number"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "C1",
+      "description": "Si es null: 1.5, 2, 2.5 y 3 veces c0"
+     },
+     "rules": {
+      "$ref": "#/components/schemas/RuleConfig",
+      "default": {
+       "enabled": [
+        "WE1"
+       ]
+      }
+     },
+     "max_runs": {
+      "type": "integer",
+      "maximum": 20000.0,
+      "minimum": 100.0,
+      "title": "Max Runs",
+      "default": 5000
+     },
+     "max_length": {
+      "type": "integer",
+      "maximum": 100000.0,
+      "minimum": 100.0,
+      "title": "Max Length",
+      "default": 20000
+     },
+     "seed": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Seed",
+      "description": "Semilla fija: resultados reproducibles",
+      "default": 12345
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "chart"
+    ],
+    "title": "ArlRequest"
+   },
+   "ArlResponse": {
+    "properties": {
+     "method": {
+      "type": "string",
+      "enum": [
+       "exact",
+       "simulation"
+      ],
+      "title": "Method"
+     },
+     "alpha": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Alpha",
+      "description": "Probabilidad de falsa alarma por muestra"
+     },
+     "arl0": {
+      "type": "number",
+      "title": "Arl0"
+     },
+     "arl0_std_error": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Arl0 Std Error",
+      "description": "Error estándar del ARL0; solo en simulación"
+     },
+     "ats0": {
+      "type": "number",
+      "title": "Ats0"
+     },
+     "sampling_load": {
+      "type": "number",
+      "title": "Sampling Load",
+      "description": "n / h, unidades por hora"
+     },
+     "rows": {
+      "items": {
+       "$ref": "#/components/schemas/ArlRow"
+      },
+      "type": "array",
+      "title": "Rows"
+     },
+     "oc_curve": {
+      "items": {
+       "$ref": "#/components/schemas/CurvePoint"
+      },
+      "type": "array",
+      "title": "Oc Curve",
+      "description": "x: desplazamiento, y: beta. En simulación es la curva de la regla de un punto fuera de límites sola, como referencia; se advierte en la interpretación."
+     },
+     "arl_curve": {
+      "items": {
+       "$ref": "#/components/schemas/CurvePoint"
+      },
+      "type": "array",
+      "title": "Arl Curve",
+      "description": "x: desplazamiento, y: ARL"
+     },
+     "interpretation": {
+      "$ref": "#/components/schemas/Interpretation"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "method",
+     "alpha",
+     "arl0",
+     "ats0",
+     "sampling_load",
+     "rows",
+     "oc_curve",
+     "arl_curve",
+     "interpretation"
+    ],
+    "title": "ArlResponse"
+   },
+   "ArlRow": {
+    "properties": {
+     "shift": {
+      "type": "number",
+      "title": "Shift",
+      "description": "delta en sigmas (xbar, individuals), o p1, o c1"
+     },
+     "beta": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Beta",
+      "description": "Probabilidad de no detectar en una muestra; null en simulación"
+     },
+     "arl1": {
+      "type": "number",
+      "title": "Arl1"
+     },
+     "ats1": {
+      "type": "number",
+      "title": "Ats1",
+      "description": "Horas promedio hasta detectar"
+     },
+     "units_to_detect": {
+      "type": "number",
+      "title": "Units To Detect",
+      "description": "Unidades inspeccionadas hasta detectar = ARL1 · n"
+     },
+     "std_error": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Std Error",
+      "description": "Error estándar del ARL; solo en simulación"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "shift",
+     "beta",
+     "arl1",
+     "ats1",
+     "units_to_detect"
+    ],
+    "title": "ArlRow",
+    "description": "Desempeño del gráfico para un estado fuera de control."
+   },
+   "AssumptionsRequest": {
+    "properties": {
+     "values": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "minItems": 8,
+      "title": "Values",
+      "description": "Observaciones individuales en orden temporal"
+     },
+     "alpha": {
+      "type": "number",
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Alpha",
+      "default": 0.05
+     },
+     "max_lag": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 1.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Lag",
+      "description": "Por defecto min(20, n/4)"
+     },
+     "histogram_bins": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 3.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Histogram Bins",
+      "description": "Por defecto regla de Sturges"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "values"
+    ],
+    "title": "AssumptionsRequest"
+   },
+   "AssumptionsResponse": {
+    "properties": {
+     "descriptive": {
+      "$ref": "#/components/schemas/Descriptive"
+     },
+     "normality": {
+      "items": {
+       "$ref": "#/components/schemas/TestResult"
+      },
+      "type": "array",
+      "title": "Normality"
+     },
+     "is_normal": {
+      "type": "boolean",
+      "title": "Is Normal",
+      "description": "True si ninguna prueba de normalidad rechaza"
+     },
+     "qq": {
+      "items": {
+       "$ref": "#/components/schemas/QQPoint"
+      },
+      "type": "array",
+      "title": "Qq"
+     },
+     "histogram": {
+      "$ref": "#/components/schemas/Histogram"
+     },
+     "autocorrelation": {
+      "$ref": "#/components/schemas/Autocorrelation"
+     },
+     "independence": {
+      "items": {
+       "$ref": "#/components/schemas/TestResult"
+      },
+      "type": "array",
+      "title": "Independence"
+     },
+     "is_independent": {
+      "type": "boolean",
+      "title": "Is Independent"
+     },
+     "interpretation": {
+      "$ref": "#/components/schemas/Interpretation"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "descriptive",
+     "normality",
+     "is_normal",
+     "qq",
+     "histogram",
+     "autocorrelation",
+     "independence",
+     "is_independent",
+     "interpretation"
+    ],
+    "title": "AssumptionsResponse"
+   },
+   "AttributesChartRequest": {
+    "properties": {
+     "chart_type": {
+      "type": "string",
+      "enum": [
+       "p",
+       "np",
+       "c",
+       "u"
+      ],
+      "title": "Chart Type"
+     },
+     "phase": {
+      "type": "string",
+      "enum": [
+       "I",
+       "II"
+      ],
+      "title": "Phase"
+     },
+     "counts": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "minItems": 2,
+      "title": "Counts",
+      "description": "p y np: unidades no conformes. c y u: número de no conformidades."
+     },
+     "sizes": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "number"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sizes",
+      "description": "Tamaño de muestra por subgrupo. Obligatorio en p, np y u. En np debe ser constante. En u puede ser fraccionario (unidades de inspección)."
+     },
+     "labels": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Labels"
+     },
+     "excluded": {
+      "items": {
+       "$ref": "#/components/schemas/ExcludedPoint"
+      },
+      "type": "array",
+      "title": "Excluded",
+      "default": []
+     },
+     "limits": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FrozenLimits"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "limit_width": {
+      "type": "number",
+      "exclusiveMinimum": 0.0,
+      "title": "Limit Width",
+      "default": 3.0
+     },
+     "rules": {
+      "$ref": "#/components/schemas/RuleConfig",
+      "default": {
+       "enabled": [
+        "WE1"
+       ]
+      }
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "chart_type",
+     "phase",
+     "counts"
+    ],
+    "title": "AttributesChartRequest"
+   },
+   "Autocorrelation": {
+    "properties": {
+     "lags": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "title": "Lags"
+     },
+     "values": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Values"
+     },
+     "band": {
+      "type": "number",
+      "title": "Band",
+      "description": "Banda de significancia ±z/√n"
+     },
+     "significant_lags": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "title": "Significant Lags"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "lags",
+     "values",
+     "band",
+     "significant_lags"
+    ],
+    "title": "Autocorrelation"
+   },
+   "Body_parse_file_api_data_parse_post": {
+    "properties": {
+     "file": {
+      "type": "string",
+      "contentMediaType": "application/octet-stream",
+      "title": "File"
+     }
+    },
+    "type": "object",
+    "required": [
+     "file"
+    ],
+    "title": "Body_parse_file_api_data_parse_post"
+   },
+   "CapabilityRequest": {
+    "properties": {
+     "subgroups": {
+      "items": {
+       "items": {
+        "type": "number"
+       },
+       "type": "array"
+      },
+      "type": "array",
+      "minItems": 2,
+      "title": "Subgroups"
+     },
+     "lsl": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lsl"
+     },
+     "usl": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Usl"
+     },
+     "target": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Target"
+     },
+     "limits": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FrozenLimits"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "sigma_method": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "rbar_d2",
+         "sbar_c4",
+         "mrbar_d2"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sigma Method"
+     },
+     "confidence": {
+      "type": "number",
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Confidence",
+      "default": 0.95
+     },
+     "is_stable": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Is Stable",
+      "description": "Resultado de Fase I, si se conoce"
+     },
+     "is_normal": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Is Normal",
+      "description": "Resultado del módulo 4, si se conoce"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "subgroups"
+    ],
+    "title": "CapabilityRequest"
+   },
+   "CapabilityResponse": {
+    "properties": {
+     "n": {
+      "type": "integer",
+      "title": "N"
+     },
+     "mean": {
+      "type": "number",
+      "title": "Mean"
+     },
+     "sigma_within": {
+      "type": "number",
+      "title": "Sigma Within"
+     },
+     "sigma_overall": {
+      "type": "number",
+      "title": "Sigma Overall"
+     },
+     "sigma_method": {
+      "type": "string",
+      "enum": [
+       "rbar_d2",
+       "sbar_c4",
+       "mrbar_d2",
+       "frozen_limits"
+      ],
+      "title": "Sigma Method"
+     },
+     "cp": {
+      "$ref": "#/components/schemas/IndexValue"
+     },
+     "cpl": {
+      "$ref": "#/components/schemas/IndexValue"
+     },
+     "cpu": {
+      "$ref": "#/components/schemas/IndexValue"
+     },
+     "cpk": {
+      "$ref": "#/components/schemas/IndexValue"
+     },
+     "pp": {
+      "$ref": "#/components/schemas/IndexValue"
+     },
+     "ppl": {
+      "$ref": "#/components/schemas/IndexValue"
+     },
+     "ppu": {
+      "$ref": "#/components/schemas/IndexValue"
+     },
+     "ppk": {
+      "$ref": "#/components/schemas/IndexValue"
+     },
+     "cpm": {
+      "$ref": "#/components/schemas/IndexValue",
+      "description": "Solo si se envía `target`"
+     },
+     "expected_within": {
+      "$ref": "#/components/schemas/NonConforming",
+      "description": "Modelo normal con sigma within"
+     },
+     "expected_overall": {
+      "$ref": "#/components/schemas/NonConforming",
+      "description": "Modelo normal con sigma overall"
+     },
+     "observed": {
+      "$ref": "#/components/schemas/NonConforming",
+      "description": "Conteo directo sobre los datos"
+     },
+     "histogram": {
+      "$ref": "#/components/schemas/Histogram"
+     },
+     "verdict": {
+      "type": "string",
+      "enum": [
+       "inadequate",
+       "marginal",
+       "adequate",
+       "excellent"
+      ],
+      "title": "Verdict",
+      "description": "Según Cpk: <1, 1 a 1.33, 1.33 a 1.67, >=1.67"
+     },
+     "interpretation": {
+      "$ref": "#/components/schemas/Interpretation"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "n",
+     "mean",
+     "sigma_within",
+     "sigma_overall",
+     "sigma_method",
+     "cp",
+     "cpl",
+     "cpu",
+     "cpk",
+     "pp",
+     "ppl",
+     "ppu",
+     "ppk",
+     "cpm",
+     "expected_within",
+     "expected_overall",
+     "observed",
+     "histogram",
+     "verdict",
+     "interpretation"
+    ],
+    "title": "CapabilityResponse"
+   },
+   "ChartResponse": {
+    "properties": {
+     "chart_type": {
+      "type": "string",
+      "title": "Chart Type"
+     },
+     "phase": {
+      "type": "string",
+      "enum": [
+       "I",
+       "II"
+      ],
+      "title": "Phase"
+     },
+     "charts": {
+      "items": {
+       "$ref": "#/components/schemas/ChartSeries"
+      },
+      "type": "array",
+      "title": "Charts",
+      "description": "Paneles en orden: variables trae dos (localización, dispersión); atributos uno."
+     },
+     "limits": {
+      "$ref": "#/components/schemas/FrozenLimits",
+      "description": "Fase I: calculados. Fase II: los mismos que se enviaron."
+     },
+     "in_control": {
+      "type": "boolean",
+      "title": "In Control",
+      "description": "True si ningún punto no excluido tiene señales"
+     },
+     "out_of_control_points": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "title": "Out Of Control Points",
+      "description": "Índices con al menos una señal, sin repetir"
+     },
+     "interpretation": {
+      "$ref": "#/components/schemas/Interpretation"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "chart_type",
+     "phase",
+     "charts",
+     "limits",
+     "in_control",
+     "out_of_control_points",
+     "interpretation"
+    ],
+    "title": "ChartResponse"
+   },
+   "ChartSeries": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "enum": [
+       "xbar",
+       "r",
+       "s",
+       "i",
+       "mr",
+       "p",
+       "np",
+       "c",
+       "u"
+      ],
+      "title": "Name"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "labels": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Labels"
+     },
+     "values": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Values"
+     },
+     "center": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Center"
+     },
+     "ucl": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Ucl"
+     },
+     "lcl": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Lcl"
+     },
+     "violations": {
+      "items": {
+       "$ref": "#/components/schemas/RuleViolation"
+      },
+      "type": "array",
+      "title": "Violations",
+      "default": []
+     },
+     "excluded": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "title": "Excluded",
+      "description": "Índices excluidos del cálculo de límites",
+      "default": []
+     },
+     "indices": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "title": "Indices",
+      "description": "Subgrupo (base 0) de cada elemento de `values`"
+     },
+     "rules_applied": {
+      "items": {
+       "type": "string",
+       "enum": [
+        "WE1",
+        "WE2",
+        "WE3",
+        "WE4",
+        "N1",
+        "N2",
+        "N3",
+        "N4",
+        "N5",
+        "N6",
+        "N7",
+        "N8"
+       ]
+      },
+      "type": "array",
+      "title": "Rules Applied",
+      "description": "Reglas evaluadas en este panel",
+      "default": []
+     },
+     "rules_skipped": {
+      "items": {
+       "$ref": "#/components/schemas/SkippedRule"
+      },
+      "type": "array",
+      "title": "Rules Skipped",
+      "description": "Reglas pedidas que no aplican a este panel (por ejemplo, las de zonas con límites asimétricos)",
+      "default": []
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "name",
+     "title",
+     "labels",
+     "values",
+     "center",
+     "ucl",
+     "lcl",
+     "indices"
+    ],
+    "title": "ChartSeries",
+    "description": "Un panel de un gráfico de control (por ejemplo X-barra, o R).\n\nLos límites van por punto para admitir tamaño de muestra variable (p, u).\nCuando el límite es constante la lista repite el mismo valor.\n\n`labels`, `values`, `center`, `ucl`, `lcl` e `indices` tienen la misma longitud.\nEsa longitud puede ser menor que el número de subgrupos: el panel de rango\nmóvil no tiene valor para la primera observación. Por eso `indices[k]` dice\na qué subgrupo (base 0) corresponde `values[k]`. Los índices de `violations`\ny `excluded` son siempre de subgrupo, no de posición en `values`."
+   },
+   "ColumnInfo": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "kind": {
+      "type": "string",
+      "enum": [
+       "numeric",
+       "text",
+       "datetime",
+       "empty"
+      ],
+      "title": "Kind"
+     },
+     "missing": {
+      "type": "integer",
+      "title": "Missing",
+      "description": "Celdas vacías o no numéricas en una columna numérica"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "name",
+     "kind",
+     "missing"
+    ],
+    "title": "ColumnInfo"
+   },
+   "CompareRequest": {
+    "properties": {
+     "n_values": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "N Values"
+     },
+     "limit_widths": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Limit Widths",
+      "default": [
+       3.0
+      ]
+     },
+     "sampling_intervals": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Sampling Intervals",
+      "default": [
+       1.0
+      ]
+     },
+     "shift": {
+      "type": "number",
+      "title": "Shift",
+      "description": "Desplazamiento que interesa detectar, en sigmas",
+      "default": 1.0
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "n_values"
+    ],
+    "title": "CompareRequest",
+    "description": "Compara diseños alternativos de un gráfico X-barra para un desplazamiento."
+   },
+   "CompareResponse": {
+    "properties": {
+     "shift": {
+      "type": "number",
+      "title": "Shift"
+     },
+     "rows": {
+      "items": {
+       "$ref": "#/components/schemas/CompareRow"
+      },
+      "type": "array",
+      "title": "Rows"
+     },
+     "interpretation": {
+      "$ref": "#/components/schemas/Interpretation"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "shift",
+     "rows",
+     "interpretation"
+    ],
+    "title": "CompareResponse"
+   },
+   "CompareRow": {
+    "properties": {
+     "n": {
+      "type": "integer",
+      "title": "N"
+     },
+     "limit_width": {
+      "type": "number",
+      "title": "Limit Width"
+     },
+     "sampling_interval": {
+      "type": "number",
+      "title": "Sampling Interval"
+     },
+     "arl0": {
+      "type": "number",
+      "title": "Arl0"
+     },
+     "ats0": {
+      "type": "number",
+      "title": "Ats0"
+     },
+     "arl1": {
+      "type": "number",
+      "title": "Arl1"
+     },
+     "ats1": {
+      "type": "number",
+      "title": "Ats1"
+     },
+     "sampling_load": {
+      "type": "number",
+      "title": "Sampling Load"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "n",
+     "limit_width",
+     "sampling_interval",
+     "arl0",
+     "ats0",
+     "arl1",
+     "ats1",
+     "sampling_load"
+    ],
+    "title": "CompareRow"
+   },
+   "CurvePoint": {
+    "properties": {
+     "x": {
+      "type": "number",
+      "title": "X"
+     },
+     "y": {
+      "type": "number",
+      "title": "Y"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "x",
+     "y"
+    ],
+    "title": "CurvePoint",
+    "description": "Punto (x, y) de una curva: OC, AOQ, ATI, ASN."
+   },
+   "Descriptive": {
+    "properties": {
+     "count": {
+      "type": "integer",
+      "title": "Count"
+     },
+     "mean": {
+      "type": "number",
+      "title": "Mean"
+     },
+     "std": {
+      "type": "number",
+      "title": "Std"
+     },
+     "min": {
+      "type": "number",
+      "title": "Min"
+     },
+     "q1": {
+      "type": "number",
+      "title": "Q1"
+     },
+     "median": {
+      "type": "number",
+      "title": "Median"
+     },
+     "q3": {
+      "type": "number",
+      "title": "Q3"
+     },
+     "max": {
+      "type": "number",
+      "title": "Max"
+     },
+     "skewness": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Skewness"
+     },
+     "kurtosis": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Kurtosis",
+      "description": "Exceso de curtosis"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "count",
+     "mean",
+     "std",
+     "min",
+     "q1",
+     "median",
+     "q3",
+     "max",
+     "skewness",
+     "kurtosis"
+    ],
+    "title": "Descriptive",
+    "description": "Estadística descriptiva de todas las observaciones juntas."
+   },
+   "DoubleEvaluateRequest": {
+    "properties": {
+     "n1": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "N1"
+     },
+     "c1": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "C1"
+     },
+     "r1": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "R1",
+      "description": "Número de rechazo de la primera muestra: c1 < r1 <= c2 + 1; lo habitual es r1 = c2 + 1"
+     },
+     "n2": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "N2"
+     },
+     "c2": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "C2"
+     },
+     "lot_size": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 2.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lot Size"
+     },
+     "aql": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMaximum": 1.0,
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Aql"
+     },
+     "ltpd": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMaximum": 1.0,
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ltpd"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "n1",
+     "c1",
+     "r1",
+     "n2",
+     "c2"
+    ],
+    "title": "DoubleEvaluateRequest",
+    "description": "Plan doble: se acepta en la primera muestra si d1 <= c1, se rechaza si\nd1 >= r1; en otro caso se toma la segunda y se acepta si d1 + d2 <= c2."
+   },
+   "DoublePlanResponse": {
+    "properties": {
+     "oc_curve": {
+      "items": {
+       "$ref": "#/components/schemas/CurvePoint"
+      },
+      "type": "array",
+      "title": "Oc Curve"
+     },
+     "asn_curve": {
+      "items": {
+       "$ref": "#/components/schemas/CurvePoint"
+      },
+      "type": "array",
+      "title": "Asn Curve",
+      "description": "Sin inspección truncada"
+     },
+     "first_sample_accept_curve": {
+      "items": {
+       "$ref": "#/components/schemas/CurvePoint"
+      },
+      "type": "array",
+      "title": "First Sample Accept Curve"
+     },
+     "alpha_actual": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Alpha Actual"
+     },
+     "beta_actual": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Beta Actual"
+     },
+     "aoq_curve": {
+      "items": {
+       "$ref": "#/components/schemas/CurvePoint"
+      },
+      "type": "array",
+      "title": "Aoq Curve"
+     },
+     "aoql": {
+      "type": "number",
+      "title": "Aoql"
+     },
+     "aoql_at": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Aoql At",
+      "description": "Fracción defectuosa donde ocurre el AOQL"
+     },
+     "ati_curve": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/CurvePoint"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ati Curve"
+     },
+     "interpretation": {
+      "$ref": "#/components/schemas/Interpretation"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "oc_curve",
+     "asn_curve",
+     "first_sample_accept_curve",
+     "alpha_actual",
+     "beta_actual",
+     "aoq_curve",
+     "aoql",
+     "ati_curve",
+     "interpretation"
+    ],
+    "title": "DoublePlanResponse"
+   },
+   "ExcelReportRequest": {
+    "properties": {
+     "study": {
+      "$ref": "#/components/schemas/StudyInfo"
+     },
+     "sections": {
+      "items": {
+       "$ref": "#/components/schemas/ReportSection"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Sections"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "study",
+     "sections"
+    ],
+    "title": "ExcelReportRequest"
+   },
+   "ExcludedPoint": {
+    "properties": {
+     "index": {
+      "type": "integer",
+      "title": "Index"
+     },
+     "label": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Label"
+     },
+     "cause": {
+      "type": "string",
+      "minLength": 1,
+      "title": "Cause",
+      "description": "Causa asignable documentada (obligatoria)"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "index",
+     "cause"
+    ],
+    "title": "ExcludedPoint",
+    "description": "Punto retirado del cálculo de límites en Fase I por causa asignable."
+   },
+   "FrozenLimits": {
+    "properties": {
+     "chart_type": {
+      "type": "string",
+      "enum": [
+       "xbar_r",
+       "xbar_s",
+       "i_mr",
+       "p",
+       "np",
+       "c",
+       "u"
+      ],
+      "title": "Chart Type"
+     },
+     "subgroup_size": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Subgroup Size",
+      "description": "n usado en Fase I; null si fue variable"
+     },
+     "sigma_method": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "rbar_d2",
+         "sbar_c4",
+         "mrbar_d2"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sigma Method"
+     },
+     "params": {
+      "additionalProperties": {
+       "type": "number"
+      },
+      "type": "object",
+      "title": "Params"
+     },
+     "points_used": {
+      "type": "integer",
+      "title": "Points Used",
+      "description": "Subgrupos que quedaron en el cálculo"
+     },
+     "excluded": {
+      "items": {
+       "$ref": "#/components/schemas/ExcludedPoint"
+      },
+      "type": "array",
+      "title": "Excluded",
+      "default": []
+     },
+     "limit_width": {
+      "type": "number",
+      "title": "Limit Width",
+      "description": "L: ancho de los límites en desviaciones estándar",
+      "default": 3.0
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "chart_type",
+     "params",
+     "points_used"
+    ],
+    "title": "FrozenLimits",
+    "description": "Parámetros del proceso estimados en Fase I y congelados para Fase II.\n\n`params` contiene lo necesario para reconstruir los límites con cualquier n:\n- variables: `mu`, `sigma` (sigma del proceso, no del estadístico)\n- p / np:    `p_bar`\n- c:         `c_bar`\n- u:         `u_bar`"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "type": "array",
+      "title": "Detail"
+     }
+    },
+    "type": "object",
+    "title": "HTTPValidationError"
+   },
+   "Histogram": {
+    "properties": {
+     "edges": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Edges",
+      "description": "k + 1 bordes"
+     },
+     "counts": {
+      "items": {
+       "type": "integer"
+      },
+      "type": "array",
+      "title": "Counts",
+      "description": "k frecuencias"
+     },
+     "normal_curve_x": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Normal Curve X"
+     },
+     "normal_curve_y": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "title": "Normal Curve Y",
+      "description": "Densidad normal ajustada, en escala de frecuencia"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "edges",
+     "counts",
+     "normal_curve_x",
+     "normal_curve_y"
+    ],
+    "title": "Histogram"
+   },
+   "IndexValue": {
+    "properties": {
+     "value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Value"
+     },
+     "lower": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lower"
+     },
+     "upper": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Upper"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "value"
+    ],
+    "title": "IndexValue",
+    "description": "Índice con su intervalo de confianza. `value` es null si no aplica\n(por ejemplo Cp con una sola especificación)."
+   },
+   "Interpretation": {
+    "properties": {
+     "summary": {
+      "type": "string",
+      "title": "Summary",
+      "description": "Una o dos frases con la conclusión principal"
+     },
+     "findings": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Findings",
+      "description": "Hallazgos, uno por elemento",
+      "default": []
+     },
+     "warnings": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Warnings",
+      "description": "Limitaciones y supuestos incumplidos",
+      "default": []
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "summary"
+    ],
+    "title": "Interpretation",
+    "description": "Conclusiones preliminares generadas automáticamente (módulo 8)."
+   },
+   "NonConforming": {
+    "properties": {
+     "below_lsl": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Below Lsl"
+     },
+     "above_usl": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Above Usl"
+     },
+     "total": {
+      "type": "number",
+      "title": "Total"
+     },
+     "ppm": {
+      "type": "number",
+      "title": "Ppm"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "below_lsl",
+     "above_usl",
+     "total",
+     "ppm"
+    ],
+    "title": "NonConforming",
+    "description": "Fracción fuera de especificación, en escala 0..1, y su equivalente en PPM."
+   },
+   "OutlierFlag": {
+    "properties": {
+     "subgroup_index": {
+      "type": "integer",
+      "title": "Subgroup Index"
+     },
+     "position": {
+      "type": "integer",
+      "title": "Position",
+      "description": "Posición dentro del subgrupo (base 0)"
+     },
+     "value": {
+      "type": "number",
+      "title": "Value"
+     },
+     "reason": {
+      "type": "string",
+      "title": "Reason"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "subgroup_index",
+     "position",
+     "value",
+     "reason"
+    ],
+    "title": "OutlierFlag",
+    "description": "Observación sospechosa. Se marca, no se elimina: decide el usuario."
+   },
+   "ParsedFile": {
+    "properties": {
+     "filename": {
+      "type": "string",
+      "title": "Filename"
+     },
+     "sheets": {
+      "items": {
+       "$ref": "#/components/schemas/ParsedSheet"
+      },
+      "type": "array",
+      "title": "Sheets"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "filename",
+     "sheets"
+    ],
+    "title": "ParsedFile"
+   },
+   "ParsedSheet": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name",
+      "description": "Nombre de la hoja; 'CSV' para archivos .csv"
+     },
+     "columns": {
+      "items": {
+       "$ref": "#/components/schemas/ColumnInfo"
+      },
+      "type": "array",
+      "title": "Columns"
+     },
+     "rows": {
+      "items": {
+       "items": {
+        "anyOf": [
+         {
+          "type": "number"
+         },
+         {
+          "type": "string"
+         },
+         {
+          "type": "null"
+         }
+        ]
+       },
+       "type": "array"
+      },
+      "type": "array",
+      "title": "Rows",
+      "description": "Filas en el orden de `columns`"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "name",
+     "columns",
+     "rows"
+    ],
+    "title": "ParsedSheet"
+   },
+   "PlanRef": {
+    "properties": {
+     "n": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "N"
+     },
+     "c": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "C"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "n",
+     "c"
+    ],
+    "title": "PlanRef",
+    "description": "Plan simple (n, c) con el que se quiere comparar, por ejemplo el de un nomograma."
+   },
+   "QQPoint": {
+    "properties": {
+     "theoretical": {
+      "type": "number",
+      "title": "Theoretical"
+     },
+     "observed": {
+      "type": "number",
+      "title": "Observed"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "theoretical",
+     "observed"
+    ],
+    "title": "QQPoint"
+   },
+   "RecommendRequest": {
+    "properties": {
+     "counting": {
+      "type": "string",
+      "pattern": "^(defectives|defects)$",
+      "title": "Counting",
+      "description": "defectives: unidades no conformes. defects: no conformidades por unidad."
+     },
+     "constant_size": {
+      "type": "boolean",
+      "title": "Constant Size"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "counting",
+     "constant_size"
+    ],
+    "title": "RecommendRequest",
+    "description": "Datos mínimos para sugerir el gráfico por atributos adecuado."
+   },
+   "RecommendResponse": {
+    "properties": {
+     "chart_type": {
+      "type": "string",
+      "enum": [
+       "p",
+       "np",
+       "c",
+       "u"
+      ],
+      "title": "Chart Type"
+     },
+     "alternatives": {
+      "items": {
+       "type": "string",
+       "enum": [
+        "p",
+        "np",
+        "c",
+        "u"
+       ]
+      },
+      "type": "array",
+      "title": "Alternatives"
+     },
+     "justification": {
+      "type": "string",
+      "title": "Justification",
+      "description": "Texto en español que explica la selección"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "chart_type",
+     "alternatives",
+     "justification"
+    ],
+    "title": "RecommendResponse"
+   },
+   "ReportSection": {
+    "properties": {
+     "module": {
+      "type": "string",
+      "enum": [
+       "data",
+       "variables",
+       "attributes",
+       "assumptions",
+       "capability",
+       "design",
+       "sampling"
+      ],
+      "title": "Module"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "created_at": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Created At"
+     },
+     "result": {
+      "additionalProperties": true,
+      "type": "object",
+      "title": "Result"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "module",
+     "title",
+     "result"
+    ],
+    "title": "ReportSection",
+    "description": "Un análisis guardado. `result` es la respuesta del endpoint del módulo,\ntal como la devolvió la API y como quedó guardada en `analyses.result`."
+   },
+   "RuleConfig": {
+    "properties": {
+     "enabled": {
+      "items": {
+       "type": "string",
+       "enum": [
+        "WE1",
+        "WE2",
+        "WE3",
+        "WE4",
+        "N1",
+        "N2",
+        "N3",
+        "N4",
+        "N5",
+        "N6",
+        "N7",
+        "N8"
+       ]
+      },
+      "type": "array",
+      "title": "Enabled"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "title": "RuleConfig",
+    "description": "Reglas de corrida que se evalúan. Por defecto solo un punto fuera de límites."
+   },
+   "RuleViolation": {
+    "properties": {
+     "rule": {
+      "type": "string",
+      "enum": [
+       "WE1",
+       "WE2",
+       "WE3",
+       "WE4",
+       "N1",
+       "N2",
+       "N3",
+       "N4",
+       "N5",
+       "N6",
+       "N7",
+       "N8"
+      ],
+      "title": "Rule"
+     },
+     "index": {
+      "type": "integer",
+      "title": "Index",
+      "description": "Posición (base 0) del punto donde se completa la señal"
+     },
+     "description": {
+      "type": "string",
+      "title": "Description",
+      "description": "Explicación en español, lista para mostrar"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "rule",
+     "index",
+     "description"
+    ],
+    "title": "RuleViolation",
+    "description": "Señal detectada en un punto de un gráfico."
+   },
+   "SingleDesignRequest": {
+    "properties": {
+     "aql": {
+      "type": "number",
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Aql"
+     },
+     "alpha": {
+      "type": "number",
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Alpha",
+      "description": "Riesgo del productor",
+      "default": 0.05
+     },
+     "ltpd": {
+      "type": "number",
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Ltpd"
+     },
+     "beta": {
+      "type": "number",
+      "exclusiveMaximum": 1.0,
+      "exclusiveMinimum": 0.0,
+      "title": "Beta",
+      "description": "Riesgo del consumidor",
+      "default": 0.1
+     },
+     "lot_size": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 2.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lot Size",
+      "description": "N; obligatorio con hipergeométrica y para ATI"
+     },
+     "distribution": {
+      "type": "string",
+      "enum": [
+       "binomial",
+       "poisson",
+       "hypergeometric"
+      ],
+      "title": "Distribution",
+      "default": "binomial"
+     },
+     "reference_plan": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PlanRef"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Plan de referencia para comparar"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "aql",
+     "ltpd"
+    ],
+    "title": "SingleDesignRequest"
+   },
+   "SingleEvaluateRequest": {
+    "properties": {
+     "n": {
+      "type": "integer",
+      "minimum": 1.0,
+      "title": "N"
+     },
+     "c": {
+      "type": "integer",
+      "minimum": 0.0,
+      "title": "C"
+     },
+     "lot_size": {
+      "anyOf": [
+       {
+        "type": "integer",
+        "minimum": 2.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lot Size"
+     },
+     "distribution": {
+      "type": "string",
+      "enum": [
+       "binomial",
+       "poisson",
+       "hypergeometric"
+      ],
+      "title": "Distribution",
+      "default": "binomial"
+     },
+     "aql": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMaximum": 1.0,
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Aql"
+     },
+     "ltpd": {
+      "anyOf": [
+       {
+        "type": "number",
+        "exclusiveMaximum": 1.0,
+        "exclusiveMinimum": 0.0
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ltpd"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "n",
+     "c"
+    ],
+    "title": "SingleEvaluateRequest"
+   },
+   "SinglePlanResponse": {
+    "properties": {
+     "n": {
+      "type": "integer",
+      "title": "N"
+     },
+     "c": {
+      "type": "integer",
+      "title": "C"
+     },
+     "distribution": {
+      "type": "string",
+      "enum": [
+       "binomial",
+       "poisson",
+       "hypergeometric"
+      ],
+      "title": "Distribution"
+     },
+     "alpha_actual": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Alpha Actual",
+      "description": "1 - Pa(AQL); null si no se envió AQL"
+     },
+     "beta_actual": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Beta Actual",
+      "description": "Pa(LTPD); null si no se envió LTPD"
+     },
+     "oc_curve": {
+      "items": {
+       "$ref": "#/components/schemas/CurvePoint"
+      },
+      "type": "array",
+      "title": "Oc Curve",
+      "description": "x: fracción defectuosa del lote, y: Pa"
+     },
+     "aoq_curve": {
+      "items": {
+       "$ref": "#/components/schemas/CurvePoint"
+      },
+      "type": "array",
+      "title": "Aoq Curve"
+     },
+     "aoql": {
+      "type": "number",
+      "title": "Aoql"
+     },
+     "aoql_at": {
+      "type": "number",
+      "title": "Aoql At",
+      "description": "Fracción defectuosa donde ocurre el AOQL"
+     },
+     "ati_curve": {
+      "anyOf": [
+       {
+        "items": {
+         "$ref": "#/components/schemas/CurvePoint"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Ati Curve",
+      "description": "null si no se envió lot_size"
+     },
+     "interpretation": {
+      "$ref": "#/components/schemas/Interpretation"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "n",
+     "c",
+     "distribution",
+     "alpha_actual",
+     "beta_actual",
+     "oc_curve",
+     "aoq_curve",
+     "aoql",
+     "aoql_at",
+     "ati_curve",
+     "interpretation"
+    ],
+    "title": "SinglePlanResponse"
+   },
+   "SkippedRule": {
+    "properties": {
+     "rule": {
+      "type": "string",
+      "enum": [
+       "WE1",
+       "WE2",
+       "WE3",
+       "WE4",
+       "N1",
+       "N2",
+       "N3",
+       "N4",
+       "N5",
+       "N6",
+       "N7",
+       "N8"
+      ],
+      "title": "Rule"
+     },
+     "reason": {
+      "type": "string",
+      "title": "Reason"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "rule",
+     "reason"
+    ],
+    "title": "SkippedRule",
+    "description": "Regla pedida que no se evaluó en un panel, con el motivo."
+   },
+   "StudyInfo": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "company": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Company"
+     },
+     "process": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Process"
+     },
+     "product": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Product"
+     },
+     "characteristic": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Characteristic"
+     },
+     "unit": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Unit"
+     },
+     "lsl": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lsl"
+     },
+     "usl": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Usl"
+     },
+     "target": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Target"
+     },
+     "analyst": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Analyst"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "name"
+    ],
+    "title": "StudyInfo"
+   },
+   "SubgroupSummary": {
+    "properties": {
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "n": {
+      "type": "integer",
+      "title": "N"
+     },
+     "mean": {
+      "type": "number",
+      "title": "Mean"
+     },
+     "range": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Range",
+      "description": "null si n = 1"
+     },
+     "std": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Std",
+      "description": "Desviación muestral; null si n = 1"
+     },
+     "min": {
+      "type": "number",
+      "title": "Min"
+     },
+     "max": {
+      "type": "number",
+      "title": "Max"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "label",
+     "n",
+     "mean",
+     "range",
+     "std",
+     "min",
+     "max"
+    ],
+    "title": "SubgroupSummary"
+   },
+   "SummaryRequest": {
+    "properties": {
+     "subgroups": {
+      "items": {
+       "items": {
+        "type": "number"
+       },
+       "type": "array"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Subgroups"
+     },
+     "labels": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Labels"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "subgroups"
+    ],
+    "title": "SummaryRequest",
+    "description": "Subgrupos ya formados por el frontend. Para datos individuales, n = 1."
+   },
+   "SummaryResponse": {
+    "properties": {
+     "subgroups": {
+      "items": {
+       "$ref": "#/components/schemas/SubgroupSummary"
+      },
+      "type": "array",
+      "title": "Subgroups"
+     },
+     "overall": {
+      "$ref": "#/components/schemas/Descriptive"
+     },
+     "constant_size": {
+      "type": "boolean",
+      "title": "Constant Size"
+     },
+     "outliers": {
+      "items": {
+       "$ref": "#/components/schemas/OutlierFlag"
+      },
+      "type": "array",
+      "title": "Outliers",
+      "description": "Criterio 1.5·IQR sobre todas las observaciones"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "subgroups",
+     "overall",
+     "constant_size",
+     "outliers"
+    ],
+    "title": "SummaryResponse"
+   },
+   "TestResult": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name",
+      "description": "Shapiro-Wilk, Anderson-Darling, Ljung-Box, Rachas"
+     },
+     "null_hypothesis": {
+      "type": "string",
+      "title": "Null Hypothesis"
+     },
+     "statistic": {
+      "type": "number",
+      "title": "Statistic"
+     },
+     "p_value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "P Value",
+      "description": "null cuando la prueba solo da valor crítico"
+     },
+     "critical_value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Critical Value"
+     },
+     "reject": {
+      "type": "boolean",
+      "title": "Reject",
+      "description": "True si se rechaza H0 al nivel alpha"
+     },
+     "conclusion": {
+      "type": "string",
+      "title": "Conclusion"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "name",
+     "null_hypothesis",
+     "statistic",
+     "p_value",
+     "reject",
+     "conclusion"
+    ],
+    "title": "TestResult",
+    "description": "Resultado de una prueba de hipótesis."
+   },
+   "ValidationError": {
+    "properties": {
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "array",
+      "title": "Location"
+     },
+     "msg": {
+      "type": "string",
+      "title": "Message"
+     },
+     "type": {
+      "type": "string",
+      "title": "Error Type"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "ctx": {
+      "type": "object",
+      "title": "Context"
+     }
+    },
+    "type": "object",
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError"
+   },
+   "VariablesChartRequest": {
+    "properties": {
+     "chart_type": {
+      "type": "string",
+      "enum": [
+       "xbar_r",
+       "xbar_s",
+       "i_mr"
+      ],
+      "title": "Chart Type"
+     },
+     "phase": {
+      "type": "string",
+      "enum": [
+       "I",
+       "II"
+      ],
+      "title": "Phase"
+     },
+     "subgroups": {
+      "items": {
+       "items": {
+        "type": "number"
+       },
+       "type": "array"
+      },
+      "type": "array",
+      "minItems": 2,
+      "title": "Subgroups",
+      "description": "Un elemento por subgrupo. xbar_r y xbar_s: n >= 2 constante. i_mr: n = 1."
+     },
+     "labels": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Labels"
+     },
+     "excluded": {
+      "items": {
+       "$ref": "#/components/schemas/ExcludedPoint"
+      },
+      "type": "array",
+      "title": "Excluded",
+      "description": "Solo Fase I",
+      "default": []
+     },
+     "limits": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/FrozenLimits"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "description": "Obligatorio en Fase II"
+     },
+     "limit_width": {
+      "type": "number",
+      "exclusiveMinimum": 0.0,
+      "title": "Limit Width",
+      "description": "L; solo se usa en Fase I",
+      "default": 3.0
+     },
+     "rules": {
+      "$ref": "#/components/schemas/RuleConfig",
+      "default": {
+       "enabled": [
+        "WE1"
+       ]
+      }
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "chart_type",
+     "phase",
+     "subgroups"
+    ],
+    "title": "VariablesChartRequest"
+   }
+  }
+ }
+}

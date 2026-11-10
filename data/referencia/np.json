@@ -1,0 +1,23 @@
+{
+  "tipo": "np",
+  "titulo": "Número de defectuosos np con n constante = 100, 5 muestras",
+  "fuente": "Montgomery, Introduction to Statistical Quality Control, cap. 7, sección 7.2.2 (gráfico np: n p-barra con límites de 3 sigma).",
+  "nota": "Caso de cálculo a mano sin constantes de tabla.",
+  "datos": {
+    "n": 100,
+    "defectuosos": [4, 6, 3, 5, 15]
+  },
+  "calculo": [
+    "Número promedio de defectuosos: np-barra = (4+6+3+5+15)/5 = 33/5 = 6,6.",
+    "Fracción promedio: p-barra = 33/500 = 0,066.",
+    "Desviación: raíz(np-barra * (1 - p-barra)) = raíz(6,6 * 0,934) = raíz(6,1644) = 2,482830.",
+    "UCL = 6,6 + 3 * 2,482830 = 6,6 + 7,448490 = 14,04849. LCL = 6,6 - 7,44849 < 0, se toma 0.",
+    "Comparación: 4, 6, 3 y 5 dentro de [0; 14,04849]; 15 > 14,04849, fuera de control."
+  ],
+  "esperado": {
+    "np_barra": 6.6,
+    "ucl": 14.04849,
+    "lcl": 0,
+    "puntos_fuera": [5]
+  }
+}
