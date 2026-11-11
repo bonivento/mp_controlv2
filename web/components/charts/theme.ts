@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { createContext, useContext, useSyncExternalStore } from "react";
 
 // Paleta de gráficos (skill dataviz, paleta de referencia): serie 1 azul para los
 // datos; el rojo de estado (crítico) solo para señales; grises de tinta para
@@ -38,11 +38,35 @@ function subscribe(cb: () => void) {
   return () => mq.removeEventListener("change", cb);
 }
 
+/**
+ * Opciones que un contenedor (la página de reporte) impone a todos los gráficos
+ * que lleva dentro: tema claro aunque el sistema esté en oscuro (el reporte es un
+ * documento para papel) y título solo en el pie APA, no dentro de la figura.
+ */
+export interface ChartMode {
+  forceLight: boolean;
+  titleInFigure: boolean;
+}
+export const ChartModeContext = createContext<ChartMode>({ forceLight: false, titleInFigure: true });
+export const useChartMode = () => useContext(ChartModeContext);
+
 export function useChartTheme(): ChartTheme {
+  const { forceLight } = useChartMode();
   const isDark = useSyncExternalStore(
     subscribe,
     () => window.matchMedia("(prefers-color-scheme: dark)").matches,
     () => false,
   );
-  return isDark ? dark : light;
+  return isDark && !forceLight ? dark : light;
+}
+
+const narrowQuery = "(max-width: 640px)";
+function subscribeNarrow(cb: () => void) {
+  const mq = window.matchMedia(narrowQuery);
+  mq.addEventListener("change", cb);
+  return () => mq.removeEventListener("change", cb);
+}
+/** Pantalla estrecha (móvil): los gráficos ceden margen lateral al área de trazado. */
+export function useNarrow(): boolean {
+  return useSyncExternalStore(subscribeNarrow, () => window.matchMedia(narrowQuery).matches, () => false);
 }

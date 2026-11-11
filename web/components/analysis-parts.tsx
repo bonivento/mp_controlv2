@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { components } from "@/lib/api-types";
 import { getStore } from "@/lib/data";
-import type { AnalysisModule, Dataset } from "@/lib/db-provisional";
+import type { AnalysisModule, Dataset } from "@/lib/db";
 import { datasetOptionLabel } from "@/lib/dataset-utils";
 import { Alert, Button, Card, CheckField, SelectField, TextField, errMsg } from "./ui";
 

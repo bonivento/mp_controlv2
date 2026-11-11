@@ -2,6 +2,7 @@
 
 - POST /api/data/parse    (multipart: `file`)  -> ParsedFile
 - POST /api/data/summary  (SummaryRequest)     -> SummaryResponse
+- POST /api/data/summary/attributes (AttributeSummaryRequest) -> AttributeSummaryResponse
 
 El archivo no se guarda en el servidor: se lee, se devuelve como tabla y el
 frontend decide qué columnas usar y lo persiste en Supabase.
@@ -79,3 +80,31 @@ class SummaryResponse(Model):
     overall: Descriptive
     constant_size: bool
     outliers: list[OutlierFlag] = Field(description="Criterio 1.5·IQR sobre todas las observaciones")
+
+
+class AttributeSummaryRequest(Model):
+    """Datos por atributos ya organizados por subgrupo."""
+
+    counts: list[float] = Field(min_length=1, description="No conformes (p, np) o no conformidades (c, u)")
+    sizes: Optional[list[float]] = Field(default=None, description="Tamaño de muestra por subgrupo; null si no aplica (c)")
+    labels: Optional[list[str]] = None
+
+
+class AttributeRow(Model):
+    label: str
+    count: float
+    size: Optional[float]
+    rate: Optional[float] = Field(description="count / size; null si no hay tamaño o es 0")
+
+
+class AttributeSummaryResponse(Model):
+    rows: list[AttributeRow]
+    subgroups: int
+    total_count: float
+    total_size: Optional[float]
+    overall_rate: Optional[float] = Field(description="total_count / total_size")
+    mean_count: float
+    min_size: Optional[float]
+    max_size: Optional[float]
+    constant_size: Optional[bool] = Field(description="null si no se enviaron tamaños")
+    warnings: list[str] = Field(default=[], description="Por ejemplo, conteo mayor que el tamaño de muestra")

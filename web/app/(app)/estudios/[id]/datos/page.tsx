@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { DataLoader } from "@/components/data/DataLoader";
+import { AttributeSummaryPanel } from "@/components/data/AttributeSummaryPanel";
 import { SummaryPanel } from "@/components/data/SummaryPanel";
 import { useStudy } from "@/components/study-context";
 import { Alert, Badge, Button, Card, ConfirmDialog, EmptyState, Loading, PageHeader, Table, Td, Th, errMsg } from "@/components/ui";
 import { getStore } from "@/lib/data";
 import { isVariableDataset, sizeLabel } from "@/lib/dataset-utils";
-import { isVariableRow, type Dataset } from "@/lib/db-provisional";
+import { isAttributeRow, isVariableRow, type Dataset } from "@/lib/db";
 import { useLoad } from "@/lib/use-load";
 
 const fmtDate = (s: string) => new Date(s).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" });
@@ -123,20 +124,13 @@ export default function DataPage() {
                 title={viewing.name}
               />
             ) : (
-              <Card title="Subgrupos">
-                <Table caption="Subgrupos de atributos">
-                  <thead><tr><Th>Subgrupo</Th><Th>Conteo</Th><Th>Tamaño de muestra</Th></tr></thead>
-                  <tbody>
-                    {viewing.rows.map((r, i) => (
-                      <tr key={i}>
-                        <Td>{r.label}</Td>
-                        <Td>{"count" in r ? r.count : "—"}</Td>
-                        <Td>{"size" in r ? r.size : "—"}</Td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </Card>
+              <AttributeSummaryPanel
+                rows={viewing.rows.filter(isAttributeRow)}
+                studyId={study.id}
+                datasetId={viewing.id}
+                title={viewing.name}
+                counting={"counting" in viewing.subgrouping ? viewing.subgrouping.counting : undefined}
+              />
             )}
           </section>
         )}

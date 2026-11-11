@@ -4,6 +4,7 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 import type { SupabaseClient, User } from "@supabase/supabase-js";
+import type { Database, Json } from "../database-types";
 import { SUPABASE_ANON_KEY, SUPABASE_URL } from "../env";
 import type {
   Analysis,
@@ -11,19 +12,22 @@ import type {
   Dataset,
   SamplingPlan,
   Study,
-} from "../db-provisional";
+} from "../db";
 import type { AppUser, DataStore } from "./types";
 
-let client: SupabaseClient | null = null;
+let client: SupabaseClient<Database> | null = null;
 
-export function getSupabase(): SupabaseClient {
-  if (!client) client = createBrowserClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+export function getSupabase(): SupabaseClient<Database> {
+  if (!client) client = createBrowserClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY);
   return client;
 }
 
 function toUser(u: User | null | undefined): AppUser | null {
   return u ? { id: u.id, email: u.email ?? "" } : null;
 }
+
+/** Los objetos de la app (interfaces) se guardan como jsonb: se ven como Json. */
+const asJson = (x: unknown) => x as Json;
 
 function fail(error: { message: string } | null, fallback: string): never {
   throw new Error(error?.message ? `${fallback}: ${error.message}` : fallback);
@@ -92,17 +96,17 @@ export function createSupabaseStore(): DataStore {
       async list(studyId) {
         const { data, error } = await sb.from("datasets").select("*").eq("study_id", studyId).order("created_at");
         if (error) fail(error, "No se pudieron leer los conjuntos de datos");
-        return data as Dataset[];
+        return data as unknown as Dataset[];
       },
       async get(id) {
         const { data, error } = await sb.from("datasets").select("*").eq("id", id).maybeSingle();
         if (error) fail(error, "No se pudo leer el conjunto de datos");
-        return data as Dataset | null;
+        return data as unknown as Dataset | null;
       },
       async create(input) {
-        const { data, error } = await sb.from("datasets").insert(input).select().single();
+        const { data, error } = await sb.from("datasets").insert({ ...input, subgrouping: asJson(input.subgrouping), rows: asJson(input.rows), cleaning_log: asJson(input.cleaning_log) }).select().single();
         if (error) fail(error, "No se pudo guardar el conjunto de datos");
-        return data as Dataset;
+        return data as unknown as Dataset;
       },
       async remove(id) {
         const { error } = await sb.from("datasets").delete().eq("id", id);
@@ -117,7 +121,7 @@ export function createSupabaseStore(): DataStore {
           .eq("study_id", studyId)
           .eq("is_active", true);
         if (error) fail(error, "No se pudieron leer los límites congelados");
-        return data as ControlLimitsRow[];
+        return data as unknown as ControlLimitsRow[];
       },
       async freeze(input) {
         // Solo puede haber un juego vigente por estudio y tipo (índice único parcial).
@@ -128,21 +132,21 @@ export function createSupabaseStore(): DataStore {
           .eq("chart_type", input.chart_type)
           .eq("is_active", true);
         if (off.error) fail(off.error, "No se pudieron reemplazar los límites vigentes");
-        const { data, error } = await sb.from("control_limits").insert({ ...input, is_active: true }).select().single();
+        const { data, error } = await sb.from("control_limits").insert({ ...input, limits: asJson(input.limits), is_active: true }).select().single();
         if (error) fail(error, "No se pudieron congelar los límites");
-        return data as ControlLimitsRow;
+        return data as unknown as ControlLimitsRow;
       },
     },
     analyses: {
       async list(studyId) {
         const { data, error } = await sb.from("analyses").select("*").eq("study_id", studyId).order("created_at");
         if (error) fail(error, "No se pudieron leer los análisis");
-        return data as Analysis[];
+        return data as unknown as Analysis[];
       },
       async create(input) {
-        const { data, error } = await sb.from("analyses").insert(input).select().single();
+        const { data, error } = await sb.from("analyses").insert({ ...input, params: asJson(input.params), result: asJson(input.result) }).select().single();
         if (error) fail(error, "No se pudo guardar el análisis");
-        return data as Analysis;
+        return data as unknown as Analysis;
       },
       async setInReport(id, inReport) {
         const { error } = await sb.from("analyses").update({ in_report: inReport }).eq("id", id);
@@ -157,12 +161,12 @@ export function createSupabaseStore(): DataStore {
       async list(studyId) {
         const { data, error } = await sb.from("sampling_plans").select("*").eq("study_id", studyId).order("created_at");
         if (error) fail(error, "No se pudieron leer los planes de muestreo");
-        return data as SamplingPlan[];
+        return data as unknown as SamplingPlan[];
       },
       async create(input) {
-        const { data, error } = await sb.from("sampling_plans").insert(input).select().single();
+        const { data, error } = await sb.from("sampling_plans").insert({ ...input, params: asJson(input.params), result: asJson(input.result) }).select().single();
         if (error) fail(error, "No se pudo guardar el plan");
-        return data as SamplingPlan;
+        return data as unknown as SamplingPlan;
       },
       async remove(id) {
         const { error } = await sb.from("sampling_plans").delete().eq("id", id);

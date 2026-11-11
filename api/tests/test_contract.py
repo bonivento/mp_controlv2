@@ -10,6 +10,7 @@ EXPECTED_PATHS = {
     "/api/health",
     "/api/data/parse",
     "/api/data/summary",
+    "/api/data/summary/attributes",
     "/api/charts/variables",
     "/api/charts/attributes",
     "/api/charts/attributes/recommend",

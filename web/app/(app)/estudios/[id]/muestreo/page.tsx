@@ -8,7 +8,7 @@ import { Alert, Badge, Button, Card, ConfirmDialog, EmptyState, Loading, NumberF
 import { api } from "@/lib/api";
 import type { components } from "@/lib/api-types";
 import { getStore } from "@/lib/data";
-import type { SamplingPlan } from "@/lib/db-provisional";
+import type { SamplingPlan } from "@/lib/db";
 import { useLoad } from "@/lib/use-load";
 
 type S = components["schemas"];
@@ -96,6 +96,8 @@ function SingleDesign({ studyId, onSaved }: { studyId: string; onSaved: () => vo
   const [beta, setBeta] = useState<number | null>(0.1);
   const [lot, setLot] = useState<number | null>(2000);
   const [dist, setDist] = useState<Dist>("binomial");
+  const [refN, setRefN] = useState<number | null>(null);
+  const [refC, setRefC] = useState<number | null>(null);
   const [req, setReq] = useState<S["SingleDesignRequest"] | null>(null);
   const [err, setErr] = useState<string | null>(null);
   const res = useLoad(async () => (req ? api.singleDesign(req) : null), [req ? JSON.stringify(req) : ""]);
@@ -105,7 +107,9 @@ function SingleDesign({ studyId, onSaved }: { studyId: string; onSaved: () => vo
     if (!aql || !ltpd || !alpha || !beta) return setErr("AQL, LTPD, α y β son obligatorios.");
     if (aql >= ltpd) return setErr("El AQL debe ser menor que el LTPD.");
     if (dist === "hypergeometric" && !lot) return setErr("La distribución hipergeométrica necesita el tamaño del lote.");
-    setReq({ aql, alpha, ltpd, beta, lot_size: lot, distribution: dist });
+    if ((refN == null) !== (refC == null)) return setErr("Para comparar con un plan de referencia indica n y c; o deja ambos vacíos.");
+    if (refN != null && (refN < 1 || refC == null || refC < 0 || refC >= refN)) return setErr("El plan de referencia necesita n ≥ 1 y 0 ≤ c < n.");
+    setReq({ aql, alpha, ltpd, beta, lot_size: lot, distribution: dist, reference_plan: refN != null && refC != null ? { n: refN, c: refC } : null });
   }
   return (
     <div className="flex flex-col gap-4">
@@ -119,6 +123,8 @@ function SingleDesign({ studyId, onSaved }: { studyId: string; onSaved: () => vo
           <SelectField label="Distribución" value={dist} onChange={(e) => setDist(e.target.value as Dist)}>
             {DIST.map(([v, t]) => <option key={v} value={v}>{t}</option>)}
           </SelectField>
+          <NumberField label="Plan de referencia: n (opcional)" value={refN} onChange={setRefN} hint="Para comparar con un plan existente, p. ej. el de una tabla o nomograma." />
+          <NumberField label="Plan de referencia: c (opcional)" value={refC} onChange={setRefC} />
         </div>
         {err && <Alert tone="error" className="mt-3">{err}</Alert>}
         <div className="mt-4"><Button variant="primary" onClick={run} loading={res.loading && !!req}>Diseñar plan</Button></div>
@@ -227,7 +233,7 @@ function DoubleEvaluate({ studyId, onSaved }: { studyId: string; onSaved: () => 
       {r && req && (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
-            {[["α real", pct(r.alpha_actual)], ["β real", pct(r.beta_actual)], ["AOQL", pct(r.aoql, 3)]].map(([k, val]) => (
+            {[["α real", pct(r.alpha_actual)], ["β real", pct(r.beta_actual)], ["AOQL", r.aoql_at != null ? `${pct(r.aoql, 3)} en p = ${pct(r.aoql_at, 2)}` : pct(r.aoql, 3)]].map(([k, val]) => (
               <Card key={k}><p className="text-xs text-muted">{k}</p><p className="num text-xl font-semibold">{val}</p></Card>
             ))}
           </div>

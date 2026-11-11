@@ -2,7 +2,7 @@
 // semilla fija (siempre los mismos) y los estudios llevan is_synthetic = true y
 // "(SINTÉTICO)" en el nombre, como exige CLAUDE.md.
 
-import type { AttributeRow, DatasetInput, StudyInput, VariableRow } from "../db-provisional";
+import type { AttributeRow, DatasetInput, StudyInput, VariableRow } from "../db";
 
 function mulberry32(seed: number) {
   let a = seed;

@@ -11,6 +11,7 @@ Todas son `POST` con cuerpo JSON salvo que se indique. Todas exigen `Authorizati
 | — | `GET /api/health` | — | estado y versiones | — |
 | 1 Datos | `/api/data/parse` | archivo (`multipart`, campo `file`) | `ParsedFile` | `data.py` |
 | 1 Datos | `/api/data/summary` | `SummaryRequest` | `SummaryResponse` | `data.py` |
+| 1 Datos | `/api/data/summary/attributes` | `AttributeSummaryRequest` | `AttributeSummaryResponse` | `data.py` |
 | 2 Variables | `/api/charts/variables` | `VariablesChartRequest` | `ChartResponse` | `charts.py` |
 | 3 Atributos | `/api/charts/attributes` | `AttributesChartRequest` | `ChartResponse` | `charts.py` |
 | 3 Atributos | `/api/charts/attributes/recommend` | `RecommendRequest` | `RecommendResponse` | `charts.py` |

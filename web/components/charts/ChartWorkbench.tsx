@@ -11,7 +11,8 @@ import {
   isVariableDataset,
   variableSubgroups,
 } from "@/lib/dataset-utils";
-import type { ChartType, Dataset, Phase } from "@/lib/db-provisional";
+import type { ChartType, Dataset, Phase } from "@/lib/db";
+import { CHART_TYPE_LABEL, PARAM_LABEL } from "@/lib/labels";
 import { useLoad } from "@/lib/use-load";
 import { DatasetSelect, InterpretationBlock, RuleSelector, SaveAnalysis } from "../analysis-parts";
 import { useStudy } from "../study-context";
@@ -22,16 +23,7 @@ type S = components["schemas"];
 type RuleId = NonNullable<S["RuleConfig"]["enabled"]>[number];
 type Kind = "variables" | "attributes";
 
-const TYPE_LABEL: Record<string, string> = {
-  xbar_r: "X-barra y R",
-  xbar_s: "X-barra y S",
-  i_mr: "Individuales y rango móvil (I-MR)",
-  p: "p (fracción defectuosa)",
-  np: "np (número de defectuosos)",
-  c: "c (defectos por unidad de inspección)",
-  u: "u (defectos por unidad)",
-};
-const PARAM_LABEL: Record<string, string> = { mu: "Media del proceso (μ)", sigma: "Desviación estándar del proceso (σ)", p_bar: "Fracción defectuosa media (p̄)", c_bar: "Defectos medios (c̄)", u_bar: "Defectos por unidad medios (ū)" };
+const TYPE_LABEL = CHART_TYPE_LABEL;
 
 const fmtDate = (s: string) => new Date(s).toLocaleString("es-CO", { dateStyle: "medium", timeStyle: "short" });
 

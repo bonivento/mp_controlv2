@@ -1,8 +1,8 @@
 // Conversión entre conjuntos de datos guardados y las peticiones a la API.
 // Aquí solo se reordena información; no hay estadística.
 
-import type { Dataset } from "./db-provisional";
-import { isAttributeRow, isVariableRow } from "./db-provisional";
+import type { Dataset } from "./db";
+import { isAttributeRow, isVariableRow } from "./db";
 
 export const isVariableDataset = (d: Dataset) => d.rows.length > 0 && isVariableRow(d.rows[0]);
 export const isAttributeDataset = (d: Dataset) => d.rows.length > 0 && isAttributeRow(d.rows[0]);

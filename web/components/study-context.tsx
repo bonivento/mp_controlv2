@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { createContext, useContext, type ReactNode } from "react";
 import { getStore } from "@/lib/data";
-import type { Study } from "@/lib/db-provisional";
+import type { Study } from "@/lib/db";
 import { useLoad } from "@/lib/use-load";
 import { Alert, Badge, EmptyState, Loading } from "./ui";
 

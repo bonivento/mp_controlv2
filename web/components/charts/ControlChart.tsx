@@ -3,7 +3,7 @@
 import type { Annotation, Data, Layout } from "plotly.js";
 import type { components } from "@/lib/api-types";
 import { PlotlyChart, type PlotClick } from "./PlotlyChart";
-import { useChartTheme } from "./theme";
+import { useChartTheme, useNarrow } from "./theme";
 
 type Series = components["schemas"]["ChartSeries"];
 
@@ -33,21 +33,22 @@ export function ControlChart({
   titleSuffix?: string;
 }) {
   const t = useChartTheme();
+  const narrow = useNarrow();
+  // Todos los índices de la API (violations, excluded, indices) son de SUBGRUPO. Cada
+  // elemento de `values` se ubica con `indices`; así el panel MR, que empieza en el
+  // segundo subgrupo, queda alineado sin suponer ningún desplazamiento.
   const n = series.values.length;
-  const idx = Array.from({ length: n }, (_, i) => i);
+  const pos = Array.from({ length: n }, (_, k) => k);
+  const subOf = (k: number) => series.indices[k] ?? k;
   const excluded = new Set(series.excluded);
-  const signalRules = new Map<number, string[]>();
+  const rulesBySub = new Map<number, string[]>();
   for (const v of series.violations) {
-    if (excluded.has(v.index) && series.name !== "mr") continue;
-    signalRules.set(v.index, [...(signalRules.get(v.index) ?? []), v.rule]);
+    if (excluded.has(v.index)) continue;
+    rulesBySub.set(v.index, [...(rulesBySub.get(v.index) ?? []), v.rule]);
   }
-  // En MR el índice de la señal es el del subgrupo (posición + 1); se traduce al punto del panel.
-  const offset = series.name === "mr" ? 1 : 0;
-  const panelSignals = new Map<number, string[]>();
-  signalRules.forEach((rules, i) => panelSignals.set(i - offset, rules));
-  const sigIdx = idx.filter((i) => panelSignals.has(i) && !excluded.has(i));
-  const exIdx = idx.filter((i) => excluded.has(i));
-
+  const sigPos = pos.filter((k) => rulesBySub.has(subOf(k)));
+  const exPos = pos.filter((k) => excluded.has(subOf(k)));
+  const rulesAt = (k: number) => rulesBySub.get(subOf(k)) ?? [];
   const varying = new Set(series.ucl.map((x) => x.toFixed(9))).size > 1;
   const shape = varying ? "hv" : "linear";
   const limitDash = phase === "I" ? "dash" : "solid";
@@ -86,7 +87,7 @@ export function ControlChart({
     {
       ...common,
       y: series.values,
-      customdata: idx,
+      customdata: pos.map(subOf),
       mode: "lines+markers",
       name: "Valor del subgrupo",
       line: { color: t.series[0], width: 1.5 },
@@ -94,25 +95,25 @@ export function ControlChart({
       hovertemplate: "Subgrupo %{x}<br>Valor %{y:,.4f}<extra></extra>",
     },
   ];
-  if (sigIdx.length)
+  if (sigPos.length)
     data.push({
-      x: sigIdx.map((i) => series.labels[i]),
-      y: sigIdx.map((i) => series.values[i]),
-      customdata: sigIdx,
+      x: sigPos.map((k) => series.labels[k]),
+      y: sigPos.map((k) => series.values[k]),
+      customdata: sigPos.map(subOf),
       type: "scatter",
       mode: "text+markers",
       name: "Fuera de control (señal)",
-      text: sigIdx.map((i) => panelSignals.get(i)!.join(", ")),
-      textposition: sigIdx.map((i) => (series.values[i] >= series.center[i] ? "top center" : "bottom center")),
+      text: sigPos.map((k) => rulesAt(k).join(", ")),
+      textposition: sigPos.map((k) => (series.values[k] >= series.center[k] ? "top center" : "bottom center")),
       textfont: { color: t.signal, size: 11 },
       marker: { symbol: "diamond", size: 12, color: t.signal, line: { color: t.surface, width: 2 } },
-      hovertemplate: sigIdx.map((i) => `Subgrupo %{x}<br>Valor %{y:,.4f}<br>Señal: ${panelSignals.get(i)!.join(", ")}<extra></extra>`),
+      hovertemplate: sigPos.map((k) => `Subgrupo %{x}<br>Valor %{y:,.4f}<br>Señal: ${rulesAt(k).join(", ")}<extra></extra>`),
     });
-  if (exIdx.length)
+  if (exPos.length)
     data.push({
-      x: exIdx.map((i) => series.labels[i]),
-      y: exIdx.map((i) => series.values[i]),
-      customdata: exIdx,
+      x: exPos.map((k) => series.labels[k]),
+      y: exPos.map((k) => series.values[k]),
+      customdata: exPos.map(subOf),
       type: "scatter",
       mode: "markers",
       name: "Excluido (causa asignable)",
@@ -120,6 +121,14 @@ export function ControlChart({
       hovertemplate: "Subgrupo %{x}<br>Valor %{y:,.4f}<br>Excluido del cálculo de límites<extra></extra>",
     });
 
+  const yAll = [...series.values, ...series.ucl, ...series.lcl].filter((v) => Number.isFinite(v));
+  const yLo = Math.min(...yAll);
+  const yHi = Math.max(...yAll);
+  const yPad = (yHi - yLo || Math.abs(yHi) || 1) * 0.14;
+  const yRange: [number, number] = [yLo - yPad, yHi + yPad];
+
+  // En escritorio los valores de los límites se rotulan a la derecha; en móvil no hay ancho
+  // para eso y van en la nota bajo la figura.
   const label = (text: string, y: number): Partial<Annotation> => ({
     x: 1,
     xref: "paper",
@@ -131,46 +140,77 @@ export function ControlChart({
     font: { size: 11, color: t.muted },
   });
   const layout: Partial<Layout> = {
-    annotations: [
+    annotations: narrow
+      ? []
+      : [
       label(`LCS ${fmt(series.ucl[lastI])}`, series.ucl[lastI]),
       label(`LC ${fmt(series.center[lastI])}`, series.center[lastI]),
       label(`LCI ${fmt(series.lcl[lastI])}`, series.lcl[lastI]),
-    ],
+        ],
     xaxis: { type: "category", title: { text: "Subgrupo" }, gridcolor: t.grid, linecolor: t.grid, tickfont: { color: t.muted }, automargin: true },
-    yaxis: { gridcolor: t.grid, linecolor: t.grid, tickfont: { color: t.muted }, automargin: true, tickformat: ",.4~f" },
-    margin: { l: 64, r: 96, t: 48, b: 70 },
+    // Holgura arriba y abajo para que los rótulos de las señales no queden contra el borde (solo geometría).
+    yaxis: { gridcolor: t.grid, linecolor: t.grid, tickfont: { color: t.muted }, automargin: true, tickformat: ",.4~f", range: yRange },
+    margin: narrow ? { l: 48, r: 10, t: 40, b: 96 } : { l: 64, r: 96, t: 48, b: 70 },
+    ...(narrow ? { legend: { orientation: "h" as const, y: -0.3, x: 0, font: { size: 10, color: t.muted } } } : {}),
   };
 
   const faseText = phase === "I" ? "Fase I · límites de prueba" : "Fase II · límites congelados";
-  const sigText = sigIdx.length
-    ? `${sigIdx.length} punto(s) con señal: ${sigIdx.map((i) => series.labels[i]).join(", ")}.`
+  const sigText = sigPos.length
+    ? `${sigPos.length} punto(s) con señal: ${sigPos.map((k) => series.labels[k]).join(", ")}.`
     : "Sin puntos con señal.";
+
+  const skipped = series.rules_skipped;
+  const note = (
+    <>
+      {narrow && (
+        <p className="num">
+          LCS {fmt(series.ucl[lastI])} · LC {fmt(series.center[lastI])} · LCI {fmt(series.lcl[lastI])}
+        </p>
+      )}
+      <p>
+        Reglas evaluadas: {series.rules_applied.length ? series.rules_applied.join(", ") : "ninguna"}.
+      </p>
+      {skipped.length > 0 && (
+        <>
+          <p className="mt-0.5">Reglas pedidas que no se evaluaron en este gráfico:</p>
+          <ul className="list-disc pl-5" aria-label="Reglas no evaluadas en este gráfico">
+            {skipped.map((r) => (
+              <li key={r.rule}>
+                <strong>{r.rule}:</strong> {r.reason.replace(new RegExp(`^${r.rule} no se aplica: `), "")}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+    </>
+  );
 
   return (
     <PlotlyChart
       title={`${series.title} — ${faseText}${titleSuffix ? ` ${titleSuffix}` : ""}`}
-      description={`${series.title}, ${faseText}. ${sigText}${exIdx.length ? ` ${exIdx.length} punto(s) excluido(s).` : ""}`}
+      description={`${series.title}, ${faseText}. ${sigText}${exPos.length ? ` ${exPos.length} punto(s) excluido(s).` : ""}`}
       data={data}
       layout={layout}
       fileName={fileName}
       height={360}
+      note={note}
       onPointClick={
         onPointClick
           ? (p: PlotClick) => {
               const i = typeof p.customdata === "number" ? p.customdata : null;
-              if (i != null && clickable.has(i + offset)) onPointClick(i + offset);
+              if (i != null && clickable.has(i)) onPointClick(i);
             }
           : undefined
       }
       table={{
         columns: ["Subgrupo", "Valor", "LCI", "Línea central", "LCS", "Estado"],
-        rows: idx.map((i) => [
-          series.labels[i],
-          series.values[i],
-          series.lcl[i],
-          series.center[i],
-          series.ucl[i],
-          excluded.has(i) ? "Excluido" : panelSignals.has(i) ? `Señal ${panelSignals.get(i)!.join(", ")}` : "En control",
+        rows: pos.map((k) => [
+          series.labels[k],
+          series.values[k],
+          series.lcl[k],
+          series.center[k],
+          series.ucl[k],
+          excluded.has(subOf(k)) ? "Excluido" : rulesBySub.has(subOf(k)) ? `Señal ${rulesAt(k).join(", ")}` : "En control",
         ]),
       }}
     />

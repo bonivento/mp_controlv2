@@ -4,7 +4,7 @@
 import type { components } from "../api-types";
 import { mockAssumptions, mockCapability } from "./analysis";
 import { mockAttributesChart, mockRecommend, mockVariablesChart } from "./charts";
-import { mockParse, mockSummary } from "./data";
+import { mockAttributeSummary, mockParse, mockSummary } from "./data";
 import { mockArl, mockCompare } from "./design";
 import { MockHttpError, delay } from "./engine";
 import { mockDoubleEvaluate, mockSingleDesign, mockSingleEvaluate } from "./sampling";
@@ -24,6 +24,7 @@ export const mockApi = {
     return mockParse(file);
   },
   summary: (r: S["SummaryRequest"]) => respond(() => mockSummary(r)),
+  attributeSummary: (r: S["AttributeSummaryRequest"]) => respond(() => mockAttributeSummary(r)),
   variablesChart: (r: S["VariablesChartRequest"]) => respond(() => mockVariablesChart(r)),
   attributesChart: (r: S["AttributesChartRequest"]) => respond(() => mockAttributesChart(r)),
   recommend: (r: S["RecommendRequest"]) => respond(() => mockRecommend(r)),

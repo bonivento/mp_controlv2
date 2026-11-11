@@ -109,6 +109,47 @@
     }
    }
   },
+  "/api/data/summary/attributes": {
+   "post": {
+    "tags": [
+     "datos"
+    ],
+    "summary": "Attribute Summary",
+    "operationId": "attribute_summary_api_data_summary_attributes_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AttributeSummaryRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AttributeSummaryResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
   "/api/charts/variables": {
    "post": {
     "tags": [
@@ -959,6 +1000,202 @@
      "interpretation"
     ],
     "title": "AssumptionsResponse"
+   },
+   "AttributeRow": {
+    "properties": {
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "count": {
+      "type": "number",
+      "title": "Count"
+     },
+     "size": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Size"
+     },
+     "rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Rate",
+      "description": "count / size; null si no hay tamaño o es 0"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "label",
+     "count",
+     "size",
+     "rate"
+    ],
+    "title": "AttributeRow"
+   },
+   "AttributeSummaryRequest": {
+    "properties": {
+     "counts": {
+      "items": {
+       "type": "number"
+      },
+      "type": "array",
+      "minItems": 1,
+      "title": "Counts",
+      "description": "No conformes (p, np) o no conformidades (c, u)"
+     },
+     "sizes": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "number"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Sizes",
+      "description": "Tamaño de muestra por subgrupo; null si no aplica (c)"
+     },
+     "labels": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "string"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Labels"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "counts"
+    ],
+    "title": "AttributeSummaryRequest",
+    "description": "Datos por atributos ya organizados por subgrupo."
+   },
+   "AttributeSummaryResponse": {
+    "properties": {
+     "rows": {
+      "items": {
+       "$ref": "#/components/schemas/AttributeRow"
+      },
+      "type": "array",
+      "title": "Rows"
+     },
+     "subgroups": {
+      "type": "integer",
+      "title": "Subgroups"
+     },
+     "total_count": {
+      "type": "number",
+      "title": "Total Count"
+     },
+     "total_size": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Total Size"
+     },
+     "overall_rate": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Overall Rate",
+      "description": "total_count / total_size"
+     },
+     "mean_count": {
+      "type": "number",
+      "title": "Mean Count"
+     },
+     "min_size": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min Size"
+     },
+     "max_size": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max Size"
+     },
+     "constant_size": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Constant Size",
+      "description": "null si no se enviaron tamaños"
+     },
+     "warnings": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Warnings",
+      "description": "Por ejemplo, conteo mayor que el tamaño de muestra",
+      "default": []
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "rows",
+     "subgroups",
+     "total_count",
+     "total_size",
+     "overall_rate",
+     "mean_count",
+     "min_size",
+     "max_size",
+     "constant_size"
+    ],
+    "title": "AttributeSummaryResponse"
    },
    "AttributesChartRequest": {
     "properties": {

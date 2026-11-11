@@ -1,9 +1,11 @@
-// Tipos PROVISIONALES de las tablas, escritos a mano desde
-// supabase/migrations/20261109000000_esquema_inicial.sql.
-// Cuando `supabase-db` genere lib/database-types.ts, estos tipos se reemplazan
-// por los generados; solo hay que cambiar los imports de este archivo.
+// Tipos de las tablas de Supabase. Las columnas simples salen de
+// lib/database-types.ts (generado desde el proyecto real); aquí solo se
+// afinan las columnas jsonb y los textos con valores permitidos, que la base
+// valida con restricciones CHECK pero que Postgres tipa como `Json` o `string`.
+// Para cambiar el esquema: migración en supabase/ y regenerar database-types.ts.
 
 import type { components } from "./api-types";
+import type { Tables } from "./database-types";
 
 type S = components["schemas"];
 
@@ -11,26 +13,6 @@ export type DataType = "variable" | "attribute";
 export type Phase = "I" | "II";
 export type ChartType = S["FrozenLimits"]["chart_type"];
 export type AnalysisModule = S["ReportSection"]["module"];
-
-export interface Study {
-  id: string;
-  user_id: string;
-  name: string;
-  company: string | null;
-  process: string | null;
-  product: string | null;
-  characteristic: string | null;
-  unit: string | null;
-  data_type: DataType;
-  lsl: number | null;
-  usl: number | null;
-  target: number | null;
-  notes: string | null;
-  is_synthetic: boolean;
-  created_at: string;
-  updated_at: string;
-}
-export type StudyInput = Omit<Study, "id" | "user_id" | "created_at" | "updated_at">;
 
 export interface Subgrouping {
   /** "column": cada valor de la columna identifica un subgrupo (o, en formato ancho, cada fila). */
@@ -64,56 +46,34 @@ export interface CleaningEntry {
   at: string;
 }
 
-export interface Dataset {
-  id: string;
-  user_id: string;
-  study_id: string;
-  name: string;
+// --- Filas leídas ---------------------------------------------------------------
+export type Study = Omit<Tables<"studies">, "data_type"> & { data_type: DataType };
+export type Dataset = Omit<Tables<"datasets">, "phase" | "subgrouping" | "rows" | "cleaning_log"> & {
   phase: Phase;
-  source_file: string | null;
   subgrouping: Subgrouping | Record<string, never>;
   rows: DatasetRow[];
   cleaning_log: CleaningEntry[];
-  created_at: string;
-}
-export type DatasetInput = Omit<Dataset, "id" | "user_id" | "created_at">;
-
-export interface ControlLimitsRow {
-  id: string;
-  user_id: string;
-  study_id: string;
-  dataset_id: string | null;
+};
+export type ControlLimitsRow = Omit<Tables<"control_limits">, "chart_type" | "limits"> & {
   chart_type: ChartType;
   limits: S["FrozenLimits"];
-  is_active: boolean;
-  created_at: string;
-}
-export type ControlLimitsInput = Pick<ControlLimitsRow, "study_id" | "dataset_id" | "chart_type" | "limits">;
-
-export interface Analysis {
-  id: string;
-  user_id: string;
-  study_id: string;
-  dataset_id: string | null;
+};
+export type Analysis = Omit<Tables<"analyses">, "module" | "params" | "result"> & {
   module: AnalysisModule;
-  title: string;
   params: Record<string, unknown>;
   result: Record<string, unknown>;
-  in_report: boolean;
-  created_at: string;
-}
-export type AnalysisInput = Omit<Analysis, "id" | "user_id" | "created_at">;
-
-export interface SamplingPlan {
-  id: string;
-  user_id: string;
-  study_id: string;
-  name: string;
+};
+export type SamplingPlan = Omit<Tables<"sampling_plans">, "plan_type" | "params" | "result"> & {
   plan_type: "single" | "double";
   params: Record<string, unknown>;
   result: Record<string, unknown>;
-  created_at: string;
-}
+};
+
+// --- Entradas (user_id lo pone la base con auth.uid(); nunca se envía) ------------
+export type StudyInput = Omit<Study, "id" | "user_id" | "created_at" | "updated_at">;
+export type DatasetInput = Omit<Dataset, "id" | "user_id" | "created_at">;
+export type ControlLimitsInput = Pick<ControlLimitsRow, "study_id" | "dataset_id" | "chart_type" | "limits">;
+export type AnalysisInput = Omit<Analysis, "id" | "user_id" | "created_at">;
 export type SamplingPlanInput = Omit<SamplingPlan, "id" | "user_id" | "created_at">;
 
 export function isVariableRow(r: DatasetRow): r is VariableRow {

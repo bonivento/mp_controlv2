@@ -58,6 +58,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/data/summary/attributes": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Attribute Summary */
+        post: operations["attribute_summary_api_data_summary_attributes_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/charts/variables": {
         parameters: {
             query?: never;
@@ -439,6 +456,71 @@ export interface components {
             /** Is Independent */
             is_independent: boolean;
             interpretation: components["schemas"]["Interpretation"];
+        };
+        /** AttributeRow */
+        AttributeRow: {
+            /** Label */
+            label: string;
+            /** Count */
+            count: number;
+            /** Size */
+            size: number | null;
+            /**
+             * Rate
+             * @description count / size; null si no hay tamaño o es 0
+             */
+            rate: number | null;
+        };
+        /**
+         * AttributeSummaryRequest
+         * @description Datos por atributos ya organizados por subgrupo.
+         */
+        AttributeSummaryRequest: {
+            /**
+             * Counts
+             * @description No conformes (p, np) o no conformidades (c, u)
+             */
+            counts: number[];
+            /**
+             * Sizes
+             * @description Tamaño de muestra por subgrupo; null si no aplica (c)
+             */
+            sizes?: number[] | null;
+            /** Labels */
+            labels?: string[] | null;
+        };
+        /** AttributeSummaryResponse */
+        AttributeSummaryResponse: {
+            /** Rows */
+            rows: components["schemas"]["AttributeRow"][];
+            /** Subgroups */
+            subgroups: number;
+            /** Total Count */
+            total_count: number;
+            /** Total Size */
+            total_size: number | null;
+            /**
+             * Overall Rate
+             * @description total_count / total_size
+             */
+            overall_rate: number | null;
+            /** Mean Count */
+            mean_count: number;
+            /** Min Size */
+            min_size: number | null;
+            /** Max Size */
+            max_size: number | null;
+            /**
+             * Constant Size
+             * @description null si no se enviaron tamaños
+             */
+            constant_size: boolean | null;
+            /**
+             * Warnings
+             * @description Por ejemplo, conteo mayor que el tamaño de muestra
+             * @default []
+             */
+            warnings: string[];
         };
         /** AttributesChartRequest */
         AttributesChartRequest: {
@@ -1439,6 +1521,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["SummaryResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    attribute_summary_api_data_summary_attributes_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttributeSummaryRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AttributeSummaryResponse"];
                 };
             };
             /** @description Validation Error */

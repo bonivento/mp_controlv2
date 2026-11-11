@@ -137,7 +137,7 @@ export default function DesignPage() {
             <>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {[
-                  ["ARL0", fmtNum(a.arl0, 1), "muestras entre falsas alarmas"],
+                  ["ARL0", fmtNum(a.arl0, 1), a.arl0_std_error != null ? `muestras entre falsas alarmas (± ${fmtNum(a.arl0_std_error, 1)} error estándar)` : "muestras entre falsas alarmas"],
                   ["ATS0", `${fmtNum(a.ats0, 1)} h`, "tiempo entre falsas alarmas"],
                   ["Carga muestral", `${fmtNum(a.sampling_load, 2)} u/h`, "n / h"],
                   ["Método", a.method === "exact" ? "Exacto" : "Simulación", a.alpha != null ? `α = ${fmtNum(a.alpha, 5)}` : "sin α exacto"],

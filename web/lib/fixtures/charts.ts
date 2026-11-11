@@ -46,6 +46,20 @@ function violationsFor(
   return out;
 }
 
+/** Reglas que se evalúan en un panel y las que se omiten (con el motivo), como la API real. */
+function splitRules(enabled: RuleId[], fullRules: boolean): Pick<Series, "rules_applied" | "rules_skipped"> {
+  const ok = (r: RuleId) => fullRules || ONLY_BEYOND_LIMITS.includes(r) || POSITION_RULES.includes(r);
+  return {
+    rules_applied: enabled.filter(ok),
+    rules_skipped: enabled
+      .filter((r) => !ok(r))
+      .map((rule) => ({
+        rule,
+        reason: "Las reglas de zonas suponen límites simétricos y la distribución de este estadístico no lo es.",
+      })),
+  };
+}
+
 function buildResponse(args: {
   chartType: string;
   phase: "I" | "II";
@@ -212,12 +226,15 @@ export function mockVariablesChart(req: S["VariablesChartRequest"]): S["ChartRes
       ucl: Array<number>(m).fill(d2 * sigma + L * d3 * sigma),
       lcl: Array<number>(m).fill(Math.max(0, d2 * sigma - L * d3 * sigma)),
       violations: [],
-      excluded: mr.map((_, j) => j).filter((j) => exSet.has(j) || exSet.has(j + 1)),
+      // Como la API real: MR_k (subgrupo k+1) queda fuera si el subgrupo k o el k+1 está excluido.
+      // Los índices de `excluded` son de subgrupo, nunca de posición en `values`.
+      excluded: mr.map((_, j) => j + 1).filter((g) => exSet.has(g) || exSet.has(g - 1)),
       indices: mr.map((_, j) => j + 1),
       rules_applied: enabled,
       rules_skipped: [],
     };
   }
+  Object.assign(second, splitRules(enabled, false));
   second.violations = violationsFor(second, enabled, L, false, req.chart_type === "i_mr" ? (j) => j + 1 : (j) => j);
 
   const limits: S["FrozenLimits"] =
@@ -321,6 +338,7 @@ export function mockAttributesChart(req: S["AttributesChartRequest"]): S["ChartR
     rules_applied: enabled,
     rules_skipped: [],
   };
+  Object.assign(panel, splitRules(enabled, false));
   panel.violations = violationsFor(panel, enabled, L, false);
 
   const limits: S["FrozenLimits"] =

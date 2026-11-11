@@ -56,8 +56,10 @@ export default function CapabilityPage() {
   const dataset = list.find((d) => d.id === datasetId) ?? list.find((d) => d.phase === "I") ?? list[0];
 
   // Valores que el análisis ya guardado sugiere para estabilidad y normalidad.
-  const lastOf = (m: string) => [...(base.data?.analyses ?? [])].reverse().find((a) => a.module === m);
-  const savedStable = (lastOf("variables")?.result as { in_control?: boolean } | undefined)?.in_control;
+  const lastOf = (m: string, phase?: string) =>
+    [...(base.data?.analyses ?? [])].reverse().find((a) => a.module === m && (!phase || (a.result as { phase?: string }).phase === phase));
+  // La estabilidad se juzga en Fase I; un análisis de Fase II fuera de control no dice que los datos de Fase I fueran inestables.
+  const savedStable = (lastOf("variables", "I")?.result as { in_control?: boolean } | undefined)?.in_control;
   const savedNormal = (lastOf("assumptions")?.result as { is_normal?: boolean } | undefined)?.is_normal;
   const resolve = (t: Tri, saved: boolean | undefined): boolean | null => (t === "auto" ? (saved ?? null) : t === "yes" ? true : t === "no" ? false : null);
   const effStable = resolve(stable, savedStable);

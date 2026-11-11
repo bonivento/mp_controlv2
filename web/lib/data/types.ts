@@ -13,7 +13,7 @@ import type {
   SamplingPlanInput,
   Study,
   StudyInput,
-} from "../db-provisional";
+} from "../db";
 
 export interface AppUser {
   id: string;

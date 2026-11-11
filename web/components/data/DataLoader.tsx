@@ -5,9 +5,10 @@ import { useMemo, useRef, useState } from "react";
 import { api } from "@/lib/api";
 import type { components } from "@/lib/api-types";
 import { getStore } from "@/lib/data";
-import type { CleaningEntry, Dataset, Phase, Study, Subgrouping } from "@/lib/db-provisional";
+import type { CleaningEntry, Dataset, Phase, Study, Subgrouping } from "@/lib/db";
 import { buildAttributeRows, buildVariableSubgroups, type VariableConfig } from "@/lib/subgroups";
 import { Alert, Button, Card, CheckField, NumberField, SelectField, Table, Td, TextAreaField, TextField, Th, errMsg } from "../ui";
+import { AttributeSummaryPanel } from "./AttributeSummaryPanel";
 import { SummaryPanel, type OutlierDecision } from "./SummaryPanel";
 
 type Parsed = components["schemas"]["ParsedFile"];
@@ -388,28 +389,12 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
           {count === 0 ? (
             <Alert tone="info">Todavía no hay subgrupos con esta configuración. Revisa las columnas elegidas.</Alert>
           ) : attribute ? (
-            <Card title={`Subgrupos formados (${attrRows.length})`}>
-              <div className="max-h-80 overflow-auto">
-                <Table caption="Subgrupos de atributos">
-                  <thead>
-                    <tr>
-                      <Th>Subgrupo</Th>
-                      <Th>{cfg.counting === "defectives" ? "Defectuosas" : "Defectos"}</Th>
-                      <Th>Tamaño de muestra</Th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {attrRows.map((r, i) => (
-                      <tr key={`${r.label}-${i}`}>
-                        <Td>{r.label}</Td>
-                        <Td>{r.count}</Td>
-                        <Td>{r.size}</Td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </Table>
-              </div>
-            </Card>
+            <AttributeSummaryPanel
+              rows={attrRows}
+              studyId={study.id}
+              title={name || "datos cargados"}
+              counting={cfg.counting}
+            />
           ) : (
             <SummaryPanel
               rows={rows}

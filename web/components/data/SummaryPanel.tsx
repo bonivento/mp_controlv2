@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { api } from "@/lib/api";
-import type { VariableRow } from "@/lib/db-provisional";
+import type { VariableRow } from "@/lib/db";
 import { useLoad } from "@/lib/use-load";
 import { SaveAnalysis } from "../analysis-parts";
 import { Alert, Badge, Button, Card, Loading, Modal, Table, Td, TextAreaField, Th, fmtNum } from "../ui";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { Study, StudyInput } from "@/lib/db-provisional";
+import type { Study, StudyInput } from "@/lib/db";
 import { Alert, Button, CheckField, NumberField, SelectField, TextAreaField, TextField } from "./ui";
 
 const blank: StudyInput = {

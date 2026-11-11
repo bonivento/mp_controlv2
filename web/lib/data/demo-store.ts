@@ -8,7 +8,7 @@ import type {
   Dataset,
   SamplingPlan,
   Study,
-} from "../db-provisional";
+} from "../db";
 import { buildSeed } from "./demo-seed";
 import type { AppUser, DataStore } from "./types";
 

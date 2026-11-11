@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { Alert, Badge, Button, Card, ConfirmDialog, EmptyState, Loading, PageHeader, errMsg } from "@/components/ui";
 import { getStore } from "@/lib/data";
-import type { Study } from "@/lib/db-provisional";
+import type { Study } from "@/lib/db";
 import { useLoad } from "@/lib/use-load";
 
 const fmtDate = (s: string) => new Date(s).toLocaleDateString("es-CO", { day: "2-digit", month: "short", year: "numeric" });

@@ -10,6 +10,8 @@ import { MockHttpError, mockApi } from "./fixtures";
 
 type S = components["schemas"];
 
+export const MAX_UPLOAD_BYTES = 4 * 1024 * 1024;
+
 /** Error de la API con el `detail` en español listo para mostrar. */
 export class ApiError extends Error {
   status: number;
@@ -85,12 +87,22 @@ function route<Req, Res>(path: string, mock: (r: Req) => Promise<Res>) {
 export const api = {
   /** Módulo 1: lee un CSV o XLSX y devuelve sus hojas, columnas y filas. */
   parseFile(file: File): Promise<S["ParsedFile"]> {
+    // La API acepta hasta 4 MB (límite de cuerpo de Vercel): se valida antes de subir.
+    if (file.size > MAX_UPLOAD_BYTES)
+      return Promise.reject(
+        new ApiError(`El archivo pesa ${(file.size / 1024 / 1024).toFixed(1).replace(".", ",")} MB y el límite es 4 MB. Reduce las filas o guarda solo las columnas necesarias.`, 413, "file_too_large"),
+      );
     if (API_MOCK) return viaMock(() => mockApi.parseFile(file));
     const form = new FormData();
     form.append("file", file);
     return request("/api/data/parse", { method: "POST", body: form }).then((r) => r.json() as Promise<S["ParsedFile"]>);
   },
   summary: route<S["SummaryRequest"], S["SummaryResponse"]>("/api/data/summary", mockApi.summary),
+  /** Módulo 1, datos por atributos: totales, tasa global y avisos por subgrupo. */
+  attributeSummary: route<S["AttributeSummaryRequest"], S["AttributeSummaryResponse"]>(
+    "/api/data/summary/attributes",
+    mockApi.attributeSummary,
+  ),
   variablesChart: route<S["VariablesChartRequest"], S["ChartResponse"]>("/api/charts/variables", mockApi.variablesChart),
   attributesChart: route<S["AttributesChartRequest"], S["ChartResponse"]>("/api/charts/attributes", mockApi.attributesChart),
   recommendAttributes: route<S["RecommendRequest"], S["RecommendResponse"]>("/api/charts/attributes/recommend", mockApi.recommend),

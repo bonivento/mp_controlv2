@@ -123,3 +123,30 @@ export function mockSummary(req: S["SummaryRequest"]): S["SummaryResponse"] {
     outliers,
   };
 }
+
+export function mockAttributeSummary(req: S["AttributeSummaryRequest"]): S["AttributeSummaryResponse"] {
+  const counts = req.counts;
+  if (counts.length === 0) throw new MockHttpError("No hay subgrupos para resumir.");
+  const sizes = req.sizes ?? null;
+  const labels = req.labels ?? counts.map((_, i) => String(i + 1));
+  const rows: S["AttributeSummaryResponse"]["rows"] = counts.map((count, i) => {
+    const size = sizes ? sizes[i] : null;
+    return { label: labels[i] ?? String(i + 1), count, size, rate: size ? count / size : null };
+  });
+  const totalCount = counts.reduce((a, b) => a + b, 0);
+  const totalSize = sizes ? sizes.reduce((a, b) => a + b, 0) : null;
+  const warnings: string[] = [];
+  if (sizes && counts.some((c, i) => c > sizes[i])) warnings.push("Hay subgrupos con un conteo mayor que el tamaño de muestra.");
+  return {
+    rows,
+    subgroups: counts.length,
+    total_count: totalCount,
+    total_size: totalSize,
+    overall_rate: totalSize ? totalCount / totalSize : null,
+    mean_count: totalCount / counts.length,
+    min_size: sizes ? Math.min(...sizes) : null,
+    max_size: sizes ? Math.max(...sizes) : null,
+    constant_size: sizes ? new Set(sizes).size === 1 : null,
+    warnings,
+  };
+}

@@ -2,7 +2,7 @@
 // Es reorganización de datos, no estadística: agrupar filas según la regla elegida.
 
 import type { components } from "./api-types";
-import type { AttributeRow, VariableRow } from "./db-provisional";
+import type { AttributeRow, VariableRow } from "./db";
 
 type Sheet = components["schemas"]["ParsedSheet"];
 

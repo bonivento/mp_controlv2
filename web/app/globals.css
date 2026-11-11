@@ -84,16 +84,139 @@ body {
   font-variant-numeric: tabular-nums;
 }
 
-/* Impresión (reporte a PDF): sin navegación ni controles. */
+/* ---- Reporte (módulo 8) -------------------------------------------------------
+   El reporte es un documento para papel: siempre en tema claro, aunque el sistema
+   esté en oscuro. Se redefinen los tokens dentro de .report-sheet. */
+.report-sheet {
+  color-scheme: light;
+  --background: #ffffff;
+  --surface: #ffffff;
+  --surface-2: #f1f3f6;
+  --ink: #14171c;
+  --muted: #4a5463;
+  --line: #cfd4dc;
+  --brand: #1c5cab;
+  --brand-strong: #184f95;
+  --brand-ink: #ffffff;
+  --brand-soft: #e4eefb;
+  --danger: #b92b2b;
+  --danger-soft: #fdeaea;
+  --warn: #7a5200;
+  --warn-soft: #fff4d6;
+  --ok: #0b6b25;
+  --ok-soft: #e3f5e8;
+  --info-soft: #e4eefb;
+  background: #fff;
+  color: var(--ink);
+  max-width: 54rem;
+  margin: 0 auto;
+  padding: 2rem 2.25rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  line-height: 1.45;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+@media (max-width: 640px) {
+  .report-sheet {
+    padding: 1rem;
+  }
+}
+.report-sheet a {
+  color: inherit;
+}
+.report-synthetic {
+  border: 2px solid #7a5200;
+  background: var(--warn-soft);
+  color: #3d2a00;
+  padding: 0.6rem 0.9rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.875rem;
+}
+.report-dl > div {
+  display: grid;
+  grid-template-columns: minmax(10rem, 17rem) 1fr;
+  gap: 0.75rem;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid var(--line);
+}
+.report-dl dt {
+  font-weight: 600;
+}
+.report-list {
+  list-style: none;
+  padding-left: 0;
+}
+.report-section {
+  margin-top: 2.5rem;
+}
+.report-warnings {
+  border-left: 3px solid #7a5200;
+  padding-left: 0.75rem;
+  font-size: 0.875rem;
+}
+/* Tablas APA: solo reglas horizontales, sin rejilla ni fondos. */
+.apa-table {
+  border-collapse: collapse;
+  border-top: 1.5px solid #000;
+  border-bottom: 1.5px solid #000;
+}
+.apa-table th {
+  border-bottom: 1px solid #000;
+  padding: 0.3rem 0.6rem;
+  font-weight: 600;
+  vertical-align: bottom;
+}
+.apa-table td {
+  padding: 0.25rem 0.6rem;
+  vertical-align: top;
+}
+.apa-table tr {
+  break-inside: avoid;
+}
+
+/* Impresión (reporte a PDF): sin navegación ni controles, saltos de página
+   razonables y gráficos que se lean en blanco y negro (los puntos con señal y los
+   excluidos se distinguen por forma —rombo y cruz—, y los límites por su trazo). */
+@page {
+  size: A4;
+  margin: 16mm 14mm 20mm;
+}
 @media print {
   .no-print {
     display: none !important;
   }
+  html,
   body {
-    background: #fff;
+    background: #fff !important;
     color: #000;
+    font-size: 11pt;
+  }
+  main {
+    padding: 0 !important;
+    max-width: none !important;
   }
   .print-break {
     break-inside: avoid;
+  }
+  .report-sheet {
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    max-width: none;
+  }
+  .report-section {
+    margin-top: 0;
+    break-before: page;
+  }
+  .report-figure {
+    break-inside: avoid;
+  }
+  .report-block {
+    margin-bottom: 1rem;
+    break-inside: avoid;
+  }
+  .report-sheet a {
+    text-decoration: none;
   }
 }
