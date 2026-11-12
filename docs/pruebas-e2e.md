@@ -91,4 +91,6 @@ Ninguno funcional. Observaciones menores, no bloqueantes:
 
 ## Pendiente de probar
 
-Datos reales; navegadores distintos de Chromium; Safari/iOS real (el móvil es emulación de Chromium); producción (la configuración acepta `BASE_URL` pero no se corrió contra producción).
+Datos reales; navegadores distintos de Chromium; Safari/iOS real (el móvil es emulación de Chromium).
+
+Contra producción sí se corrió el 2026-11-11 con `BASE_URL=https://cep-web.vercel.app`: 35 pasan y 2 se omiten (R1.6 inicia la sesión de B cuando el usuario ya existe, porque la sesión guardada vale solo para el dominio en que se creó).

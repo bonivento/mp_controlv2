@@ -15,8 +15,12 @@ import type { AppUser, DataStore } from "./types";
 export const DEMO_EMAIL = "demo@cep.local";
 export const DEMO_PASSWORD = "demo1234";
 
-interface DemoUser extends AppUser {
+interface DemoUser {
+  id: string;
+  email: string;
   password: string;
+  /** Ausente en sesiones guardadas antes de existir el modo de invitado. */
+  isGuest?: boolean;
 }
 interface DemoDB {
   users: DemoUser[];
@@ -73,7 +77,7 @@ function currentUserId(): string {
 }
 
 function publicUser(u: DemoUser | undefined): AppUser | null {
-  return u ? { id: u.id, email: u.email } : null;
+  return u ? { id: u.id, email: u.email, isGuest: u.isGuest === true } : null;
 }
 
 function notify() {
@@ -112,6 +116,7 @@ export function createDemoStore(): DataStore {
       async signUp(email, password) {
         const db = load();
         const mail = email.trim().toLowerCase();
+        if (!mail) throw new Error("Escribe un correo electrónico.");
         if (db.users.some((u) => u.email === mail)) throw new Error("Ya existe una cuenta con ese correo.");
         const user: DemoUser = { id: uid(), email: mail, password };
         db.users.push(user);
@@ -124,7 +129,7 @@ export function createDemoStore(): DataStore {
       async signIn(email, password) {
         const db = load();
         const mail = email.trim().toLowerCase();
-        let user = db.users.find((u) => u.email === mail);
+        let user = mail ? db.users.find((u) => u.email === mail) : undefined; // los invitados no tienen correo
         if (!user && mail === DEMO_EMAIL && password === DEMO_PASSWORD) {
           user = { id: uid(), email: mail, password };
           db.users.push(user);
@@ -135,6 +140,32 @@ export function createDemoStore(): DataStore {
         seedFor(user.id);
         notify();
         return publicUser(user)!;
+      },
+      async signInAsGuest() {
+        // Invitado local: sin correo ni semilla, con estudios vacíos. Sus datos quedan ligados al
+        // navegador igual que los de cualquier cuenta de demostración.
+        const db = load();
+        const user: DemoUser = { id: uid(), email: "", password: "", isGuest: true };
+        db.users.push(user);
+        db.session = user.id;
+        save();
+        notify();
+        return publicUser(user)!;
+      },
+      async upgradeGuest(email, password) {
+        const db = load();
+        const me = db.users.find((u) => u.id === db.session);
+        if (!me || !me.isGuest) throw new Error("La sesión actual no es de invitado.");
+        const mail = email.trim().toLowerCase();
+        if (!mail) throw new Error("Escribe un correo electrónico.");
+        if (db.users.some((u) => u.id !== me.id && u.email === mail)) throw new Error("Ya existe una cuenta con ese correo.");
+        // Mismo id: los estudios y conjuntos ya guardados siguen siendo suyos.
+        me.email = mail;
+        me.password = password;
+        me.isGuest = false;
+        save();
+        notify();
+        return { user: publicUser(me), needsConfirmation: false };
       },
       async signOut() {
         load().session = null;

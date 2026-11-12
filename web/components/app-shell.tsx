@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "./auth-provider";
+import { GuestBanner, GuestSignOutConfirm } from "./guest";
 import { Button, Loading } from "./ui";
 import { getStore } from "@/lib/data";
 
@@ -12,12 +13,24 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { user } = useAuth();
   const router = useRouter();
   const [leaving, setLeaving] = useState(false);
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
   useEffect(() => {
     if (user === null) router.replace("/login");
   }, [user, router]);
 
   if (!user) return <Loading label={user === null ? "Redirigiendo al acceso…" : "Verificando sesión…"} />;
+
+  async function signOut() {
+    setLeaving(true);
+    try {
+      await getStore().auth.signOut();
+      router.replace("/login");
+    } finally {
+      setLeaving(false);
+      setConfirmLeave(false);
+    }
+  }
 
   const demo = getStore().mode === "demo";
   return (
@@ -36,24 +49,15 @@ export function AppShell({ children }: { children: ReactNode }) {
                 Modo de demostración (datos en este navegador)
               </span>
             )}
-            <span className="hidden text-muted sm:inline">{user.email}</span>
-            <Button
-              loading={leaving}
-              onClick={async () => {
-                setLeaving(true);
-                try {
-                  await getStore().auth.signOut();
-                  router.replace("/login");
-                } finally {
-                  setLeaving(false);
-                }
-              }}
-            >
+            <span className={`${user.isGuest ? "" : "hidden "}text-muted sm:inline`}>{user.isGuest ? "Invitado" : user.email}</span>
+            <Button loading={leaving} onClick={() => (user.isGuest ? setConfirmLeave(true) : signOut())}>
               Cerrar sesión
             </Button>
           </div>
         </div>
       </header>
+      {user.isGuest && <GuestBanner />}
+      <GuestSignOutConfirm open={confirmLeave} busy={leaving} onConfirm={signOut} onCancel={() => setConfirmLeave(false)} />
       <main id="contenido" className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
         {children}
       </main>

@@ -84,3 +84,12 @@ test("R1.5 registro del usuario B", async ({ page, context }) => {
   await expect(page).toHaveURL(/\/estudios$/, { timeout: 30_000 });
   await saveAuth(context, "b");
 });
+
+test("R1.6 inicio de sesión del usuario B existente", async ({ page, context }) => {
+  // La sesión guardada vale solo para el dominio en que se creó: al cambiar de BASE_URL
+  // (local o producción) B debe iniciar sesión otra vez, igual que A en R1.4.
+  test.skip(fresh, "B acaba de registrarse: su sesión ya está guardada.");
+  await signIn(page, state.userB.email, state.userB.password);
+  await expect(page.getByText(state.userB.email)).toBeVisible();
+  await saveAuth(context, "b");
+});

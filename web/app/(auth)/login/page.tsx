@@ -51,6 +51,19 @@ export default function LoginPage() {
     }
   }
 
+  async function guestLogin() {
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await getStore().auth.signInAsGuest();
+      router.replace("/estudios");
+    } catch (err) {
+      setError(errMsg(err));
+      setBusy(false);
+    }
+  }
+
   async function demoLogin() {
     setBusy(true);
     setError(null);
@@ -132,6 +145,16 @@ export default function LoginPage() {
           {mode === "in" ? "Entrar" : "Crear cuenta"}
         </Button>
       </form>
+
+      <div className="mt-4 flex flex-col gap-2 rounded-lg border border-line bg-surface p-5 shadow-sm">
+        <Button onClick={guestLogin} loading={busy} disabled={NOT_CONFIGURED}>
+          Continuar como invitado
+        </Button>
+        <p className="text-xs text-muted">
+          No pide correo. Tus estudios y datos quedan ligados a este navegador: se pierden si cierras la sesión, borras la
+          sesión o los datos del sitio. Después puedes crear una cuenta para conservarlos.
+        </p>
+      </div>
     </main>
   );
 }

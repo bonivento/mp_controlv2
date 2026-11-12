@@ -4,7 +4,7 @@ Aplicación web de Control Estadístico de Procesos (CEP). Construye gráficos d
 
 Es el trabajo final de la asignatura Control Estadístico de Procesos. El enunciado y la rúbrica están en [TRABAJO FINAL.md](TRABAJO%20FINAL.md).
 
-> **POR COMPLETAR: URL de producción.** El software aún no está desplegado en Vercel. Cuando lo esté, escribir aquí la dirección pública de la web.
+**En producción:** <https://cep-web.vercel.app> (web) y <https://cep-api-xi.vercel.app/api/health> (API). El código está en <https://github.com/bonivento/mp_controlv2>.
 
 ## Entregables
 

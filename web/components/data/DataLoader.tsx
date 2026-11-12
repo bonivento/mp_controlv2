@@ -7,10 +7,12 @@ import type { components } from "@/lib/api-types";
 import { getStore } from "@/lib/data";
 import type { CleaningEntry, Dataset, Phase, Study, Subgrouping } from "@/lib/db";
 import { sizeIssues } from "@/lib/dataset-utils";
+import { draftToFile, initialDraft, type Draft } from "@/lib/manual-table";
 import { buildAttributeRows, buildVariableSubgroups, type VariableConfig } from "@/lib/subgroups";
 import { Alert, Button, Card, CheckField, NumberField, SelectField, Table, Td, TextAreaField, TextField, Th, errMsg, numEs } from "../ui";
 import { AttributeSummaryPanel } from "./AttributeSummaryPanel";
 import { IncompleteSubgroups, type IncompleteDecision } from "./IncompleteSubgroups";
+import { ManualTable } from "./ManualTable";
 import { SummaryPanel, type OutlierDecision } from "./SummaryPanel";
 
 type Parsed = components["schemas"]["ParsedFile"];
@@ -60,6 +62,10 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
   const attribute = study.data_type === "attribute";
   const inputRef = useRef<HTMLInputElement>(null);
   const [file, setFile] = useState<File | null>(null);
+  // Origen de los datos en uso y borrador de la tabla manual (vive aquí para no perderse al cambiar de pestaña).
+  const [tab, setTab] = useState<"file" | "manual">("file");
+  const [source, setSource] = useState<"file" | "manual">("file");
+  const [draft, setDraft] = useState<Draft>(() => initialDraft(attribute));
   const [parsing, setParsing] = useState(false);
   const [parseError, setParseError] = useState<string | null>(null);
   const [parsed, setParsed] = useState<Parsed | null>(null);
@@ -77,8 +83,9 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
   const sheet = parsed?.sheets[sheetIdx] ?? null;
   const set = <K extends keyof Config>(k: K, v: Config[K]) => setCfg((c) => (c ? { ...c, [k]: v } : c));
 
-  async function onFile(f: File | null) {
+  async function onFile(f: File | null, from: "file" | "manual" = "file") {
     setFile(f);
+    setSource(from);
     setParsed(null);
     setCfg(null);
     setDecisions([]);
@@ -91,7 +98,7 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
       setParsed(p);
       setSheetIdx(0);
       setCfg(defaultsFor(p.sheets[0], attribute));
-      setName(f.name.replace(/\.[^.]+$/, ""));
+      setName(from === "manual" ? `Ingreso manual ${new Date().toLocaleDateString("es")}` : f.name.replace(/\.[^.]+$/, ""));
     } catch (e) {
       setParseError(errMsg(e));
     } finally {
@@ -142,7 +149,14 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
     setSaveError(null);
     const now = new Date().toISOString();
     const log: CleaningEntry[] = [
-      { action: "Carga", detail: `Archivo ${file.name}, hoja ${sheet.name}: ${sheet.rows.length} filas, ${sheet.columns.length} columnas.`, at: now },
+      {
+        action: "Carga",
+        detail:
+          source === "manual"
+            ? `Ingreso manual en la página (tabla escrita o pegada): ${sheet.rows.length} filas, ${sheet.columns.length} columnas.`
+            : `Archivo ${file.name}, hoja ${sheet.name}: ${sheet.rows.length} filas, ${sheet.columns.length} columnas.`,
+        at: now,
+      },
       // Avisos de la lectura del archivo (los genera la API) y de la formación de subgrupos (la web).
       ...[...new Set([...sheet.warnings, ...built.warnings])].map((w) => ({ action: "Limpieza", detail: w, at: now })),
       ...decisions.map((d) =>
@@ -185,7 +199,7 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
         study_id: study.id,
         name: name.trim(),
         phase,
-        source_file: file.name,
+        source_file: source === "manual" ? "Ingreso manual" : file.name,
         subgrouping,
         rows: attribute ? attrRows : rows,
         cleaning_log: log,
@@ -212,22 +226,68 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
 
   return (
     <div className="flex flex-col gap-4">
-      <Card title="1. Archivo">
+      <Card title="1. Datos">
         <div className="flex flex-col gap-3">
-          <div className="flex flex-col gap-1">
-            <label htmlFor="archivo-datos" className="text-sm font-medium">
-              Archivo CSV o Excel (.xlsx)
-            </label>
-            <input
-              id="archivo-datos"
-              ref={inputRef}
-              type="file"
-              accept=".csv,.xlsx,.xls,text/csv"
-              className="block w-full text-sm file:mr-3 file:min-h-10 file:cursor-pointer file:rounded-md file:border file:border-line file:bg-surface file:px-3.5 file:py-2 file:text-sm file:font-medium"
-              onChange={(e) => onFile(e.target.files?.[0] ?? null)}
-            />
-            <p className="text-xs text-muted">Hasta 4 MB y 20 000 filas. La primera fila debe tener los nombres de las columnas.</p>
+          <div role="tablist" aria-label="Forma de ingresar los datos" className="grid max-w-md grid-cols-2 gap-1 rounded-md bg-surface-2 p-1">
+            {(
+              [
+                ["file", "Subir archivo"],
+                ["manual", "Escribir o pegar datos"],
+              ] as const
+            ).map(([k, t]) => (
+              <button
+                key={k}
+                id={`tab-datos-${k}`}
+                type="button"
+                role="tab"
+                aria-selected={tab === k}
+                aria-controls={`panel-datos-${k}`}
+                tabIndex={tab === k ? 0 : -1}
+                onClick={() => setTab(k)}
+                onKeyDown={(e) => {
+                  if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+                    const other = k === "file" ? "manual" : "file";
+                    setTab(other);
+                    document.getElementById(`tab-datos-${other}`)?.focus();
+                  }
+                }}
+                className={`min-h-9 rounded text-sm font-medium ${tab === k ? "bg-surface shadow-sm" : "text-muted"}`}
+              >
+                {t}
+              </button>
+            ))}
           </div>
+          <div role="tabpanel" id="panel-datos-file" aria-labelledby="tab-datos-file" hidden={tab !== "file"}>
+            <div className="flex flex-col gap-1">
+              <label htmlFor="archivo-datos" className="text-sm font-medium">
+                Archivo CSV o Excel (.xlsx)
+              </label>
+              <input
+                id="archivo-datos"
+                ref={inputRef}
+                type="file"
+                accept=".csv,.xlsx,.xls,text/csv"
+                className="block w-full text-sm file:mr-3 file:min-h-10 file:cursor-pointer file:rounded-md file:border file:border-line file:bg-surface file:px-3.5 file:py-2 file:text-sm file:font-medium"
+                onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+              />
+              <p className="text-xs text-muted">Hasta 4 MB y 20 000 filas. La primera fila debe tener los nombres de las columnas.</p>
+            </div>
+          </div>
+          <div role="tabpanel" id="panel-datos-manual" aria-labelledby="tab-datos-manual" hidden={tab !== "manual"}>
+            <ManualTable
+              draft={draft}
+              onChange={setDraft}
+              onReset={() => setDraft(initialDraft(attribute))}
+              onUse={() => onFile(draftToFile(draft), "manual")}
+              busy={parsing && source === "manual"}
+            />
+          </div>
+          {file && sheet && (
+            <p className="text-sm text-muted">
+              Datos en uso: <strong>{source === "manual" ? "tabla escrita en la página" : file.name}</strong>
+              {source === "manual" && ". Si cambias la tabla, vuelve a pulsar «Usar estos datos» para actualizar los pasos siguientes"}.
+            </p>
+          )}
           {parsing && (
             <p role="status" className="text-sm text-muted">
               Leyendo archivo…

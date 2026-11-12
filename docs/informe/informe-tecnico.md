@@ -182,7 +182,7 @@ Tres piezas con responsabilidades separadas (ver `docs/arquitectura.md`): una in
 - **Trazabilidad:** causas asignables, decisiones sobre atípicos y justificaciones de subgrupo se guardan con el estudio.
 - **Prevención de errores:** nunca devuelve NaN ni infinito (va `null` con advertencia); no permite excluir puntos sin causa ni calcular Fase II sin límites congelados.
 - **Seguridad:** inicio de sesión y políticas RLS; la API verifica el JWT de Supabase.
-- **Estado de despliegue:** local y listo para Vercel. **POR COMPLETAR: URL de producción.**
+- **Estado de despliegue:** en producción en Vercel desde el 11 de noviembre de 2026: web en <https://cep-web.vercel.app> y API en <https://cep-api-xi.vercel.app>. Las pruebas de extremo a extremo se repitieron contra producción (35 pasan, 2 omitidas).
 
 ### 7.4 Verificación del software
 
@@ -686,7 +686,7 @@ Las conclusiones separan lo que el trabajo logró sobre el software, lo que mues
 **Para el software.**
 
 9. Extender a CUSUM y EWMA para detectar cambios pequeños, y a un análisis de autocorrelación sobre las medias de subgrupo.
-10. Desplegar en Vercel y repetir la prueba de aislamiento entre usuarios y las pruebas de extremo a extremo contra producción (`docs/despliegue.md`). **POR COMPLETAR: URL de producción.**
+10. Hecho el 11 de noviembre de 2026: el software se desplegó en Vercel (<https://cep-web.vercel.app>) y la prueba de aislamiento entre usuarios y las demás pruebas de extremo a extremo se repitieron contra producción (`docs/pruebas-e2e.md`).
 
 ## Referencias
 

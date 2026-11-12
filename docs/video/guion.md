@@ -10,7 +10,7 @@
 
 > **POR COMPLETAR CON LA EMPRESA:** si se aplica el software a una empresa real antes de grabar, sustituir el caso sintético de las escenas 4 a 6 por el de la empresa (anonimizado según `docs/empresa/confidencialidad.md`), con sus cifras reales, y cambiar el rótulo «datos sintéticos» por «datos anonimizados de una empresa manufacturera». Formatos de origen: `docs/empresa/formato-recoleccion.md` y `docs/empresa/guia-visita.md`. Mientras no exista empresa, el video debe mantener el rótulo de datos sintéticos.
 
-> **POR COMPLETAR: URL de producción** y el contacto del equipo para la escena final (la web aún no está desplegada en Vercel).
+> URL de producción para la escena final: <https://cep-web.vercel.app>. **POR COMPLETAR: contacto del equipo.**
 
 ## Mensaje central
 
@@ -27,7 +27,7 @@ Un proceso puede estar dentro de especificación y aun así estar fuera de contr
 | 5 | 1:55 a 2:20 | Cambio a la pestaña Fase II con el aviso «los límites no se recalculan». Llegan datos nuevos: 11 de 15 puntos quedan fuera de los límites. Se resaltan en rojo. (`06-variables-fase2`) | «En Fase II monitoreas datos nuevos contra los límites congelados. Aquí el proceso se desplazó, y el gráfico lo muestra de inmediato: 11 de 15 subgrupos con señal. Sin que ninguna unidad saliera todavía de especificación.» | «Fase II: monitorear, sin recalcular» y «11 de 15 subgrupos con señal (datos sintéticos)» |
 | 6 | 2:20 a 2:50 | Módulo Capacidad: recuadro «Datos que se usarán» (24 de 25 subgrupos, sigma de Fase I), índices Cp y Cpk con intervalos de confianza y PPM esperadas (`09-capacidad`). Módulo Diseño: curva ARL contra desplazamiento y comparador de n y h (`10-diseno-arl`). | «¿El proceso es capaz? Cp, Cpk, Pp, Ppk y la fracción no conforme, con su intervalo de confianza calculado según cómo se estimó la variación, y una advertencia cuando el proceso no es estable o no se verificó la normalidad. Y para decidir cuánto muestrear, el módulo de diseño calcula cuántas muestras tarda el gráfico en detectar un cambio, en horas y en unidades inspeccionadas.» | «Cpk 1,24 antes del cambio y 0,84 después (datos sintéticos)» y «ARL y ATS para elegir n y frecuencia» |
 | 7 | 2:50 a 3:05 | Módulo Reporte: lista de análisis, botones «Imprimir / guardar PDF» y «Exportar a Excel»; vista del documento con tablas y figuras numeradas (`12-reporte`). | «Guarda cada análisis y arma el reporte: tablas y figuras numeradas, conclusiones preliminares en español, listo para imprimir o llevar a Excel.» | «Reporte listo para decidir» |
-| 8 | 3:05 a 3:15 | Fondo limpio con el logotipo CEP. Aparecen la URL y el contacto. | «Software CEP: del dato a la decisión. Pruébalo con tu proceso.» | «POR COMPLETAR: URL de producción» y «POR COMPLETAR: contacto del equipo» |
+| 8 | 3:05 a 3:15 | Fondo limpio con el logotipo CEP. Aparecen la URL y el contacto. | «Software CEP: del dato a la decisión. Pruébalo con tu proceso.» | «cep-web.vercel.app» y «POR COMPLETAR: contacto del equipo» |
 
 El gráfico por atributos (`07-atributos`) puede insertarse como plano de apoyo en la escena 6 con una frase: «Y si cuentas defectuosos en vez de medir, el asistente te recomienda el gráfico p, np, c o u». Las cifras de las escenas 5 y 6 salen de `docs/informe/anexos/salidas/` (`fase2_xbar_r.json` y `capacidad_fase1_depurada.json` con `capacidad_fase2_limites_fase1.json`). Si el validador corrige un cálculo y cambian, regenerar con `generar_salidas.py` y actualizar el texto de pantalla.
 

@@ -2,7 +2,7 @@
 
 Control Estadístico de Procesos en el navegador. Versión de la API 0.1.0.
 
-> **POR COMPLETAR: URL de producción.** El software todavía no está desplegado. Mientras tanto se usa en local (sección 3).
+> El software está publicado en <https://cep-web.vercel.app>. También puede usarse en local (sección 3).
 
 ## Tabla de contenido
 
@@ -51,7 +51,7 @@ Se supone conocimiento básico de qué es un subgrupo, un límite de control y u
 
 Un navegador actual (Chrome, Edge, Firefox o Safari) y una cuenta. No hay que instalar nada. El archivo de datos debe pesar como máximo 4 MB y tener hasta 20 000 filas.
 
-> **POR COMPLETAR: URL de producción** donde abrir el programa.
+> El programa se abre en <https://cep-web.vercel.app>.
 
 ### Para ejecutarlo en un equipo propio
 

@@ -17,7 +17,10 @@ import type {
 
 export interface AppUser {
   id: string;
+  /** Vacío para un invitado (no tiene correo). Quien lo muestre debe revisar `isGuest`. */
   email: string;
+  /** Sesión de invitado (inicio de sesión anónimo): sin correo ni contraseña. */
+  isGuest: boolean;
 }
 
 export interface SignUpResult {
@@ -32,6 +35,13 @@ export interface DataStore {
     getUser(): Promise<AppUser | null>;
     signUp(email: string, password: string): Promise<SignUpResult>;
     signIn(email: string, password: string): Promise<AppUser>;
+    /** Entra sin cuenta: usuario anónimo real (con JWT y RLS) ligado a este navegador. */
+    signInAsGuest(): Promise<AppUser>;
+    /**
+     * Convierte al invitado actual en cuenta permanente conservando sus datos. Con confirmación de
+     * correo activa, `needsConfirmation` es true y sigue siendo invitado hasta confirmar.
+     */
+    upgradeGuest(email: string, password: string): Promise<SignUpResult>;
     signOut(): Promise<void>;
     /** Avisa de cambios de sesión; devuelve la función para cancelar. */
     onChange(cb: (user: AppUser | null) => void): () => void;

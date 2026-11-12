@@ -23,7 +23,14 @@ export function getSupabase(): SupabaseClient<Database> {
 }
 
 function toUser(u: User | null | undefined): AppUser | null {
-  return u ? { id: u.id, email: u.email ?? "" } : null;
+  return u ? { id: u.id, email: u.email ?? "", isGuest: u.is_anonymous === true } : null;
+}
+
+/** Traduce los errores conocidos del acceso anónimo; el resto conserva el texto de Supabase. */
+function guestError(error: { message: string; code?: string }, fallback: string): never {
+  if (error.code === "anonymous_provider_disabled" || /anonymous sign-ins are disabled/i.test(error.message))
+    throw new Error("El acceso como invitado no está habilitado en este proyecto. Crea una cuenta o inicia sesión con tu correo.");
+  fail(error, fallback);
 }
 
 /** Los objetos de la app (interfaces) se guardan como jsonb: se ven como Json. */
@@ -52,6 +59,22 @@ export function createSupabaseStore(): DataStore {
         const { data, error } = await sb.auth.signInWithPassword({ email, password });
         if (error || !data.user) fail(error, "No se pudo iniciar sesión");
         return toUser(data.user)!;
+      },
+      async signInAsGuest() {
+        const { data, error } = await sb.auth.signInAnonymously();
+        if (error || !data.user) guestError(error ?? { message: "" }, "No se pudo entrar como invitado");
+        return toUser(data.user)!;
+      },
+      async upgradeGuest(email, password) {
+        // Una sola llamada fija correo y contraseña. Si el proyecto pide confirmar el correo, el
+        // usuario sigue siendo anónimo hasta que abra el enlace; sus datos no cambian de dueño.
+        const { data, error } = await sb.auth.updateUser({ email, password });
+        if (error || !data.user) fail(error, "No se pudo crear la cuenta");
+        const pending = data.user.is_anonymous === true || !data.user.email;
+        if (pending) return { user: toUser(data.user), needsConfirmation: true };
+        // El JWT lleva el indicador is_anonymous: se renueva para que la API y RLS lo vean ya permanente.
+        const refreshed = await sb.auth.refreshSession();
+        return { user: toUser(refreshed.data.session?.user ?? data.user), needsConfirmation: false };
       },
       async signOut() {
         const { error } = await sb.auth.signOut();
