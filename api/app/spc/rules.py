@@ -44,9 +44,28 @@ Convenciones (documentadas para el validador):
   cumpliéndose (por ejemplo, un décimo punto del mismo lado), se marca de nuevo
   en cada punto adicional, como hace Minitab.
 - Zonas A, B y C solo existen con límites simétricos (X-barra, individuales y
-  atributos sin truncar). En R, S, MR y en atributos con algún límite truncado
-  solo se aplican WE1, WE4, N1, N2, N3 y N4; las demás se informan como omitidas
-  con su motivo.
+  atributos sin truncar). En R, S y en atributos con algún límite truncado solo
+  se aplican WE1, WE4, N1, N2, N3 y N4; las demás se informan como omitidas con
+  su motivo.
+- En esos paneles asimétricos WE4 y N2 se aplican, pero la probabilidad de caer
+  por encima de la línea central no es 1/2. En estadísticos continuos (R, S) su
+  ARL0 real es menor que el nominal (cadenas de Markov del validador: WE4 da
+  173,7 en R con n = 2 frente a 255). En conteos (p, np, c, u truncados) la
+  tasa de falsas alarmas es distinta de la nominal en uno u otro sentido: mayor
+  si la línea central no es un valor posible del conteo (42,8 en p con n = 100 y
+  p̄ = 0,0102) y mucho menor si coincide con uno, porque los puntos exactamente
+  sobre la línea cortan la racha (WE4 da 1 924 en c con c̄ = 2 y 1 071 con
+  c̄ = 4, frente a 255; 4 508 en p con n·p̄ = 1), con pérdida de sensibilidad.
+  `evaluate_rules` agrega entonces una advertencia (`RuleOutcome.warnings`, una
+  sola por serie) que pide tomar la señal como indicio a confirmar. N3 y N4
+  dependen solo del orden de los valores: con datos continuos e independientes
+  su ARL0 no cambia por la asimetría y con conteos los empates lo alargan; la
+  advertencia lo dice.
+- Panel MR (`serially_correlated=True`): los rangos móviles consecutivos
+  comparten una observación y están correlacionados, además de ser asimétricos;
+  el validador midió ARL0 de 94 para WE4 (255 nominal), 154 para N2 (511) y 257
+  para N3 (425). Por eso en MR solo se aplican WE1 y N1; las demás reglas se
+  informan como omitidas con ese motivo.
 - Con límites variables por punto (p y u con n variable) la zona de cada punto
   se calcula con el sigma de ese punto.
 - Los puntos excluidos no participan: se quitan de la serie antes de evaluar
@@ -61,6 +80,7 @@ simulación de ARL: reciben una matriz (réplicas × tiempo).
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+import math
 from typing import Callable, Iterable, Optional, Sequence
 
 import numpy as np
@@ -73,6 +93,19 @@ WESTERN_ELECTRIC: tuple[str, ...] = ("WE1", "WE2", "WE3", "WE4")
 NELSON: tuple[str, ...] = ("N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8")
 
 _REL_TOL = 1e-9
+
+# Reglas que solo miran el punto contra los límites.
+LIMIT_RULES: tuple[str, ...] = ("WE1", "N1")
+# Reglas sin zonas que se siguen aplicando en paneles asimétricos.
+SIDE_RUN_RULES: tuple[str, ...] = ("WE4", "N2")      # rachas de un lado de la LC
+ORDER_RULES: tuple[str, ...] = ("N3", "N4")          # tendencia y alternancia
+ASYMMETRY_SENSITIVE_RULES: tuple[str, ...] = SIDE_RUN_RULES + ORDER_RULES
+
+SERIAL_CORRELATION_REASON = (
+    "en el gráfico de rangos móviles solo se evalúa el punto fuera de límites, porque dos rangos "
+    "móviles consecutivos comparten una observación y están correlacionados (además de ser "
+    "asimétricos); con esta regla la tasa de falsas alarmas sería varias veces la nominal"
+)
 
 # Códigos que devuelve cada regla por punto.
 NO_SIGNAL = 0
@@ -102,6 +135,7 @@ class RuleOutcome:
     violations: list[Violation] = field(default_factory=list)
     applied: list[str] = field(default_factory=list)
     skipped: dict[str, str] = field(default_factory=dict)  # id -> motivo en español
+    warnings: list[str] = field(default_factory=list)      # advertencias de la serie, en español
 
     @property
     def indices(self) -> list[int]:
@@ -115,6 +149,9 @@ class ControlLimits:
     `sigma` es la desviación estándar del estadístico graficado (no del proceso);
     con ella se construyen las zonas. `symmetric` indica si las zonas A/B/C
     tienen sentido (límites simétricos y distribución aproximadamente simétrica).
+    `serially_correlated` marca un estadístico con correlación serial por
+    construcción (rangos móviles): solo admite WE1 y N1. `discrete` marca un
+    conteo (p, np, c, u): cambia el texto de la advertencia de asimetría.
     """
 
     center: np.ndarray
@@ -123,6 +160,8 @@ class ControlLimits:
     sigma: np.ndarray
     symmetric: bool
     limit_width: float = 3.0
+    serially_correlated: bool = False
+    discrete: bool = False
 
     def as_arrays(self, m: int) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Devuelve (center, ucl, lcl, sigma) como arreglos de largo m."""
@@ -259,10 +298,19 @@ def run_within(inp: RuleInput, length: int, zsig: float) -> np.ndarray:
 
 
 def run_outside(inp: RuleInput, length: int, zsig: float) -> np.ndarray:
-    """`length` consecutivos con |z| > zsig, a cualquier lado (mezcla)."""
-    hit = _run_length(np.abs(inp.z) > zsig + _REL_TOL) >= length
+    """`length` consecutivos con |z| > zsig, a cualquier lado.
+
+    Devuelve BOTH si en esos `length` puntos hay de los dos lados (mezcla) y UP
+    o DOWN si todos quedaron del mismo lado (desplazamiento). La señal es la
+    misma; solo cambia la descripción.
+    """
+    up_q = inp.z > zsig + _REL_TOL
+    dn_q = inp.z < -zsig - _REL_TOL
+    hit = _run_length(up_q | dn_q) >= length
     out = np.zeros(hit.shape, dtype=np.int8)
     out[hit] = BOTH
+    out[hit & (_run_length(up_q) >= length)] = UP
+    out[hit & (_run_length(dn_q) >= length)] = DOWN
     return out
 
 
@@ -379,8 +427,12 @@ RULES: dict[str, RuleSpec] = {
               "Sugiere estratificación o límites demasiado anchos.",
     }),
     "N8": RuleSpec("N8", "Nelson", True, rule_n8, {
-        BOTH: "Nelson 8: 8 puntos consecutivos a más de 1 sigma de la línea central, sin ninguno en la zona C; se completa en el punto {p}. "
-              "Sugiere una mezcla de poblaciones.",
+        BOTH: "Nelson 8: 8 puntos consecutivos a más de 1 sigma de la línea central, a ambos lados y sin ninguno en la zona C; "
+              "se completa en el punto {p}. Sugiere una mezcla de poblaciones (dos fuentes con medias distintas).",
+        **{s: f"Nelson 8: 8 puntos consecutivos a más de 1 sigma {_SIDE[s]} de la línea central, sin ninguno en la zona C; "
+              "se completa en el punto {p}. Como todos están del mismo lado, indica un desplazamiento del nivel del "
+              "proceso, no dos poblaciones."
+           for s in (UP, DOWN)},
     }),
 }
 
@@ -443,8 +495,10 @@ def prepare(values, center, *, ucl=None, lcl=None, sigma=None, limit_width: floa
     reason: Optional[str] = None
     z = None
     if not symmetric:
-        reason = ("los límites no son simétricos alrededor de la línea central "
-                  "(estadístico asimétrico o límite truncado), así que las zonas A, B y C no están definidas")
+        reason = ("la distribución del estadístico graficado es asimétrica respecto de la línea central "
+                  "(o un límite está truncado en 0), así que las zonas A, B y C no tienen las "
+                  "probabilidades de una distribución simétrica y la regla tendría una tasa de falsas "
+                  "alarmas distinta de la nominal")
     else:
         sig = s if s is not None else (u - c) / limit_width
         if not np.all(np.isfinite(sig)) or np.any(sig <= tol):
@@ -454,19 +508,79 @@ def prepare(values, center, *, ucl=None, lcl=None, sigma=None, limit_width: floa
     return RuleInput(x=x, center=c, ucl=u, lcl=lo, z=z, tol=tol), reason
 
 
-def applicable_rules(rules: Iterable[str], zones_available: bool, reason: str = "") -> tuple[list[str], dict[str, str]]:
-    """Separa las reglas pedidas en aplicables y omitidas (con motivo)."""
+def applicable_rules(rules: Iterable[str], zones_available: bool, reason: str = "", *,
+                     serially_correlated: bool = False) -> tuple[list[str], dict[str, str]]:
+    """Separa las reglas pedidas en aplicables y omitidas (con motivo).
+
+    Con `serially_correlated=True` (panel MR) solo quedan WE1 y N1.
+    """
     applied, skipped = [], {}
     for r in _validate_rule_ids(rules):
-        if RULES[r].needs_zones and not zones_available:
+        if serially_correlated and r not in LIMIT_RULES:
+            skipped[r] = f"{r} no se aplica: {SERIAL_CORRELATION_REASON}."
+        elif RULES[r].needs_zones and not zones_available:
             skipped[r] = f"{r} no se aplica: {reason or 'las zonas no están definidas'}."
         else:
             applied.append(r)
     return applied, skipped
 
 
+def _join_ids(ids: Sequence[str]) -> str:
+    return ids[0] if len(ids) == 1 else ", ".join(ids[:-1]) + " y " + ids[-1]
+
+
+def asymmetry_warning(applied: Iterable[str], *, discrete: bool = False) -> Optional[str]:
+    """Advertencia para un panel asimétrico según las reglas sin zonas aplicadas.
+
+    Devuelve None si no se aplicó ninguna de WE4, N2, N3 o N4. Con
+    `discrete=True` (conteos) no afirma que la tasa de falsas alarmas sea mayor:
+    puede ser distinta de la nominal en cualquier sentido.
+    """
+    applied = list(applied)
+    side = [r for r in SIDE_RUN_RULES if r in applied]
+    order = [r for r in ORDER_RULES if r in applied]
+    if not side and not order:
+        return None
+    parts = []
+    if side:
+        one = len(side) == 1
+        head = (f"{'la regla' if one else 'las reglas'} {_join_ids(side)} {'se aplicó' if one else 'se aplicaron'} "
+                f"aunque {'el gráfico es de conteos con límites asimétricos' if discrete else 'el estadístico graficado es asimétrico'}: "
+                "la probabilidad de quedar por encima de la línea central no es 1/2")
+        if discrete:
+            tail = (", y si la línea central coincide con un valor posible del conteo, los puntos que caen "
+                    "exactamente sobre ella cortan la racha. Por eso su tasa de falsas alarmas es distinta de la "
+                    "nominal: mayor si la línea central no es un valor posible del conteo y posiblemente mucho "
+                    "menor si lo es, con pérdida de sensibilidad. "
+                    f"Una señal de {'esta regla' if one else 'estas reglas'} es un indicio a confirmar, no una prueba")
+        else:
+            tail = (", así que su tasa de falsas alarmas es mayor que la nominal y una señal de "
+                    f"{'esta regla' if one else 'estas reglas'} es un indicio a confirmar, no una prueba")
+        parts.append(head + tail)
+    if order:
+        one = len(order) == 1
+        lead = "" if side else (
+            "el gráfico es de conteos con límites asimétricos; " if discrete else "el estadístico graficado es asimétrico; ")
+        parts.append(
+            f"{lead}{'la regla' if one else 'las reglas'} {_join_ids(order)} "
+            f"{'depende' if one else 'dependen'} solo del orden de los valores, así que la asimetría no "
+            "aumenta su tasa de falsas alarmas con datos continuos e independientes (con conteos, los "
+            "empates la reducen)"
+        )
+    parts = [q[0].upper() + q[1:] for q in parts]
+    return ". ".join(q.rstrip(".") for q in parts) + "."
+
+
 def _fmt(v: float) -> str:
-    return f"{v:.6g}"
+    """Número con 6 cifras significativas, coma decimal y sin notación científica."""
+    t = f"{v:.6g}"
+    if "e" in t or "E" in t:
+        if abs(v) >= 1:
+            t = f"{v:.0f}"                       # >= 10^6: entero, sin cifras de más
+        else:
+            decimals = 5 - math.floor(math.log10(abs(v)))
+            t = f"{v:.{decimals}f}".rstrip("0").rstrip(".")
+    return t.replace(".", ",")
 
 
 def evaluate_rules(
@@ -482,6 +596,8 @@ def evaluate_rules(
     excluded: Iterable[int] = (),
     labels: Optional[Sequence[str]] = None,
     indices: Optional[Sequence[int]] = None,
+    serially_correlated: bool = False,
+    discrete: bool = False,
 ) -> RuleOutcome:
     """Evalúa reglas sobre una serie y devuelve las señales con descripción en español.
 
@@ -495,6 +611,11 @@ def evaluate_rules(
     - labels: etiqueta por posición para el texto (por defecto, posición + 1).
     - indices: índice que se reporta por posición (por defecto, la posición).
       Sirve para el panel MR, cuyo primer valor corresponde al subgrupo 1.
+    - serially_correlated: True en el panel MR; solo se aplican WE1 y N1.
+    - discrete: True en conteos (p, np, c, u); solo cambia el texto de la advertencia.
+
+    Si los límites no son simétricos y se aplicó WE4, N2, N3 o N4, el
+    resultado trae una advertencia en `warnings` (ver `asymmetry_warning`).
     """
     requested = _validate_rule_ids(rules)
     x_all = np.asarray(values, dtype=float)
@@ -521,7 +642,8 @@ def evaluate_rules(
 
     outcome = RuleOutcome()
     if keep.size == 0:
-        outcome.applied, outcome.skipped = applicable_rules(requested, True)
+        outcome.applied, outcome.skipped = applicable_rules(
+            requested, True, serially_correlated=serially_correlated)
         return outcome
 
     inp, reason = prepare(
@@ -529,8 +651,13 @@ def evaluate_rules(
         sigma=None if s_all is None else s_all[keep],
         limit_width=limit_width, symmetric=symmetric,
     )
-    applied, skipped = applicable_rules(requested, inp.z is not None, reason or "")
+    applied, skipped = applicable_rules(requested, inp.z is not None, reason or "",
+                                        serially_correlated=serially_correlated)
     outcome.applied, outcome.skipped = applied, skipped
+    if not symmetric:
+        warning = asymmetry_warning(applied, discrete=discrete)
+        if warning:
+            outcome.warnings.append(warning)
 
     lab = list(labels) if labels is not None else [str(i + 1) for i in range(m)]
     idx = list(indices) if indices is not None else list(range(m))
@@ -558,6 +685,8 @@ def evaluate_limits(values, limits: ControlLimits, rules: Iterable[str], **kwarg
     x = np.asarray(values, dtype=float)
     c, u, lo, s = limits.as_arrays(x.shape[0])
     sig = s if limits.symmetric else None
+    kwargs.setdefault("serially_correlated", limits.serially_correlated)
+    kwargs.setdefault("discrete", limits.discrete)
     return evaluate_rules(x, c, ucl=u, lcl=lo, sigma=sig, rules=rules,
                           limit_width=limits.limit_width, symmetric=limits.symmetric, **kwargs)
 
@@ -605,8 +734,9 @@ def first_signal(values, center, **kwargs) -> np.ndarray:
 
 __all__ = [
     "RULE_IDS", "WESTERN_ELECTRIC", "NELSON", "ZONE_RULES", "NON_ZONE_RULES", "RULES",
+    "LIMIT_RULES", "SIDE_RUN_RULES", "ORDER_RULES", "ASYMMETRY_SENSITIVE_RULES", "SERIAL_CORRELATION_REASON",
     "Violation", "RuleOutcome", "ControlLimits", "RuleInput", "RuleSpec",
-    "prepare", "applicable_rules", "evaluate_rules", "evaluate_limits",
+    "prepare", "applicable_rules", "asymmetry_warning", "evaluate_rules", "evaluate_limits",
     "signal_matrix", "first_signal",
     "rule_we1", "rule_we2", "rule_we3", "rule_we4",
     "rule_n1", "rule_n2", "rule_n3", "rule_n4", "rule_n5", "rule_n6", "rule_n7", "rule_n8",

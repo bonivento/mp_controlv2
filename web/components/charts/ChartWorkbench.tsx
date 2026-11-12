@@ -9,14 +9,17 @@ import {
   attributeArrays,
   isAttributeDataset,
   isVariableDataset,
+  sizeIssueList,
+  sizeIssues,
   variableSubgroups,
 } from "@/lib/dataset-utils";
-import type { ChartType, Dataset, Phase } from "@/lib/db";
+import { isVariableRow, type ChartType, type Dataset, type Phase } from "@/lib/db";
 import { CHART_TYPE_LABEL, PARAM_LABEL } from "@/lib/labels";
 import { useLoad } from "@/lib/use-load";
 import { DatasetSelect, InterpretationBlock, RuleSelector, SaveAnalysis } from "../analysis-parts";
 import { useStudy } from "../study-context";
 import { Alert, Badge, Button, Card, EmptyState, Loading, Modal, NumberField, PageHeader, SelectField, Table, Td, TextAreaField, Th, errMsg, fmtNum } from "../ui";
+import type { ReactNode } from "react";
 import { ControlChart } from "./ControlChart";
 
 type S = components["schemas"];
@@ -65,7 +68,7 @@ export function ChartWorkbench({ kind }: { kind: Kind }) {
 
   // Petición a la API, o el motivo por el que todavía no se puede hacer.
   let request: { kind: Kind; body: S["VariablesChartRequest"] | S["AttributesChartRequest"] } | null = null;
-  let blocker: string | null = null;
+  let blocker: ReactNode = null;
   if (dataset) {
     if (phase === "II" && !frozen) blocker = "no-limits";
     else if (isVar) {
@@ -76,7 +79,22 @@ export function ChartWorkbench({ kind }: { kind: Kind }) {
       else if (chartType !== "i_mr" && (sizes.size !== 1 || sizes.has(1)))
         blocker = sizes.has(1) && sizes.size === 1
           ? "Este conjunto son observaciones individuales (n = 1): usa el gráfico I-MR."
-          : "X-barra necesita subgrupos del mismo tamaño. Este conjunto tiene tamaños distintos: revisa los datos o usa I-MR.";
+          : (() => {
+              const issue = sizeIssues(dataset.rows.filter(isVariableRow));
+              return (
+                <>
+                  X-barra necesita subgrupos del mismo tamaño.
+                  {issue && (
+                    <>
+                      {" "}El tamaño predominante es n = {issue.predominant} y tienen otro tamaño los subgrupos: {sizeIssueList(issue)}.
+                    </>
+                  )}{" "}
+                  Retira esos subgrupos al cargar el archivo en{" "}
+                  <Link className="font-medium underline" href={`/estudios/${study.id}/datos`}>Datos</Link>{" "}
+                  (sección «Subgrupos incompletos»; un conjunto ya guardado no se modifica: elimínalo y vuelve a cargarlo) o elige otro gráfico.
+                </>
+              );
+            })();
       else
         request = {
           kind,

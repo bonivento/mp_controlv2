@@ -76,3 +76,43 @@ def test_excel_report_validation(client):
     r = client.post("/api/reports/excel", json={"study": {"name": "x"}, "sections": [
         {"module": "otro", "title": "t", "result": {}}]})
     assert r.status_code == 422
+
+
+def test_excel_numbers_are_numeric_cells_and_text_is_kept(client, sections):
+    sections = [dict(s) for s in sections]
+    sections[4]["result"] = dict(sections[4]["result"], interpretation={
+        "summary": "El Cpk es 1,39 y el proceso es capaz.", "findings": ["Media 500,2 g"], "warnings": []})
+    r = client.post("/api/reports/excel", json={"study": {"name": "x", "lsl": 495.5}, "sections": sections})
+    wb = openpyxl.load_workbook(io.BytesIO(r.content))
+    ws = wb["5. Capacidad"]
+    texts = [c.value for row in ws.iter_rows() for c in row if isinstance(c.value, str)]
+    assert "El Cpk es 1,39 y el proceso es capaz." in texts and "• Media 500,2 g" in texts
+    # Ninguna celda de texto es un número disfrazado.
+    import re
+    for sheet in wb.worksheets:
+        for row in sheet.iter_rows():
+            for c in row[1:]:  # la columna A lleva etiquetas de subgrupo (texto por contrato)
+                if isinstance(c.value, str):
+                    assert not re.fullmatch(r"-?\d+([.,]\d+)?", c.value.strip()), (sheet.title, c.coordinate, c.value)
+    nums = [c for row in ws.iter_rows() for c in row if isinstance(c.value, (int, float))]
+    assert nums and all(c.number_format != "General" for c in nums)
+    cover = wb["Portada"]
+    lsl = [c for row in cover.iter_rows() for c in row if c.value == 495.5]
+    assert lsl and lsl[0].number_format != "General"
+
+
+def test_seccion_con_resultado_de_otro_modulo_da_422_y_no_500():
+    """`result` es un diccionario libre: una forma equivocada es error de la petición."""
+    from fastapi.testclient import TestClient
+
+    from main import app
+
+    response = TestClient(app).post(
+        "/api/reports/excel",
+        json={
+            "study": {"name": "Prueba"},
+            "sections": [{"module": "design", "title": "mal etiquetado", "result": {"n": 110, "c": 3}}],
+        },
+    )
+    assert response.status_code == 422
+    assert response.json()["code"] == "invalid_data"

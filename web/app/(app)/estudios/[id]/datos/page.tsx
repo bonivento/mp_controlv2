@@ -7,7 +7,7 @@ import { SummaryPanel } from "@/components/data/SummaryPanel";
 import { useStudy } from "@/components/study-context";
 import { Alert, Badge, Button, Card, ConfirmDialog, EmptyState, Loading, PageHeader, Table, Td, Th, errMsg } from "@/components/ui";
 import { getStore } from "@/lib/data";
-import { isVariableDataset, sizeLabel } from "@/lib/dataset-utils";
+import { isVariableDataset, sizeIssueList, sizeIssues, sizeLabel } from "@/lib/dataset-utils";
 import { isAttributeRow, isVariableRow, type Dataset } from "@/lib/db";
 import { useLoad } from "@/lib/use-load";
 
@@ -116,6 +116,16 @@ export default function DataPage() {
                 </Table>
               )}
             </Card>
+            {isVariableDataset(viewing) && (() => {
+              const issue = sizeIssues(viewing.rows.filter(isVariableRow));
+              return issue ? (
+                <Alert tone="warn" title={`Subgrupos de tamaño distinto del predominante (n = ${issue.predominant})`}>
+                  {sizeIssueList(issue)}. X-barra necesita subgrupos del mismo tamaño. Un conjunto guardado no se modifica (los límites congelados
+                  dependen de la posición de cada subgrupo): elimínalo y vuelve a cargar el archivo; en «Subgrupos incompletos» podrás retirarlos
+                  con justificación antes de guardar.
+                </Alert>
+              ) : null;
+            })()}
             {isVariableDataset(viewing) ? (
               <SummaryPanel
                 rows={viewing.rows.filter(isVariableRow)}

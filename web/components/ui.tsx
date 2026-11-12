@@ -131,11 +131,11 @@ export function NumberField({
   step?: string;
 }) {
   const id = useId();
-  const [text, setText] = useState(value == null ? "" : String(value));
+  const [text, setText] = useState(value == null ? "" : numEs(value));
   // Se conserva lo que el usuario escribe ("0." o "-") mientras coincida con el valor; si el valor
   // cambia desde fuera se muestra el nuevo.
   const parsed = text.trim() === "" ? null : Number(text.replace(",", "."));
-  const shown = parsed === value || (value == null && Number.isNaN(parsed)) ? text : value == null ? "" : String(value);
+  const shown = parsed === value || (value == null && Number.isNaN(parsed)) ? text : value == null ? "" : numEs(value);
   return (
     <FieldShell id={id} label={label} hint={hint} error={error} className={className}>
       <input
@@ -341,6 +341,9 @@ export function Badge({ tone = "info", children }: { tone?: "info" | "ok" | "war
 }
 
 // --- Diálogo modal accesible (elemento <dialog> nativo) --------------------------
+const FOCUSABLE =
+  'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export function Modal({
   open,
   title,
@@ -360,12 +363,37 @@ export function Modal({
     if (open && !d.open) d.showModal();
     if (!open && d.open) d.close();
   }, [open]);
+
+  // El <dialog> nativo deja el resto de la página inerte, pero Tab puede saltar a la barra del
+  // navegador. Se atrapa: Tab desde el último elemento vuelve al primero y Mayús+Tab al revés.
+  function trapTab(e: React.KeyboardEvent<HTMLDialogElement>) {
+    if (e.key !== "Tab") return;
+    const d = ref.current;
+    if (!d) return;
+    const items = [...d.querySelectorAll<HTMLElement>(FOCUSABLE)].filter((el) => !el.hasAttribute("hidden") && el.getClientRects().length > 0);
+    if (items.length === 0) {
+      e.preventDefault();
+      return;
+    }
+    const first = items[0];
+    const last = items[items.length - 1];
+    const active = document.activeElement as HTMLElement | null;
+    const inside = !!active && d.contains(active) && active !== d;
+    if (e.shiftKey && (!inside || active === first)) {
+      e.preventDefault();
+      last.focus();
+    } else if (!e.shiftKey && (!inside || active === last)) {
+      e.preventDefault();
+      first.focus();
+    }
+  }
   return (
     <dialog
       ref={ref}
       aria-labelledby={titleId}
       onClose={onClose}
       onCancel={onClose}
+      onKeyDown={trapTab}
       className="m-auto w-[min(32rem,calc(100vw-2rem))] rounded-lg border border-line bg-surface p-0 text-ink shadow-xl backdrop:bg-black/50"
     >
       {open && (
@@ -413,9 +441,11 @@ export function ConfirmDialog({
 
 // --- Tablas -----------------------------------------------------------------------
 export function Table({ caption, children, className = "" }: { caption?: string; children: ReactNode; className?: string }) {
+  // El contenedor desplaza en horizontal solo si hace falta (móvil); en pantallas anchas la
+  // tabla ocupa el ancho disponible y las celdas de texto largo se ajustan en varias líneas.
   return (
     <div className={`overflow-x-auto rounded-md border border-line ${className}`}>
-      <table className="num w-full min-w-max border-collapse text-sm">
+      <table className="num w-full border-collapse text-sm">
         {caption && <caption className="sr-only">{caption}</caption>}
         {children}
       </table>
@@ -423,7 +453,7 @@ export function Table({ caption, children, className = "" }: { caption?: string;
   );
 }
 export const Th = ({ children, className = "" }: { children?: ReactNode; className?: string }) => (
-  <th scope="col" className={`border-b border-line bg-surface-2 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted ${className}`}>
+  <th scope="col" className={`whitespace-nowrap border-b border-line bg-surface-2 px-3 py-2 text-left text-xs font-semibold uppercase tracking-wide text-muted ${className}`}>
     {children}
   </th>
 );
@@ -435,4 +465,10 @@ export const Td = ({ children, className = "" }: { children?: ReactNode; classNa
 export function fmtNum(x: number | null | undefined, d = 3) {
   if (x == null || !Number.isFinite(x)) return "—";
   return x.toLocaleString("es-CO", { minimumFractionDigits: d, maximumFractionDigits: d });
+}
+
+/** Número tal como viene (sin fijar decimales) pero con coma decimal: 2.5 → "2,5". */
+export function numEs(x: number | null | undefined) {
+  if (x == null || !Number.isFinite(x)) return "—";
+  return String(x).replace(".", ",");
 }

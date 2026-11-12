@@ -82,17 +82,48 @@ def _normalize(raw: Any) -> Any:
     return text or None
 
 
-def _classify(column: list[Any]) -> tuple[str, list[Any], int]:
-    """Devuelve (tipo, celdas convertidas, faltantes) para una columna."""
+def _plural(n: int, one: str, many: str) -> str:
+    return f"{n} {one if n == 1 else many}"
+
+
+def _classify(column: list[Any], name: str = "", warnings: Optional[list[str]] = None) -> tuple[str, list[Any], int]:
+    """Devuelve (tipo, celdas convertidas, faltantes) para una columna.
+
+    Si se pasa `warnings`, agrega un aviso por tipo de conversión hecha en la columna.
+    """
+    w = warnings if warnings is not None else []
+    col = f"Columna '{name}'"
     cells = [_normalize(c) for c in column]
     present = [c for c in cells if c is not None]
     if not present:
         return "empty", [None] * len(cells), len(cells)
 
+    trimmed = sum(1 for c in column if isinstance(c, str) and c.strip() and c != c.strip())
+    if trimmed:
+        w.append(f"{col}: {_plural(trimmed, 'celda con espacios', 'celdas con espacios')} al inicio o al final, recortados.")
+    blanks = len(cells) - len(present)
+
     numeric = sum(1 for c in present if isinstance(c, float) or (isinstance(c, str) and parse_number(c) is not None))
     dates = sum(1 for c in present if isinstance(c, tuple) or (isinstance(c, str) and parse_date(c) is not None))
 
     if numeric / len(present) >= KIND_THRESHOLD:
+        commas = sum(1 for c in cells if isinstance(c, str) and _DECIMAL_COMMA.match(c.replace(" ", "")))
+        bad = [c for c in cells if isinstance(c, str) and parse_number(c) is None]
+        other = sum(1 for c in cells if isinstance(c, tuple))
+        if commas:
+            w.append(f"{col}: {_plural(commas, 'valor con coma decimal convertido', 'valores con coma decimal convertidos')} a punto.")
+        if bad or other:
+            examples = []
+            for b in bad:
+                if b not in examples:
+                    examples.append(b)
+            ex = ", ".join(f'"{e}"' for e in examples[:3])
+            w.append(
+                f"{col}: {_plural(len(bad) + other, 'texto no numérico tratado', 'textos no numéricos tratados')} como faltante"
+                + (f" (por ejemplo {ex})." if ex else ".")
+            )
+        if blanks:
+            w.append(f"{col}: {_plural(blanks, 'celda vacía registrada', 'celdas vacías registradas')} como faltante.")
         out = []
         for c in cells:
             if isinstance(c, float):
@@ -103,6 +134,15 @@ def _classify(column: list[Any]) -> tuple[str, list[Any], int]:
                 out.append(None)
         return "numeric", out, sum(1 for v in out if v is None)
     if dates / len(present) >= KIND_THRESHOLD:
+        dmy = sum(1 for c in cells if isinstance(c, str) and _DMY_DATE.match(c))
+        bad = [c for c in cells if isinstance(c, str) and parse_date(c) is None]
+        if dmy:
+            w.append(f"{col}: {_plural(dmy, 'fecha en formato día/mes/año normalizada', 'fechas en formato día/mes/año normalizadas')} a ISO (AAAA-MM-DD).")
+        if bad:
+            ex = ", ".join(f'"{e}"' for e in list(dict.fromkeys(bad))[:3])
+            w.append(f"{col}: {_plural(len(bad), 'texto que no es fecha tratado', 'textos que no son fecha tratados')} como faltante (por ejemplo {ex}).")
+        if blanks:
+            w.append(f"{col}: {_plural(blanks, 'celda vacía registrada', 'celdas vacías registradas')} como faltante.")
         out = []
         for c in cells:
             if isinstance(c, tuple):
@@ -120,6 +160,8 @@ def _classify(column: list[Any]) -> tuple[str, list[Any], int]:
             out.append(str(int(c)) if c == int(c) else repr(c))
         else:
             out.append(c)
+    if blanks:
+        w.append(f"{col}: {_plural(blanks, 'valor de texto vacío registrado', 'valores de texto vacíos registrados')} como faltante.")
     return "text", out, sum(1 for v in out if v is None)
 
 
@@ -142,13 +184,19 @@ def _unique_headers(header: list[Any]) -> list[str]:
     return names
 
 
-def build_sheet(name: str, table: list[list[Any]]) -> Optional[dict[str, Any]]:
-    """Convierte filas crudas (la primera es el encabezado) en una hoja del contrato."""
+def build_sheet(name: str, table: list[list[Any]], notes: Optional[list[str]] = None) -> Optional[dict[str, Any]]:
+    """Convierte filas crudas (la primera es el encabezado) en una hoja del contrato.
+
+    `notes` son avisos previos (separador, codificación) que van al inicio de `warnings`.
+    """
     while table and all(_normalize(c) is None for c in table[-1]):
         table.pop()
     if not table:
         return None
-    header, body = table[0], table[1:]
+    header = table[0]
+    body_all = table[1:]
+    body = [r for r in body_all if any(_normalize(c) is not None for c in r)]
+    dropped = len(body_all) - len(body)
     width = len(header)
     while width > 0 and _normalize(header[width - 1]) is None and all(
         _normalize(r[width - 1]) is None if len(r) >= width else True for r in body
@@ -165,23 +213,29 @@ def build_sheet(name: str, table: list[list[Any]]) -> Optional[dict[str, Any]]:
         )
     headers = _unique_headers(header[:width])
     columns, converted = [], []
+    warnings: list[str] = list(notes or [])
+    if dropped:
+        warnings.append(f"{_plural(dropped, 'fila completamente vacía descartada', 'filas completamente vacías descartadas')}.")
     for j in range(width):
         col = [(r[j] if j < len(r) else None) for r in body]
-        kind, cells, missing = _classify(col)
+        kind, cells, missing = _classify(col, headers[j], warnings)
         columns.append({"name": headers[j], "kind": kind, "missing": missing})
         converted.append(cells)
     rows = [[converted[j][i] for j in range(width)] for i in range(len(body))]
-    return {"name": name, "columns": columns, "rows": rows}
+    return {"name": name, "columns": columns, "rows": rows, "warnings": warnings}
 
 
 # --- Lectores --------------------------------------------------------------
-def _decode(raw: bytes) -> str:
-    for encoding in ("utf-8-sig", "cp1252"):
-        try:
-            return raw.decode(encoding)
-        except UnicodeDecodeError:
-            continue
-    return raw.decode("latin-1")
+def _decode(raw: bytes) -> tuple[str, str]:
+    """Texto y nombre de la codificación detectada."""
+    try:
+        return raw.decode("utf-8-sig"), "UTF-8"
+    except UnicodeDecodeError:
+        pass
+    try:
+        return raw.decode("cp1252"), "Windows-1252"
+    except UnicodeDecodeError:
+        return raw.decode("latin-1"), "Latin-1"
 
 
 def detect_delimiter(text: str) -> str:
@@ -200,10 +254,15 @@ def detect_delimiter(text: str) -> str:
 
 
 def parse_csv(raw: bytes) -> list[dict[str, Any]]:
-    text = _decode(raw)
+    text, encoding = _decode(raw)
     delimiter = detect_delimiter(text)
+    notes = []
+    if delimiter != ",":
+        notes.append(f"Separador de columnas detectado: {'punto y coma' if delimiter == ';' else 'tabulador'}.")
+    if encoding != "UTF-8":
+        notes.append(f"Codificación detectada: {encoding} (no es UTF-8); los caracteres se convirtieron al leer.")
     table = [list(r) for r in csv.reader(io.StringIO(text, newline=""), delimiter=delimiter)]
-    sheet = build_sheet("CSV", table)
+    sheet = build_sheet("CSV", table, notes)
     if sheet is None:
         raise SPCInputError("El archivo CSV está vacío.", "invalid_data")
     return [sheet]

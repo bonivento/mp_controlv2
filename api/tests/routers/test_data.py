@@ -137,3 +137,46 @@ def test_attribute_summary_without_sizes_and_validation(client):
     assert b["rows"][0]["label"] == "1" and b["warnings"] == []
     r = client.post("/api/data/summary/attributes", json={"counts": [1, 2], "sizes": [10]})
     assert r.status_code == 422 and "tamaños" in r.json()["detail"]
+
+
+# --- Avisos de conversión ---------------------------------------------------------
+DIRTY_WARNINGS = [
+    "Columna 'fecha': 1 fecha en formato día/mes/año normalizada a ISO (AAAA-MM-DD).",
+    "Columna 'turno': 1 celda con espacios al inicio o al final, recortados.",
+    "Columna 'turno': 1 valor de texto vacío registrado como faltante.",
+    'Columna \'x1\': 1 texto no numérico tratado como faltante (por ejemplo "N/D").',
+    "Columna 'x2': 1 celda vacía registrada como faltante.",
+    "Columna 'x3': 1 valor con coma decimal convertido a punto.",
+    "Columna 'x4': 1 celda vacía registrada como faltante.",
+    "Columna 'x5': 1 valor con coma decimal convertido a punto.",
+]
+
+
+@pytest.mark.parametrize("ext", ["csv", "xlsx"])
+def test_dirty_file_warnings(client, ext):
+    path = EJEMPLOS / f"sintetico_sucio.{ext}"
+    sheet = _upload(client, path.name, path.read_bytes()).json()["sheets"][0]
+    assert sheet["warnings"] == DIRTY_WARNINGS
+
+
+@pytest.mark.parametrize("path", [p for p in FILES if "sucio" not in p.name], ids=lambda p: p.name)
+def test_clean_files_have_no_warnings(client, path):
+    sheet = _upload(client, path.name, path.read_bytes()).json()["sheets"][0]
+    assert sheet["warnings"] == []
+
+
+def test_warnings_semicolon_encoding_examples_and_empty_rows(client):
+    text = "fecha;valor;turno\n01/03/2026;1,5;A\n06/03/2026;2,5;A\n07/03/2026;3;A\n08/03/2026;4;A\n09/03/2026;5;A\n10/03/2026;6;A\n\n02/03/2026;x1;B\n03/03/2026;abc;\n04/03/2026;N/D;C\n05/03/2026;zz;D\n;;;\n"
+    sheet = _upload(client, "d.csv", text.encode("cp1252")).json()["sheets"][0]
+    w = sheet["warnings"]
+    assert "Separador de columnas detectado: punto y coma." in w
+    assert "1 fila completamente vacía descartada." in w or "2 filas completamente vacías descartadas." in w
+    assert "Columna 'valor': 4 textos no numéricos tratados como faltante (por ejemplo \"x1\", \"abc\", \"N/D\")." in w
+    assert "Columna 'valor': 2 valores con coma decimal convertidos a punto." in w
+    assert "Columna 'fecha': 10 fechas en formato día/mes/año normalizadas a ISO (AAAA-MM-DD)." in w
+
+
+def test_warning_for_non_utf8_encoding(client):
+    sheet = _upload(client, "d.csv", "turno,valor\nMañana,1\nNoche,2\n".encode("cp1252")).json()["sheets"][0]
+    assert any(x.startswith("Codificación detectada: Windows-1252") for x in sheet["warnings"])
+    assert sheet["rows"][0][0] == "Mañana"

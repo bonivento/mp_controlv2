@@ -4,7 +4,7 @@ import { useState } from "react";
 import { InterpretationBlock, RuleSelector, SaveAnalysis } from "@/components/analysis-parts";
 import { CurveChart, TradeoffChart } from "@/components/charts/StatCharts";
 import { useStudy } from "@/components/study-context";
-import { Alert, Badge, Button, Card, EmptyState, Loading, NumberField, PageHeader, SelectField, Table, Td, TextField, Th, fmtNum } from "@/components/ui";
+import { Alert, Badge, Button, Card, EmptyState, Loading, NumberField, PageHeader, SelectField, Table, Td, TextField, Th, fmtNum, numEs } from "@/components/ui";
 import { api } from "@/lib/api";
 import type { components } from "@/lib/api-types";
 import { useLoad } from "@/lib/use-load";
@@ -197,7 +197,7 @@ export default function DesignPage() {
               <SaveAnalysis
                 studyId={study.id}
                 module="design"
-                defaultTitle={`ARL/ATS · ${CHARTS.find((x) => x[0] === arlReq.chart)?.[1]} · n=${arlReq.n}, L=${arlReq.limit_width}, h=${arlReq.sampling_interval}`}
+                defaultTitle={`ARL/ATS · ${CHARTS.find((x) => x[0] === arlReq.chart)?.[1]} · n=${arlReq.n}, L=${numEs(arlReq.limit_width)}, h=${numEs(arlReq.sampling_interval)}`}
                 params={arlReq as unknown as Record<string, unknown>}
                 result={a as unknown as Record<string, unknown>}
               />
@@ -250,7 +250,7 @@ export default function DesignPage() {
               <SaveAnalysis
                 studyId={study.id}
                 module="design"
-                defaultTitle={`Comparación de diseños para δ = ${cmpReq.shift} σ`}
+                defaultTitle={`Comparación de diseños para δ = ${numEs(cmpReq.shift)} σ`}
                 params={cmpReq as unknown as Record<string, unknown>}
                 result={c as unknown as Record<string, unknown>}
               />

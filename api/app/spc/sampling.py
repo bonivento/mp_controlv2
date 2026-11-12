@@ -6,7 +6,7 @@ Fuente: Montgomery, *Introduction to Statistical Quality Control*, cap. 15
 - Plan simple (n, c): se inspeccionan n unidades y se acepta el lote si el
   número de defectuosas d cumple d <= c. Probabilidad de aceptación
   Pa(p) = P(d <= c), con d binomial (n, p) (curva OC tipo B), Poisson (n·p)
-  o hipergeométrica (N, D = p·N, n) (curva OC tipo A, lote finito).
+  o hipergeométrica (N, D = floor(p·N + 0.5), n) (curva OC tipo A, lote finito).
 - Diseño por dos puntos de la curva OC: Pa(AQL) >= 1 - α (riesgo del
   productor) y Pa(LTPD) <= β (riesgo del consumidor).
 - Inspección rectificadora: AOQ = Pa·p·(N - n)/N; sin N se usa AOQ ≈ Pa·p.
@@ -33,6 +33,7 @@ from scipy import optimize, stats
 from .descriptive import CurvePoint
 from .interpretation import (
     Interpretation,
+    fmt,
     interpret_double_plan,
     interpret_single_plan,
 )
@@ -112,8 +113,15 @@ def _validate_distribution(distribution: str, lot_size: Optional[int], n: int) -
 
 
 def defectives_in_lot(p, lot_size: int):
-    """D = round(p·N): número de defectuosas en el lote para la hipergeométrica."""
-    return np.rint(np.asarray(p, dtype=float) * lot_size).astype(int)
+    """D = floor(p·N + 0.5): número de defectuosas en el lote para la hipergeométrica.
+
+    Redondeo aritmético (0.5 hacia arriba). `np.rint` redondea 0.5 al par y,
+    por la representación binaria, 0.07·50 = 3.5000000000000004 subía a 4
+    mientras 0.05·50 = 2.5 bajaba a 2 (hallazgo H15). Antes de redondear se
+    quita el ruido de coma flotante con 9 decimales.
+    """
+    x = np.round(np.asarray(p, dtype=float) * lot_size, 9)
+    return np.floor(x + 0.5).astype(int)
 
 
 def prob_accept(
@@ -126,7 +134,7 @@ def prob_accept(
     """Pa(p) = P(d <= c) para un plan simple (Montgomery, cap. 15).
 
     Admite arreglos en `n`, `c` o `p` (difusión de numpy). Con la
-    hipergeométrica, p se convierte en D = round(p·N) defectuosas del lote.
+    hipergeométrica, p se convierte en D = floor(p·N + 0.5) defectuosas del lote.
     """
     p = np.asarray(p, dtype=float)
     if distribution == "binomial":
@@ -215,8 +223,8 @@ def find_single_plan(
         c += 1
     limit = f"N = {lot_size}" if lot_size is not None else f"n = {max_n}"
     raise ValueError(
-        f"No existe un plan simple con n <= {limit} que cumpla α = {alpha} en AQL = {aql} "
-        f"y β = {beta} en LTPD = {ltpd}. Acerque los riesgos o separe más AQL y LTPD."
+        f"No existe un plan simple con n <= {limit} que cumpla α = {fmt(alpha)} en AQL = {fmt(aql)} "
+        f"y β = {fmt(beta)} en LTPD = {fmt(ltpd)}. Acerque los riesgos o separe más AQL y LTPD."
     )
 
 

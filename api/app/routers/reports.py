@@ -21,7 +21,15 @@ def _filename(name: str) -> str:
 
 @router.post("/api/reports/excel", response_class=Response, tags=["reportes"])
 def excel_report(body: reports.ExcelReportRequest):
-    content = build_workbook(body.study.model_dump(), [s.model_dump() for s in body.sections])
+    try:
+        content = build_workbook(body.study.model_dump(), [s.model_dump() for s in body.sections])
+    except (KeyError, TypeError, IndexError, AttributeError) as exc:
+        # `result` llega como diccionario libre: si no tiene la forma de la
+        # respuesta de su módulo, es un error de la petición y no del servidor.
+        raise ValueError(
+            "Un análisis del reporte no tiene la forma esperada para su módulo "
+            f"(falta o sobra el dato {exc}). Vuelva a calcular ese análisis y guárdelo de nuevo."
+        ) from exc
     return Response(
         content=content,
         media_type=XLSX_MEDIA_TYPE,

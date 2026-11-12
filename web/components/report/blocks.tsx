@@ -8,7 +8,7 @@
 import type { ReactNode } from "react";
 import { ControlChart } from "@/components/charts/ControlChart";
 import { AcfChart, CurveChart, HistogramChart, QQChart, TradeoffChart } from "@/components/charts/StatCharts";
-import { Badge, fmtNum } from "@/components/ui";
+import { Badge, fmtNum, numEs } from "@/components/ui";
 import type { components } from "@/lib/api-types";
 import type { Analysis, Dataset, Study } from "@/lib/db";
 import { CHART_TYPE_LABEL, PARAM_LABEL, SIGMA_METHOD_LABEL, fmtDateTime, slug } from "@/lib/labels";
@@ -323,6 +323,16 @@ const VERDICT: Record<string, string> = {
   excellent: "Excelente (Cpk ≥ 1,67)",
 };
 
+/** Qué datos entraron al cálculo: subgrupos retenidos y, si hay límites congelados, sus exclusiones. */
+function capabilityData(p: Partial<S["CapabilityRequest"]>): string {
+  const n = p.subgroups?.length;
+  if (n == null) return "—";
+  const ex = p.limits?.excluded ?? [];
+  if (!p.limits) return `${n} (σ estimada con estos subgrupos)`;
+  const excl = ex.length ? `excluidos al congelar: ${ex.map((e) => `${e.label ?? e.index + 1} (${e.cause})`).join("; ")}` : "sin exclusiones al congelar";
+  return `${n}; σ de Fase I (límites congelados; ${excl})`;
+}
+
 function capabilityBlocks(ctx: SectionCtx): Block[] {
   const r = ctx.analysis.result as unknown as S["CapabilityResponse"];
   const p = ctx.analysis.params as Partial<S["CapabilityRequest"]>;
@@ -343,11 +353,12 @@ function capabilityBlocks(ctx: SectionCtx): Block[] {
           caption="Condiciones del estudio de capacidad"
           rows={[
             ["Observaciones (n)", String(r.n)],
+            ["Subgrupos usados", capabilityData(p)],
             ["Media", num(r.mean, 4)],
             ["σ dentro del subgrupo", num(r.sigma_within, 4)],
             ["σ total", num(r.sigma_overall, 4)],
             ["Estimador de σ", SIGMA_METHOD_LABEL[r.sigma_method] ?? r.sigma_method],
-            ["LSL / USL / objetivo", `${p.lsl ?? "—"} / ${p.usl ?? "—"} / ${p.target ?? "—"}`],
+            ["LSL / USL / objetivo", `${numEs(p.lsl)} / ${numEs(p.usl)} / ${numEs(p.target)}`],
             ["Proceso estable", p.is_stable == null ? "No verificado" : p.is_stable ? "Sí" : "No"],
             ["Datos normales", p.is_normal == null ? "No verificado" : p.is_normal ? "Sí" : "No"],
             ["Veredicto de capacidad", VERDICT[r.verdict] ?? r.verdict],
@@ -636,7 +647,7 @@ export function paramsLine(ctx: SectionCtx): string | null {
   if (dataset) parts.push(`Conjunto de datos: ${dataset.name} (Fase ${dataset.phase}, ${dataset.rows.length} subgrupos)`);
   if (analysis.module === "variables" || analysis.module === "attributes") {
     if (typeof p.chart_type === "string") parts.push(`Gráfico ${CHART_TYPE_LABEL[p.chart_type] ?? p.chart_type}`);
-    if (typeof p.limit_width === "number") parts.push(`L = ${p.limit_width}`);
+    if (typeof p.limit_width === "number") parts.push(`L = ${numEs(p.limit_width)}`);
     const rules = (p.rules as { enabled?: string[] } | undefined)?.enabled;
     if (rules?.length) parts.push(`Reglas: ${rules.join(", ")}`);
   }

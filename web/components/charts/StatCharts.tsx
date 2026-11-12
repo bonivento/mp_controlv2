@@ -2,6 +2,7 @@
 
 import type { Data, Layout, Shape } from "plotly.js";
 import type { components } from "@/lib/api-types";
+import { fmtNum, numEs } from "@/components/ui";
 import { PlotlyChart } from "./PlotlyChart";
 import { useChartTheme } from "./theme";
 
@@ -59,7 +60,7 @@ export function HistogramChart({
     if (v == null) return;
     xs.push(v);
     shapes.push({ type: "line", xref: "x", yref: "paper", x0: v, x1: v, y0: 0, y1: 1, line: { color: t.spec, width: 2, dash } });
-    annotations.push({ x: v, xref: "x", y: 1, yref: "paper", text: `${text} ${v.toLocaleString("es-CO")}`, showarrow: false, yanchor: "bottom", font: { size: 11, color: t.spec } });
+    annotations.push({ x: v, xref: "x", y: 1, yref: "paper", text: `${text} ${numEs(v)}`, showarrow: false, yanchor: "bottom", font: { size: 11, color: t.spec } });
   };
   add(specs?.lsl, "LSL", "solid");
   add(specs?.usl, "USL", "solid");
@@ -128,7 +129,7 @@ export function AcfChart({ acf, title, fileName }: { acf: S["Autocorrelation"]; 
   return (
     <PlotlyChart
       title={title}
-      description={`Autocorrelación por rezago con bandas de significancia ±${acf.band.toFixed(3)}. Rezagos significativos: ${acf.significant_lags.join(", ") || "ninguno"}.`}
+      description={`Autocorrelación por rezago con bandas de significancia ±${fmtNum(acf.band, 3)}. Rezagos significativos: ${acf.significant_lags.join(", ") || "ninguno"}.`}
       fileName={fileName}
       data={[
         {
@@ -220,7 +221,7 @@ export function CurveChart({
 /** Compromiso entre rapidez de detección (ATS1) y carga muestral (n/h) de varios diseños. */
 export function TradeoffChart({ rows, title, fileName }: { rows: S["CompareRow"][]; title: string; fileName: string }) {
   const t = useChartTheme();
-  const text = rows.map((r) => `n=${r.n}, L=${r.limit_width}, h=${r.sampling_interval}`);
+  const text = rows.map((r) => `n=${r.n}, L=${numEs(r.limit_width)}, h=${numEs(r.sampling_interval)}`);
   return (
     <PlotlyChart
       title={title}

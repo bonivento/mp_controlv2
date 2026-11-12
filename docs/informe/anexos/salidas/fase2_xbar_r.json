@@ -1,0 +1,487 @@
+{
+ "ruta": "/api/charts/variables",
+ "peticion": {
+  "chart_type": "xbar_r",
+  "phase": "II",
+  "subgroups": [
+   [
+    500.47,
+    504.76,
+    502.18,
+    500.74,
+    502.53
+   ],
+   [
+    499.26,
+    501.66,
+    500.3,
+    501.79,
+    502.13
+   ],
+   [
+    501.43,
+    500.63,
+    502.49,
+    502.22,
+    503.25
+   ],
+   [
+    500.79,
+    502.79,
+    501.74,
+    501.62,
+    500.63
+   ],
+   [
+    502.78,
+    502.44,
+    500.65,
+    503.73,
+    500.93
+   ],
+   [
+    501.46,
+    501.86,
+    502.57,
+    500.0,
+    503.42
+   ],
+   [
+    502.97,
+    502.17,
+    503.18,
+    501.28,
+    501.36
+   ],
+   [
+    500.97,
+    500.82,
+    503.82,
+    503.87,
+    501.69
+   ],
+   [
+    501.83,
+    502.2,
+    502.72,
+    501.12,
+    501.99
+   ],
+   [
+    502.95,
+    501.86,
+    499.97,
+    502.09,
+    502.57
+   ],
+   [
+    501.84,
+    501.32,
+    501.81,
+    501.34,
+    502.38
+   ],
+   [
+    500.1,
+    502.04,
+    500.19,
+    500.13,
+    500.7
+   ],
+   [
+    501.32,
+    500.95,
+    500.7,
+    502.55,
+    502.83
+   ],
+   [
+    502.21,
+    502.55,
+    504.76,
+    500.51,
+    501.06
+   ],
+   [
+    500.48,
+    502.6,
+    501.03,
+    499.32,
+    500.54
+   ]
+  ],
+  "labels": [
+   "26",
+   "27",
+   "28",
+   "29",
+   "30",
+   "31",
+   "32",
+   "33",
+   "34",
+   "35",
+   "36",
+   "37",
+   "38",
+   "39",
+   "40"
+  ],
+  "limits": {
+   "chart_type": "xbar_r",
+   "subgroup_size": 5,
+   "sigma_method": "rbar_d2",
+   "params": {
+    "mu": 499.80925,
+    "sigma": 1.2950022693441339,
+    "r_bar": 3.0120833333333317
+   },
+   "points_used": 24,
+   "excluded": [
+    {
+     "index": 11,
+     "label": "12",
+     "cause": "Boquilla obstruida (causa asignable ficticia del ejemplo sintético)"
+    }
+   ],
+   "limit_width": 3.0
+  },
+  "rules": {
+   "enabled": [
+    "WE1"
+   ]
+  }
+ },
+ "respuesta": {
+  "chart_type": "xbar_r",
+  "phase": "II",
+  "charts": [
+   {
+    "name": "xbar",
+    "title": "Gráfico X-barra (medias de subgrupo)",
+    "labels": [
+     "26",
+     "27",
+     "28",
+     "29",
+     "30",
+     "31",
+     "32",
+     "33",
+     "34",
+     "35",
+     "36",
+     "37",
+     "38",
+     "39",
+     "40"
+    ],
+    "values": [
+     502.1360000000001,
+     501.02799999999996,
+     502.004,
+     501.514,
+     502.10599999999994,
+     501.86199999999997,
+     502.192,
+     502.23400000000004,
+     501.9719999999999,
+     501.88800000000003,
+     501.738,
+     500.63199999999995,
+     501.66999999999996,
+     502.218,
+     500.79400000000004
+    ],
+    "center": [
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925,
+     499.80925
+    ],
+    "ucl": [
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162,
+     501.546677863162
+    ],
+    "lcl": [
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838,
+     498.071822136838
+    ],
+    "violations": [
+     {
+      "rule": "WE1",
+      "index": 0,
+      "description": "Western Electric 1: el punto 26 (502,136) está por encima del límite superior de control (501,547)."
+     },
+     {
+      "rule": "WE1",
+      "index": 2,
+      "description": "Western Electric 1: el punto 28 (502,004) está por encima del límite superior de control (501,547)."
+     },
+     {
+      "rule": "WE1",
+      "index": 4,
+      "description": "Western Electric 1: el punto 30 (502,106) está por encima del límite superior de control (501,547)."
+     },
+     {
+      "rule": "WE1",
+      "index": 5,
+      "description": "Western Electric 1: el punto 31 (501,862) está por encima del límite superior de control (501,547)."
+     },
+     {
+      "rule": "WE1",
+      "index": 6,
+      "description": "Western Electric 1: el punto 32 (502,192) está por encima del límite superior de control (501,547)."
+     },
+     {
+      "rule": "WE1",
+      "index": 7,
+      "description": "Western Electric 1: el punto 33 (502,234) está por encima del límite superior de control (501,547)."
+     },
+     {
+      "rule": "WE1",
+      "index": 8,
+      "description": "Western Electric 1: el punto 34 (501,972) está por encima del límite superior de control (501,547)."
+     },
+     {
+      "rule": "WE1",
+      "index": 9,
+      "description": "Western Electric 1: el punto 35 (501,888) está por encima del límite superior de control (501,547)."
+     },
+     {
+      "rule": "WE1",
+      "index": 10,
+      "description": "Western Electric 1: el punto 36 (501,738) está por encima del límite superior de control (501,547)."
+     },
+     {
+      "rule": "WE1",
+      "index": 12,
+      "description": "Western Electric 1: el punto 38 (501,67) está por encima del límite superior de control (501,547)."
+     },
+     {
+      "rule": "WE1",
+      "index": 13,
+      "description": "Western Electric 1: el punto 39 (502,218) está por encima del límite superior de control (501,547)."
+     }
+    ],
+    "excluded": [],
+    "indices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14
+    ],
+    "rules_applied": [
+     "WE1"
+    ],
+    "rules_skipped": []
+   },
+   {
+    "name": "r",
+    "title": "Gráfico R (rangos de subgrupo)",
+    "labels": [
+     "26",
+     "27",
+     "28",
+     "29",
+     "30",
+     "31",
+     "32",
+     "33",
+     "34",
+     "35",
+     "36",
+     "37",
+     "38",
+     "39",
+     "40"
+    ],
+    "values": [
+     4.289999999999964,
+     2.8700000000000045,
+     2.6200000000000045,
+     2.160000000000025,
+     3.080000000000041,
+     3.420000000000016,
+     1.900000000000034,
+     3.0500000000000114,
+     1.6000000000000227,
+     2.9799999999999613,
+     1.0600000000000023,
+     1.9399999999999977,
+     2.1299999999999955,
+     4.25,
+     3.2800000000000296
+    ],
+    "center": [
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317,
+     3.0120833333333317
+    ],
+    "ucl": [
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585,
+     6.369047786031585
+    ],
+    "lcl": [
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0,
+     0.0
+    ],
+    "violations": [],
+    "excluded": [],
+    "indices": [
+     0,
+     1,
+     2,
+     3,
+     4,
+     5,
+     6,
+     7,
+     8,
+     9,
+     10,
+     11,
+     12,
+     13,
+     14
+    ],
+    "rules_applied": [
+     "WE1"
+    ],
+    "rules_skipped": []
+   }
+  ],
+  "limits": {
+   "chart_type": "xbar_r",
+   "subgroup_size": 5,
+   "sigma_method": "rbar_d2",
+   "params": {
+    "mu": 499.80925,
+    "sigma": 1.2950022693441339,
+    "r_bar": 3.0120833333333317
+   },
+   "points_used": 24,
+   "excluded": [
+    {
+     "index": 11,
+     "label": "12",
+     "cause": "Boquilla obstruida (causa asignable ficticia del ejemplo sintético)"
+    }
+   ],
+   "limit_width": 3.0
+  },
+  "in_control": false,
+  "out_of_control_points": [
+   0,
+   2,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   12,
+   13
+  ],
+  "interpretation": {
+   "summary": "Fase II del gráfico X-barra-R: el proceso salió de control; hay señales en 11 de 15 subgrupos nuevos y la primera aparece en el subgrupo 26 (gráfico X-barra, regla WE1). Hay que buscar la causa asignable a partir de ese momento y actuar sobre el proceso.",
+   "findings": [
+    "Gráfico X-barra: LC = 499,8, LCS = 501,5, LCI = 498,1; 15 puntos graficados.",
+    "Gráfico X-barra, regla WE1: señal en los subgrupos 26 (502,1); 28 (502); 30 (502,1); 31 (501,9); 32 (502,2); 33 (502,2); 34 (502) y 35 (501,9) y 3 más. Un punto fuera de los límites indica una causa asignable puntual (cambio de material, ajuste de máquina, error de medición o de registro).",
+    "Gráfico R: LC = 3,012, LCS = 6,369, LCI = 0; 15 puntos graficados.",
+    "Gráfico R: ningún punto muestra señales con las reglas aplicadas.",
+    "Los límites congelados se estimaron en la Fase I con 24 subgrupos retenidos, después de excluir 1 subgrupo por causa asignable (12: Boquilla obstruida (causa asignable ficticia del ejemplo sintético)). Esas exclusiones son de la Fase I y no forman parte de este gráfico."
+   ],
+   "warnings": [
+    "En Fase II los límites no se recalculan con los datos nuevos: si el proceso cambió de forma deliberada y permanente, debe repetirse la Fase I."
+   ]
+  }
+ }
+}

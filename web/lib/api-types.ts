@@ -1083,6 +1083,12 @@ export interface components {
              * @description Filas en el orden de `columns`
              */
             rows: (number | string | null)[][];
+            /**
+             * Warnings
+             * @description Conversiones y descartes hechos al leer, en español y listos para la bitácora de limpieza: coma decimal convertida, fechas día/mes/año normalizadas, textos no numéricos tratados como faltantes, celdas vacías, espacios recortados. Cada aviso dice cuántas celdas y en qué columna.
+             * @default []
+             */
+            warnings: string[];
         };
         /**
          * PlanRef

@@ -17,9 +17,10 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class Model(BaseModel):
-    """Base de todos los esquemas: rechaza campos desconocidos."""
+    """Base de todos los esquemas: rechaza campos desconocidos y números no finitos
+    (NaN, infinito), tanto en peticiones como en respuestas."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
 
 
 VariablesChartType = Literal["xbar_r", "xbar_s", "i_mr"]

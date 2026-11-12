@@ -27,7 +27,7 @@ from app.spc.phases import (
     variables_phase_one,
     variables_phase_two,
 )
-from app.spc.rules import NON_ZONE_RULES, RULE_IDS, ZONE_RULES
+from app.spc.rules import LIMIT_RULES, RULE_IDS, ZONE_RULES
 
 from .test_attributes import OJ_D, OJ_N, PCB_C, PC_C, PC_N, VAR_D, VAR_N
 from .test_variables import MORTGAGE, PISTON
@@ -115,6 +115,9 @@ def test_phase_one_p_variable_size_skips_zone_rules():
     assert "WE2" in panel.rules_skipped
     assert any("WE2 no se aplica" in w for w in r.warnings)
     assert any("truncó en 0" in w for w in r.warnings)
+    # N4 se aplica con nota de que no depende de la asimetría
+    assert any(w.startswith("Panel P: El gráfico es de conteos con límites asimétricos; la regla N4 depende solo")
+               for w in r.warnings)
     to_response(r)
 
 
@@ -167,9 +170,65 @@ def test_phase_one_i_mr_mortgage():
     assert mr.indices == list(range(1, 20))
     assert mr.labels[0] == "2"
     assert r.limits.subgroup_size == 1 and r.limits.sigma_method == "mrbar_d2"
-    assert set(mr.rules_applied) == set(NON_ZONE_RULES)
-    assert set(mr.rules_skipped) == set(ZONE_RULES)
+    # H5: en MR solo se evalúa el punto fuera de límites (correlación serial).
+    assert mr.rules_applied == list(LIMIT_RULES)
+    assert set(mr.rules_skipped) == set(RULE_IDS) - set(LIMIT_RULES)
+    assert all("correlacionados" in m for m in mr.rules_skipped.values())
+    assert i.rules_applied == list(RULE_IDS)
+    assert not any(w.startswith("Panel MR:") and "falsas alarmas es mayor" in w for w in r.warnings)
     to_response(r)
+
+
+def _mr_run_below_center():
+    # 12 individuales con saltos chicos (MR = 0.1) y dos saltos grandes al inicio:
+    # MR̄ = (2·3 + 9·0.1)/11 = 0.627; los 9 MR finales quedan bajo la LC.
+    return [10.0, 13.0, 10.0] + [10.0 + 0.1 * (k % 2) for k in range(1, 10)]
+
+
+def test_mr_panel_never_flags_runs():
+    x = _mr_run_below_center()
+    r = phase_one("i_mr", x, rules=["WE1", "WE4", "N2", "N3"])
+    mr = r.charts[1]
+    assert mr.rules_applied == ["WE1"]
+    assert set(mr.rules_skipped) == {"WE4", "N2", "N3"}
+    assert all(v.rule == "WE1" for v in mr.violations)
+    assert sum("Panel MR:" in w for w in r.warnings) == 3     # un motivo por regla omitida
+    # el panel I sí evalúa las rachas (es simétrico): sin advertencia de asimetría
+    assert r.charts[0].rules_applied == ["WE1", "WE4", "N2", "N3"]
+    assert not any("asimétrico" in w and w.startswith("Panel I:") for w in r.warnings)
+    to_response(r)
+
+
+@pytest.mark.parametrize("chart", ["xbar_r", "xbar_s"])
+def test_dispersion_panel_warns_once_for_side_run_rules(chart):
+    r = phase_one(chart, PISTON, rules=list(RULE_IDS))
+    disp = r.charts[1].name.upper()
+    asym = [w for w in r.warnings if "falsas alarmas es mayor que la nominal" in w]
+    assert len(asym) == 1 and asym[0].startswith(f"Panel {disp}: Las reglas WE4 y N2 se aplicaron")
+    assert "N3 y N4 dependen solo del orden" in asym[0]
+    assert r.charts[1].warnings == [asym[0].removeprefix(f"Panel {disp}: ")]
+    assert r.charts[0].warnings == []                           # X-barra es simétrico
+    # sin reglas de racha pedidas no hay advertencia
+    plain = phase_one(chart, PISTON, rules=["WE1", "WE2"])
+    assert not any("solo del orden" in w or "mayor que la nominal" in w for w in plain.warnings)
+
+
+def test_truncated_attribute_panel_warns_for_side_runs():
+    # c̄ = 1 da LCI = 1 - 3 < 0, truncado: panel asimétrico.
+    r = phase_one("c", [1, 0, 2, 1, 0, 1, 2, 1, 0, 2], rules=["WE1", "WE4"])
+    assert r.charts[0].rules_applied == ["WE1", "WE4"]
+    asym = [w for w in r.warnings if "es de conteos con límites asimétricos" in w]
+    assert len(asym) == 1 and asym[0].startswith("Panel C: La regla WE4 se aplicó")
+    assert "mayor que la nominal" not in asym[0]            # H19: en conteos puede ser mucho menor
+    assert "distinta de la nominal" in asym[0] and "cortan la racha" in asym[0]
+    p2 = phase_two("c", [0, 0, 0, 0, 0, 0, 0, 0], r.limits, rules=["WE1", "WE4"])
+    assert [v.index for v in p2.charts[0].violations] == [7]    # WE4 sigue señalando
+    assert sum("distinta de la nominal" in w for w in p2.warnings) == 1
+
+
+def test_untruncated_attribute_panel_has_no_asymmetry_warning():
+    r = phase_one("u", PC_C, PC_N, rules=list(RULE_IDS))
+    assert not any("mayor que la nominal" in w or "distinta de la nominal" in w for w in r.warnings)
 
 
 def test_single_excluded_point_marked_on_both_panels():
@@ -248,6 +307,25 @@ def test_phase_two_errors():
     bad = FrozenParameters("xbar_s", 5, "sbar_c4", {"mu": 1.0}, 25)
     with pytest.raises(SPCInputError):
         phase_two("xbar_s", PISTON, bad)                            # falta sigma
+
+
+@pytest.mark.parametrize("width", [0, 0.0, -1.0, float("nan"), float("inf"), None, "tres", True])
+def test_frozen_limit_width_invalid_is_rejected(width):
+    # H16: un L de 0 (o no válido) en límites congelados ya no se cambia por 3 en silencio.
+    p1 = phase_one("xbar_r", PISTON)
+    data = {**p1.limits.to_contract(), "limit_width": width}
+    with pytest.raises(SPCInputError):
+        FrozenParameters.from_mapping(data)
+    with pytest.raises(SPCInputError):
+        phase_two("xbar_r", PISTON, data)
+
+
+def test_frozen_limit_width_missing_defaults_to_three():
+    p1 = phase_one("xbar_r", PISTON, limit_width=2.5)
+    data = p1.limits.to_contract()
+    assert FrozenParameters.from_mapping(data).limit_width == 2.5
+    data.pop("limit_width")
+    assert FrozenParameters.from_mapping(data).limit_width == 3.0   # valor por defecto del contrato
 
 
 # --- validación de exclusiones -----------------------------------------------------

@@ -1,0 +1,168 @@
+{
+ "ruta": "/api/design/compare",
+ "peticion": {
+  "n_values": [
+   3,
+   5,
+   8,
+   10
+  ],
+  "limit_widths": [
+   3.0
+  ],
+  "sampling_intervals": [
+   2.0,
+   4.0,
+   8.0
+  ],
+  "shift": 1.5
+ },
+ "respuesta": {
+  "shift": 1.5,
+  "rows": [
+   {
+    "n": 3,
+    "limit_width": 3.0,
+    "sampling_interval": 2.0,
+    "arl0": 370.39834734495923,
+    "ats0": 740.7966946899185,
+    "arl1": 2.90807514894185,
+    "ats1": 5.8161502978837,
+    "sampling_load": 1.5
+   },
+   {
+    "n": 3,
+    "limit_width": 3.0,
+    "sampling_interval": 4.0,
+    "arl0": 370.39834734495923,
+    "ats0": 1481.593389379837,
+    "arl1": 2.90807514894185,
+    "ats1": 11.6323005957674,
+    "sampling_load": 0.75
+   },
+   {
+    "n": 3,
+    "limit_width": 3.0,
+    "sampling_interval": 8.0,
+    "arl0": 370.39834734495923,
+    "ats0": 2963.186778759674,
+    "arl1": 2.90807514894185,
+    "ats1": 23.2646011915348,
+    "sampling_load": 0.375
+   },
+   {
+    "n": 5,
+    "limit_width": 3.0,
+    "sampling_interval": 2.0,
+    "arl0": 370.39834734495923,
+    "ats0": 740.7966946899185,
+    "arl1": 1.5664926818995997,
+    "ats1": 3.1329853637991993,
+    "sampling_load": 2.5
+   },
+   {
+    "n": 5,
+    "limit_width": 3.0,
+    "sampling_interval": 4.0,
+    "arl0": 370.39834734495923,
+    "ats0": 1481.593389379837,
+    "arl1": 1.5664926818995997,
+    "ats1": 6.265970727598399,
+    "sampling_load": 1.25
+   },
+   {
+    "n": 5,
+    "limit_width": 3.0,
+    "sampling_interval": 8.0,
+    "arl0": 370.39834734495923,
+    "ats0": 2963.186778759674,
+    "arl1": 1.5664926818995997,
+    "ats1": 12.531941455196797,
+    "sampling_load": 0.625
+   },
+   {
+    "n": 8,
+    "limit_width": 3.0,
+    "sampling_interval": 2.0,
+    "arl0": 370.39834734495923,
+    "ats0": 740.7966946899185,
+    "arl1": 1.119820997745322,
+    "ats1": 2.239641995490644,
+    "sampling_load": 4.0
+   },
+   {
+    "n": 8,
+    "limit_width": 3.0,
+    "sampling_interval": 4.0,
+    "arl0": 370.39834734495923,
+    "ats0": 1481.593389379837,
+    "arl1": 1.119820997745322,
+    "ats1": 4.479283990981288,
+    "sampling_load": 2.0
+   },
+   {
+    "n": 8,
+    "limit_width": 3.0,
+    "sampling_interval": 8.0,
+    "arl0": 370.39834734495923,
+    "ats0": 2963.186778759674,
+    "arl1": 1.119820997745322,
+    "ats1": 8.958567981962576,
+    "sampling_load": 1.0
+   },
+   {
+    "n": 10,
+    "limit_width": 3.0,
+    "sampling_interval": 2.0,
+    "arl0": 370.39834734495923,
+    "ats0": 740.7966946899185,
+    "arl1": 1.0423511927500508,
+    "ats1": 2.0847023855001017,
+    "sampling_load": 5.0
+   },
+   {
+    "n": 10,
+    "limit_width": 3.0,
+    "sampling_interval": 4.0,
+    "arl0": 370.39834734495923,
+    "ats0": 1481.593389379837,
+    "arl1": 1.0423511927500508,
+    "ats1": 4.169404771000203,
+    "sampling_load": 2.5
+   },
+   {
+    "n": 10,
+    "limit_width": 3.0,
+    "sampling_interval": 8.0,
+    "arl0": 370.39834734495923,
+    "ats0": 2963.186778759674,
+    "arl1": 1.0423511927500508,
+    "ats1": 8.338809542000407,
+    "sampling_load": 1.25
+   }
+  ],
+  "interpretation": {
+   "summary": "Para detectar un desplazamiento de 1,5σ, el diseño más rápido es n = 10, L = 3, h = 2 h: ATS1 = 2,085 h con una carga de 5 unidades por hora y una falsa alarma cada 740,8 h ≈ 30,9 días de operación continua.",
+   "findings": [
+    "n = 3, L = 3, h = 2 h: ARL0 = 370,4 (falsa alarma cada 740,8 h ≈ 30,9 días de operación continua), ARL1 = 2,908 (ATS1 = 5,816 h), carga 1,5 unidades/h.",
+    "n = 3, L = 3, h = 4 h: ARL0 = 370,4 (falsa alarma cada 1482 h ≈ 61,7 días de operación continua), ARL1 = 2,908 (ATS1 = 11,63 h), carga 0,75 unidades/h.",
+    "n = 3, L = 3, h = 8 h: ARL0 = 370,4 (falsa alarma cada 2963 h ≈ 123 días de operación continua), ARL1 = 2,908 (ATS1 = 23,26 h), carga 0,375 unidades/h.",
+    "n = 5, L = 3, h = 2 h: ARL0 = 370,4 (falsa alarma cada 740,8 h ≈ 30,9 días de operación continua), ARL1 = 1,566 (ATS1 = 3,133 h), carga 2,5 unidades/h.",
+    "n = 5, L = 3, h = 4 h: ARL0 = 370,4 (falsa alarma cada 1482 h ≈ 61,7 días de operación continua), ARL1 = 1,566 (ATS1 = 6,266 h), carga 1,25 unidades/h.",
+    "n = 5, L = 3, h = 8 h: ARL0 = 370,4 (falsa alarma cada 2963 h ≈ 123 días de operación continua), ARL1 = 1,566 (ATS1 = 12,53 h), carga 0,625 unidades/h.",
+    "n = 8, L = 3, h = 2 h: ARL0 = 370,4 (falsa alarma cada 740,8 h ≈ 30,9 días de operación continua), ARL1 = 1,12 (ATS1 = 2,24 h), carga 4 unidades/h.",
+    "n = 8, L = 3, h = 4 h: ARL0 = 370,4 (falsa alarma cada 1482 h ≈ 61,7 días de operación continua), ARL1 = 1,12 (ATS1 = 4,479 h), carga 2 unidades/h.",
+    "n = 8, L = 3, h = 8 h: ARL0 = 370,4 (falsa alarma cada 2963 h ≈ 123 días de operación continua), ARL1 = 1,12 (ATS1 = 8,959 h), carga 1 unidades/h.",
+    "n = 10, L = 3, h = 2 h: ARL0 = 370,4 (falsa alarma cada 740,8 h ≈ 30,9 días de operación continua), ARL1 = 1,042 (ATS1 = 2,085 h), carga 5 unidades/h.",
+    "n = 10, L = 3, h = 4 h: ARL0 = 370,4 (falsa alarma cada 1482 h ≈ 61,7 días de operación continua), ARL1 = 1,042 (ATS1 = 4,169 h), carga 2,5 unidades/h.",
+    "n = 10, L = 3, h = 8 h: ARL0 = 370,4 (falsa alarma cada 2963 h ≈ 123 días de operación continua), ARL1 = 1,042 (ATS1 = 8,339 h), carga 1,25 unidades/h.",
+    "El diseño de menor carga es n = 3, L = 3, h = 8 h (0,375 unidades/h), pero tarda 23,26 h en detectar; elegir entre ambos es un balance entre costo de inspección y costo de producir fuera de control.",
+    "Con la misma carga de 2,5 unidades/h, n = 5, L = 3, h = 2 h detecta en 3,133 h y n = 10, L = 3, h = 4 h en 4,169 h: con el mismo esfuerzo conviene el reparto de la primera.",
+    "Con la misma carga de 1,25 unidades/h, n = 5, L = 3, h = 4 h detecta en 6,266 h y n = 10, L = 3, h = 8 h en 8,339 h: con el mismo esfuerzo conviene el reparto de la primera."
+   ],
+   "warnings": [
+    "Cálculos exactos para la regla de un punto fuera de límites, con μ y σ conocidos y datos normales e independientes."
+   ]
+  }
+ }
+}

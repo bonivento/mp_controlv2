@@ -6,13 +6,16 @@ import { api } from "@/lib/api";
 import type { components } from "@/lib/api-types";
 import { getStore } from "@/lib/data";
 import type { CleaningEntry, Dataset, Phase, Study, Subgrouping } from "@/lib/db";
+import { sizeIssues } from "@/lib/dataset-utils";
 import { buildAttributeRows, buildVariableSubgroups, type VariableConfig } from "@/lib/subgroups";
-import { Alert, Button, Card, CheckField, NumberField, SelectField, Table, Td, TextAreaField, TextField, Th, errMsg } from "../ui";
+import { Alert, Button, Card, CheckField, NumberField, SelectField, Table, Td, TextAreaField, TextField, Th, errMsg, numEs } from "../ui";
 import { AttributeSummaryPanel } from "./AttributeSummaryPanel";
+import { IncompleteSubgroups, type IncompleteDecision } from "./IncompleteSubgroups";
 import { SummaryPanel, type OutlierDecision } from "./SummaryPanel";
 
 type Parsed = components["schemas"]["ParsedFile"];
 type Sheet = components["schemas"]["ParsedSheet"];
+type Decision = OutlierDecision | IncompleteDecision;
 
 interface Config {
   layout: "long" | "wide";
@@ -63,7 +66,7 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
   const [sheetIdx, setSheetIdx] = useState(0);
   const [cfg, setCfg] = useState<Config | null>(null);
   const [justification, setJustification] = useState("");
-  const [decisions, setDecisions] = useState<OutlierDecision[]>([]);
+  const [decisions, setDecisions] = useState<Decision[]>([]);
   const [name, setName] = useState("");
   const [phase, setPhase] = useState<Phase>("I");
   const [saving, setSaving] = useState(false);
@@ -124,8 +127,9 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
     };
   }, [sheet, cfg, attribute]);
 
-  const removed = new Set(decisions.filter((d) => d.kind === "remove").map((d) => d.label));
+  const removed = new Set(decisions.filter((d) => d.kind !== "keep").map((d) => d.label));
   const rows = built && built.kind === "variable" ? built.rows.filter((r) => !removed.has(r.label)) : [];
+  const issue = sizeIssues(rows);
   const attrRows = built && built.kind === "attribute" ? built.rows : [];
   const count = attribute ? attrRows.length : rows.length;
   const justOk = justification.trim().length >= 10;
@@ -139,12 +143,21 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
     const now = new Date().toISOString();
     const log: CleaningEntry[] = [
       { action: "Carga", detail: `Archivo ${file.name}, hoja ${sheet.name}: ${sheet.rows.length} filas, ${sheet.columns.length} columnas.`, at: now },
-      ...built.warnings.map((w) => ({ action: "Limpieza", detail: w, at: now })),
-      ...decisions.map((d) => ({
-        action: d.kind === "keep" ? "Atípico conservado" : "Subgrupo retirado",
-        detail: `Subgrupo ${d.label}, valor ${d.value}: ${d.justification}`,
-        at: now,
-      })),
+      // Avisos de la lectura del archivo (los genera la API) y de la formación de subgrupos (la web).
+      ...[...new Set([...sheet.warnings, ...built.warnings])].map((w) => ({ action: "Limpieza", detail: w, at: now })),
+      ...decisions.map((d) =>
+        d.kind === "incomplete"
+          ? {
+              action: "Subgrupo incompleto retirado",
+              detail: `Subgrupo ${d.label} (n = ${d.n}; el tamaño predominante es ${d.expected}): ${d.justification}`,
+              at: now,
+            }
+          : {
+              action: d.kind === "keep" ? "Atípico conservado" : "Subgrupo retirado",
+              detail: `Subgrupo ${d.label}, valor ${numEs(d.value)}: ${d.justification}`,
+              at: now,
+            },
+      ),
     ];
     const subgrouping: Subgrouping = attribute
       ? {
@@ -247,6 +260,14 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
                 </option>
               ))}
             </SelectField>
+          )}
+          {sheet && sheet.warnings.length > 0 && (
+            <Alert tone="warn" title={`Avisos al leer el archivo (${sheet.warnings.length})`}>
+              <p>Estas conversiones se hicieron al leer la hoja; quedarán registradas en la bitácora de limpieza al guardar.</p>
+              <ul className="mt-1 list-disc space-y-0.5 pl-5">
+                {sheet.warnings.map((w, i) => <li key={i}>{w}</li>)}
+              </ul>
+            </Alert>
           )}
           {sheet && (
             <div>
@@ -396,13 +417,16 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
               counting={cfg.counting}
             />
           ) : (
-            <SummaryPanel
-              rows={rows}
-              studyId={study.id}
-              title={name || "datos cargados"}
-              decided={decisions.map((d) => d.label)}
-              onDecision={(d) => setDecisions((p) => [...p, d])}
-            />
+            <>
+              {issue && <IncompleteSubgroups issue={issue} onRetire={(ds) => setDecisions((p) => [...p, ...ds])} />}
+              <SummaryPanel
+                rows={rows}
+                studyId={study.id}
+                title={name || "datos cargados"}
+                decided={decisions.map((d) => d.label)}
+                onDecision={(d) => setDecisions((p) => [...p, d])}
+              />
+            </>
           )}
 
           {decisions.length > 0 && (
@@ -410,7 +434,15 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
               <ul className="list-disc space-y-1 pl-5 text-sm">
                 {decisions.map((d, i) => (
                   <li key={i}>
-                    <strong>{d.kind === "keep" ? "Atípico conservado" : "Subgrupo retirado"}</strong> · subgrupo {d.label}, valor {d.value}: {d.justification}
+                    {d.kind === "incomplete" ? (
+                      <>
+                        <strong>Subgrupo incompleto retirado</strong> · subgrupo {d.label} (n = {d.n}; el tamaño predominante es {d.expected}): {d.justification}
+                      </>
+                    ) : (
+                      <>
+                        <strong>{d.kind === "keep" ? "Atípico conservado" : "Subgrupo retirado"}</strong> · subgrupo {d.label}, valor {numEs(d.value)}: {d.justification}
+                      </>
+                    )}
                   </li>
                 ))}
               </ul>

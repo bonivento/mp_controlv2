@@ -102,6 +102,18 @@ class FrozenParameters:
         for e in get("excluded", []) or []:
             excl.append(_to_exclusion(e))
         size = get("subgroup_size")
+        # Sin la clave se usa L = 3 (el valor por defecto de `FrozenLimits`); un valor
+        # presente pero nulo, no numérico, no finito o no positivo se rechaza.
+        width = get("limit_width", 3.0)
+        try:
+            if width is None or isinstance(width, bool):
+                raise TypeError
+            width = float(width)
+        except (TypeError, ValueError):
+            raise SPCInputError(f"El ancho L de los límites congelados no es un número válido: {width!r}.") from None
+        if not (math.isfinite(width) and width > 0):
+            shown = f"{width:g}".replace(".", ",")
+            raise SPCInputError(f"El ancho L de los límites congelados debe ser positivo; se recibió {shown}.")
         return cls(
             chart_type=get("chart_type"),
             subgroup_size=None if size is None else int(size),
@@ -109,7 +121,7 @@ class FrozenParameters:
             params={k: float(v) for k, v in dict(get("params", {}) or {}).items()},
             points_used=int(get("points_used", 0) or 0),
             excluded=excl,
-            limit_width=float(get("limit_width", 3.0) or 3.0),
+            limit_width=width,
         )
 
 
@@ -118,7 +130,9 @@ class Panel:
     """Un panel graficado. `to_contract()` da exactamente los campos de `ChartSeries`.
 
     `indices[k]` es el subgrupo al que corresponde `values[k]` (en MR, k + 1).
-    `rules_skipped` asocia cada regla omitida con el motivo.
+    `rules_skipped` asocia cada regla omitida con el motivo. `warnings` son las
+    advertencias de las reglas en este panel (no forman parte de `ChartSeries`;
+    `_finish` las pasa a `ChartResult.warnings` con el nombre del panel).
     """
 
     name: str
@@ -134,6 +148,7 @@ class Panel:
     symmetric: bool
     rules_applied: list[str]
     rules_skipped: dict[str, str]
+    warnings: list[str] = field(default_factory=list)
 
     def to_contract(self) -> dict[str, Any]:
         return {
@@ -237,6 +252,7 @@ def _build_panel(name: str, values: np.ndarray, limits: ControlLimits, indices: 
         center=_clean(c), ucl=_clean(u), lcl=_clean(lo), violations=outcome.violations,
         excluded=sorted(int(indices[p]) for p in excluded_pos), indices=[int(i) for i in indices],
         symmetric=limits.symmetric, rules_applied=outcome.applied, rules_skipped=outcome.skipped,
+        warnings=list(outcome.warnings),
     )
 
 
@@ -254,7 +270,7 @@ def _finish(chart_type: str, phase: str, panels: list[Panel], frozen: FrozenPara
             warnings: list[str]) -> ChartResult:
     flagged = sorted({v.index for p in panels for v in p.violations})
     for p in panels:
-        for rid, msg in p.rules_skipped.items():
+        for msg in list(p.rules_skipped.values()) + list(p.warnings):
             text = f"Panel {p.name.upper()}: {msg}"
             if text not in warnings:
                 warnings.append(text)

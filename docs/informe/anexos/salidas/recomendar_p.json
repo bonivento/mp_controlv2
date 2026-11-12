@@ -1,0 +1,12 @@
+{
+ "ruta": "/api/charts/attributes/recommend",
+ "peticion": {
+  "counting": "defectives",
+  "constant_size": false
+ },
+ "respuesta": {
+  "chart_type": "p",
+  "alternatives": [],
+  "justification": "Se cuentan unidades no conformes con tamaño de muestra variable. El número de defectuosos es binomial y solo la fracción no conforme p = D/n es comparable entre muestras de distinto tamaño, por eso se usa el gráfico p con límites calculados para el n de cada muestra. El gráfico np no es válido porque su línea central n·p̄ cambiaría con cada n."
+ }
+}

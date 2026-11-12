@@ -39,8 +39,19 @@ function splitCsv(text: string): string[][] {
 }
 
 const isNum = (s: string) => s.trim() !== "" && Number.isFinite(Number(s.trim().replace(",", ".")));
-const isDate = (s: string) => /^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/.test(s.trim());
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}([ T]\d{2}:\d{2}(:\d{2})?)?$/;
+const DMY_DATE = /^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$/;
+const isDate = (s: string) => ISO_DATE.test(s.trim()) || DMY_DATE.test(s.trim());
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+const toIso = (s: string) => {
+  const m = DMY_DATE.exec(s.trim());
+  return m ? `${m[3]}-${m[2].padStart(2, "0")}-${m[1].padStart(2, "0")}` : s.trim();
+};
 
+/**
+ * Lee un CSV en el navegador con la misma forma de respuesta que la API real, incluidos los avisos
+ * (`warnings`): uno por tipo de conversión y columna, en español.
+ */
 export async function mockParse(file: File): Promise<S["ParsedFile"]> {
   if (/\.xlsx?$/i.test(file.name))
     throw new MockHttpError(
@@ -51,23 +62,46 @@ export async function mockParse(file: File): Promise<S["ParsedFile"]> {
   const table = splitCsv(await file.text());
   if (table.length < 2) throw new MockHttpError("El archivo no tiene filas de datos.");
   const header = table[0].map((h, i) => h.trim() || `columna_${i + 1}`);
-  const body = table.slice(1).map((r) => header.map((_, i) => (r[i] ?? "").trim()));
+  const raw = table.slice(1).map((r) => header.map((_, i) => r[i] ?? ""));
+  const body = raw.map((r) => r.map((c) => c.trim()));
+  const warnings: string[] = [];
   const columns: S["ColumnInfo"][] = header.map((name, c) => {
+    const col = `Columna '${name}'`;
     const cells = body.map((r) => r[c]).filter((x) => x !== "");
     if (cells.length === 0) return { name, kind: "empty", missing: body.length };
+    const blanks = body.length - cells.length;
+    const trimmedCells = raw.filter((r) => r[c].trim() !== "" && r[c] !== r[c].trim()).length;
+    if (trimmedCells) warnings.push(`${col}: ${plural(trimmedCells, "celda con espacios", "celdas con espacios")} al inicio o al final, recortados.`);
     const nums = cells.filter(isNum).length;
-    if (nums / cells.length >= 0.8) return { name, kind: "numeric", missing: body.length - nums };
-    if (cells.filter(isDate).length / cells.length >= 0.8) return { name, kind: "datetime", missing: body.length - cells.length };
-    return { name, kind: "text", missing: body.length - cells.length };
+    if (nums / cells.length >= 0.8) {
+      const commas = cells.filter((x) => /^-?\d+,\d+$/.test(x.replace(/\s/g, ""))).length;
+      const bad = cells.filter((x) => !isNum(x));
+      if (commas) warnings.push(`${col}: ${plural(commas, "valor con coma decimal convertido", "valores con coma decimal convertidos")} a punto.`);
+      if (bad.length) {
+        const ex = [...new Set(bad)].slice(0, 3).map((e) => `"${e}"`).join(", ");
+        warnings.push(`${col}: ${plural(bad.length, "texto no numérico tratado", "textos no numéricos tratados")} como faltante (por ejemplo ${ex}).`);
+      }
+      if (blanks) warnings.push(`${col}: ${plural(blanks, "celda vacía registrada", "celdas vacías registradas")} como faltante.`);
+      return { name, kind: "numeric", missing: body.length - nums };
+    }
+    if (cells.filter(isDate).length / cells.length >= 0.8) {
+      const dmy = cells.filter((x) => DMY_DATE.test(x)).length;
+      if (dmy) warnings.push(`${col}: ${plural(dmy, "fecha en formato día/mes/año normalizada", "fechas en formato día/mes/año normalizadas")} a ISO (AAAA-MM-DD).`);
+      if (blanks) warnings.push(`${col}: ${plural(blanks, "celda vacía registrada", "celdas vacías registradas")} como faltante.`);
+      return { name, kind: "datetime", missing: body.length - cells.length };
+    }
+    if (blanks) warnings.push(`${col}: ${plural(blanks, "valor de texto vacío registrado", "valores de texto vacíos registrados")} como faltante.`);
+    return { name, kind: "text", missing: blanks };
   });
   const rows = body.map((r) =>
     r.map((cell, c) => {
       if (cell === "") return null;
       if (columns[c].kind === "numeric") return isNum(cell) ? Number(cell.replace(",", ".")) : null;
+      if (columns[c].kind === "datetime") return isDate(cell) ? toIso(cell) : cell;
       return cell;
     }),
   );
-  return { filename: file.name, sheets: [{ name: "CSV", columns, rows }] };
+  return { filename: file.name, sheets: [{ name: "CSV", columns, rows, warnings }] };
 }
 
 export function describe(all: number[]): S["Descriptive"] {

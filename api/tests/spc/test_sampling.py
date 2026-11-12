@@ -37,7 +37,12 @@ def test_design_finds_smallest_plan_not_the_nomograph_one():
     assert r.alpha_actual == pytest.approx(1 - stats.binom.cdf(3, 110, 0.01))
     assert r.alpha_actual <= 0.05 and r.beta_actual <= 0.10
     text = " ".join(r.interpretation.findings)
-    assert "c = 2" in text and "nomograma" in text
+    # Explica por qué no sirve c = 2. El nomograma solo se menciona si el
+    # usuario envía su lectura como plan de referencia (hallazgo H8).
+    assert "c = 2" in text and "nomograma" not in text
+    ref = design_single_plan(aql=0.01, ltpd=0.06, alpha=0.05, beta=0.10, reference_plan=(89, 2))
+    ref_text = [f for f in ref.interpretation.findings if "Plan de referencia" in f][0]
+    assert "n = 89, c = 2" in ref_text and "nomograma" in ref_text and "0,06031" in ref_text
 
 
 def test_no_smaller_plan_meets_both_risks_brute_force():
@@ -177,3 +182,14 @@ def test_sampling_results_convert_to_contract():
         asdict(design_single_plan(0.02, 0.10, lot_size=500, distribution="hypergeometric"))
     )
     DoublePlanResponse.model_validate(asdict(evaluate_double_plan(50, 1, 4, 100, 3, lot_size=5000, aql=0.01)))
+
+
+def test_hypergeometric_rounding_half_up_and_reported():
+    """D = floor(p·N + 0.5), no el redondeo al par de np.rint (hallazgo H15):
+    0.05·50 = 2.5 -> 3, 0.03·50 = 1.5 -> 2, 0.07·50 = 3.5 -> 4 (a mano)."""
+    from app.spc.sampling import defectives_in_lot
+
+    assert defectives_in_lot([0.05, 0.03, 0.07, 0.01, 0.0], 50).tolist() == [3, 2, 4, 1, 0]
+    r = evaluate_single_plan(10, 0, lot_size=50, aql=0.05, ltpd=0.07, distribution="hypergeometric")
+    assert r.alpha_actual == pytest.approx(1 - stats.hypergeom.cdf(0, 50, 3, 10))
+    assert any("AQL = 5,00 % da D = 3" in w and "LTPD = 7,00 % da D = 4" in w for w in r.interpretation.warnings)

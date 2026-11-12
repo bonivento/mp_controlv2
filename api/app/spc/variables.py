@@ -26,7 +26,7 @@ Python puro: sin Pydantic, sin disco ni red.
 from __future__ import annotations
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Iterable, Sequence
 
 import numpy as np
@@ -141,8 +141,13 @@ def _retained_mask(m: int, excluded: Iterable[int]) -> np.ndarray:
 def _check_retained(keep: np.ndarray, minimum: int = 2) -> None:
     if keep.sum() < minimum:
         raise SPCInputError(
-            f"Quedan {int(keep.sum())} subgrupos después de las exclusiones; se necesitan al menos {minimum} "
+            f"{_remaining(int(keep.sum()))} después de las exclusiones; se necesitan al menos {minimum} "
             "para estimar los límites.", "insufficient_data")
+
+
+def _remaining(k: int) -> str:
+    """'Queda 1 subgrupo' / 'Quedan k subgrupos' (concordancia de número)."""
+    return "Queda 1 subgrupo" if k == 1 else f"Quedan {k} subgrupos"
 
 
 def _small_sample_warning(used: int) -> list[str]:
@@ -269,8 +274,12 @@ def individuals_limits(mu: float, sigma: float, L: float = 3.0) -> ControlLimits
 
 
 def moving_range_limits(sigma: float, L: float = 3.0) -> ControlLimits:
-    """MR (rango de 2): LC = d2(2)·sigma = MR̄, LCS = (d2 + L·d3)·sigma = D4·MR̄, LCI = 0."""
-    return r_limits(sigma, 2, L)
+    """MR (rango de 2): LC = d2(2)·sigma = MR̄, LCS = (d2 + L·d3)·sigma = D4·MR̄, LCI = 0.
+
+    Los MR consecutivos comparten una observación (correlación serial), así que
+    el panel se marca `serially_correlated` y solo admite WE1 y N1 (ver rules.py).
+    """
+    return replace(r_limits(sigma, 2, L), serially_correlated=True)
 
 
 def xbar_r_limits(mu: float, sigma: float, n: int, L: float = 3.0) -> tuple[ControlLimits, ControlLimits]:

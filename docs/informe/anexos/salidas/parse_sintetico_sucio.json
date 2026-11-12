@@ -1,0 +1,268 @@
+{
+ "ruta": "/api/data/parse",
+ "peticion": {
+  "archivo": "sintetico_sucio.csv"
+ },
+ "respuesta": {
+  "filename": "sintetico_sucio.csv",
+  "sheets": [
+   {
+    "name": "CSV",
+    "columns": [
+     {
+      "name": "fecha",
+      "kind": "datetime",
+      "missing": 0
+     },
+     {
+      "name": "turno",
+      "kind": "text",
+      "missing": 1
+     },
+     {
+      "name": "subgrupo",
+      "kind": "numeric",
+      "missing": 0
+     },
+     {
+      "name": "x1",
+      "kind": "numeric",
+      "missing": 1
+     },
+     {
+      "name": "x2",
+      "kind": "numeric",
+      "missing": 1
+     },
+     {
+      "name": "x3",
+      "kind": "numeric",
+      "missing": 0
+     },
+     {
+      "name": "x4",
+      "kind": "numeric",
+      "missing": 1
+     },
+     {
+      "name": "x5",
+      "kind": "numeric",
+      "missing": 0
+     }
+    ],
+    "rows": [
+     [
+      "2026-03-02",
+      "Mañana",
+      1.0,
+      497.31,
+      500.94,
+      499.24,
+      499.13,
+      500.76
+     ],
+     [
+      "2026-03-02",
+      "Tarde",
+      2.0,
+      499.44,
+      498.85,
+      501.21,
+      500.14,
+      499.15
+     ],
+     [
+      "2026-03-02",
+      "Noche",
+      3.0,
+      499.27,
+      null,
+      499.68,
+      500.17,
+      498.04
+     ],
+     [
+      "2026-03-03",
+      "Mañana",
+      4.0,
+      499.13,
+      500.72,
+      502.81,
+      500.79,
+      499.9
+     ],
+     [
+      "2026-03-03",
+      "Tarde",
+      5.0,
+      498.49,
+      499.71,
+      500.52,
+      500.06,
+      501.17
+     ],
+     [
+      "2026-03-03",
+      "Noche",
+      6.0,
+      497.82,
+      499.34,
+      500.11,
+      500.45,
+      500.25
+     ],
+     [
+      "2026-03-04",
+      "Mañana",
+      7.0,
+      501.19,
+      499.27,
+      500.62,
+      null,
+      498.98
+     ],
+     [
+      "2026-03-04",
+      "Tarde",
+      8.0,
+      499.88,
+      501.59,
+      496.69,
+      500.54,
+      501.24
+     ],
+     [
+      "2026-03-04",
+      "Noche",
+      9.0,
+      499.16,
+      500.86,
+      500.46,
+      498.71,
+      5050.0
+     ],
+     [
+      "2026-03-05",
+      "Mañana",
+      10.0,
+      500.41,
+      499.9,
+      498.53,
+      498.96,
+      501.25
+     ],
+     [
+      "2026-03-05",
+      "Tarde",
+      11.0,
+      null,
+      501.27,
+      502.08,
+      499.18,
+      499.12
+     ],
+     [
+      "2026-03-05",
+      "Noche",
+      12.0,
+      500.98,
+      500.34,
+      499.99,
+      500.64,
+      497.42
+     ],
+     [
+      "2026-03-06",
+      "Mañana",
+      13.0,
+      499.82,
+      500.67,
+      500.43,
+      497.59,
+      499.71
+     ],
+     [
+      "2026-03-06",
+      "Tarde",
+      14.0,
+      499.61,
+      499.54,
+      500.8,
+      501.13,
+      500.46
+     ],
+     [
+      "2026-03-06",
+      "Noche",
+      15.0,
+      501.39,
+      499.3,
+      498.41,
+      498.95,
+      499.96
+     ],
+     [
+      "2026-03-07",
+      null,
+      16.0,
+      501.12,
+      498.97,
+      499.05,
+      498.28,
+      497.69
+     ],
+     [
+      "2026-03-07",
+      "Tarde",
+      17.0,
+      500.11,
+      499.93,
+      501.01,
+      500.74,
+      497.7
+     ],
+     [
+      "2026-03-07",
+      "Noche",
+      18.0,
+      500.98,
+      501.96,
+      498.32,
+      501.38,
+      500.98
+     ],
+     [
+      "2026-03-08",
+      "Mañana",
+      19.0,
+      501.07,
+      501.29,
+      498.32,
+      501.82,
+      501.15
+     ],
+     [
+      "2026-03-08",
+      "Tarde",
+      20.0,
+      501.02,
+      498.3,
+      499.12,
+      499.27,
+      497.92
+     ]
+    ],
+    "warnings": [
+     "Columna 'fecha': 1 fecha en formato día/mes/año normalizada a ISO (AAAA-MM-DD).",
+     "Columna 'turno': 1 celda con espacios al inicio o al final, recortados.",
+     "Columna 'turno': 1 valor de texto vacío registrado como faltante.",
+     "Columna 'x1': 1 texto no numérico tratado como faltante (por ejemplo \"N/D\").",
+     "Columna 'x2': 1 celda vacía registrada como faltante.",
+     "Columna 'x3': 1 valor con coma decimal convertido a punto.",
+     "Columna 'x4': 1 celda vacía registrada como faltante.",
+     "Columna 'x5': 1 valor con coma decimal convertido a punto."
+    ]
+   }
+  ]
+ }
+}

@@ -117,7 +117,7 @@ def test_discrete_arl0_is_explained():
     alpha = stats.poisson.sf(10, 4.0)
     assert r.alpha == pytest.approx(alpha)
     text = " ".join(r.interpretation.findings)
-    assert "370.4" in text and "discreto" in text and "truncado" in text
+    assert "370,4" in text and "discreto" in text and "truncado" in text  # coma decimal (H12)
 
 
 def test_degenerate_design_raises():
@@ -262,3 +262,30 @@ def test_compare_designs_table():
     model = CompareResponse.model_validate(asdict(res))
     assert "más rápido" in model.interpretation.summary
     assert any("misma carga" in f for f in model.interpretation.findings)
+
+
+# ------------------------------------------------------ tercera ronda (H22, H25)
+
+
+def test_truncated_lcl_text_depends_on_rules():
+    """H22: con WE4 un gráfico c con LCI = 0 sí señala mejoras (ARL1 ≈ 17 con c1 = 2)."""
+    r = compute_arl("c", c0=4.0, c1=[2.0], rules=["WE1", "WE4"], max_runs=1500, seed=3)
+    text = " ".join(r.interpretation.findings)
+    assert "no puede señalar mejoras" not in text
+    assert "sí puede señalar mejoras" in text and f"{r.rows[0].arl1:.4g}".replace(".", ",") in text
+    only_we1 = " ".join(compute_arl("c", c0=4.0, c1=[2.0]).interpretation.findings)
+    assert "no puede señalar mejoras" in only_we1
+
+
+def test_unit_load_agreement():
+    r = compute_arl("c", c0=4.0, c1=[8.0])
+    assert any("Carga muestral: 1 unidad inspeccionada por hora" in f for f in r.interpretation.findings)
+
+
+def test_ratio_within_simulation_error_is_not_reported_as_change():
+    """H25: p0 = 0,01, n = 100, WE1 + N4. Con n·p0 = 1 los empates casi anulan N4 y el
+    ARL0 simulado queda a menos de 2 errores estándar del exacto con WE1 (54,42)."""
+    r = compute_arl("p", n=100, p0=0.01, rules=["WE1", "N4"])
+    text = " ".join(r.interpretation.findings)
+    assert abs(r.arl0 - 54.42) < 2 * r.arl0_std_error
+    assert "multiplican las falsas alarmas" not in text and "dentro del error de simulación" in text

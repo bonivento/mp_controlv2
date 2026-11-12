@@ -10,6 +10,8 @@ import numpy as np
 import pytest
 
 from app.spc.rules import (
+    ASYMMETRY_SENSITIVE_RULES,
+    LIMIT_RULES,
     NELSON,
     NON_ZONE_RULES,
     RULE_IDS,
@@ -17,6 +19,8 @@ from app.spc.rules import (
     WESTERN_ELECTRIC,
     ZONE_RULES,
     ControlLimits,
+    applicable_rules,
+    asymmetry_warning,
     evaluate_limits,
     evaluate_rules,
     first_signal,
@@ -161,6 +165,23 @@ def test_n8_eight_outside_zone_c_both_sides():
     assert hits(x, "N8") == []
 
 
+def test_n8_description_distinguishes_mixture_from_shift():
+    # H11: a ambos lados es mezcla; todos del mismo lado es un desplazamiento.
+    mixed = evaluate_rules([1.5 * (-1) ** i for i in range(8)], 0.0, sigma=1.0, rules=["N8"])
+    (v,) = mixed.violations
+    assert "ambos lados" in v.description and "mezcla de poblaciones" in v.description
+    for sign, side in ((1, "por encima"), (-1, "por debajo")):
+        out = evaluate_rules([sign * 1.5] * 8, 0.0, sigma=1.0, rules=["N8"])
+        (v,) = out.violations
+        assert v.index == 7
+        assert side in v.description and "desplazamiento" in v.description
+        assert "mezcla" not in v.description
+    # la ventana de 8 decide: 2 por debajo seguidos de 8 por encima se describe como desplazamiento
+    out = evaluate_rules([-1.5, -1.5] + [1.5] * 8, 0.0, sigma=1.0, rules=["N8"])
+    assert [v.index for v in out.violations] == [7, 8, 9]
+    assert ["mezcla" in v.description for v in out.violations] == [True, True, False]
+
+
 # --- simetría y zonas ----------------------------------------------------------
 
 
@@ -171,6 +192,96 @@ def test_asymmetric_limits_skip_zone_rules():
     assert set(out.skipped) == set(ZONE_RULES)
     assert all("no se aplica" in msg for msg in out.skipped.values())
     assert [v.index for v in out.violations if v.rule == "WE1"] == [2]
+
+
+def test_asymmetric_panel_warns_once_about_side_runs():
+    # H5: en un panel asimétrico WE4 y N2 se aplican, con advertencia de falsas alarmas.
+    out = evaluate_rules([1.0] * 9, 2.0, ucl=4.3, lcl=0.0, rules=["WE1", "WE4", "N2"])
+    assert out.applied == ["WE1", "WE4", "N2"]
+    assert [v.rule for v in out.violations] == ["WE4", "WE4", "N2"]
+    (w,) = out.warnings
+    assert w.startswith("Las reglas WE4 y N2 se aplicaron")
+    assert "falsas alarmas es mayor que la nominal" in w and "indicio a confirmar" in w
+
+
+def test_asymmetric_warning_text_by_rule_set():
+    assert asymmetry_warning(["WE1"]) is None
+    assert asymmetry_warning([]) is None
+    one = asymmetry_warning(["WE1", "WE4"])
+    assert one.startswith("La regla WE4 se aplicó") and "esta regla es un indicio" in one
+    # N3 y N4 dependen solo del orden: no se afirma que aumenten las falsas alarmas.
+    order = asymmetry_warning(["N3", "N4"])
+    assert order.startswith("El estadístico graficado es asimétrico; las reglas N3 y N4 dependen solo del orden")
+    assert "mayor que la nominal" not in order
+    both = asymmetry_warning(["WE4", "N3"])
+    assert "WE4 se aplicó" in both and "La regla N3 depende solo del orden" in both
+    # H25: cada oración empieza en mayúscula
+    assert all(sent.strip()[0].isupper() for sent in both.split(". ") if sent.strip())
+    assert ". La regla N3 depende solo del orden" in both
+
+
+def test_asymmetric_warning_text_for_counts_does_not_claim_higher():
+    # H19: con conteos la tasa es distinta de la nominal (mucho menor si la LC es un conteo posible).
+    w = asymmetry_warning(["WE1", "WE4", "N2"], discrete=True)
+    assert w.startswith("Las reglas WE4 y N2 se aplicaron aunque el gráfico es de conteos con límites asimétricos")
+    assert "mayor que la nominal" not in w.replace("mayor si la línea central no es un valor posible", "")
+    assert "distinta de la nominal" in w and "posiblemente mucho menor" in w and "pérdida de sensibilidad" in w
+    assert "cortan la racha" in w and "indicio a confirmar" in w
+    order = asymmetry_warning(["N3"], discrete=True)
+    assert order.startswith("El gráfico es de conteos con límites asimétricos; la regla N3 depende solo del orden")
+
+
+def test_fmt_sin_notacion_cientifica():
+    from app.spc.rules import _fmt
+    assert _fmt(1234567.89) == "1234568"
+    assert _fmt(-2.5e7) == "-25000000"
+    assert _fmt(1.23456789e-5) == "0,0000123457"
+    assert _fmt(0.5) == "0,5"
+    assert _fmt(12.3456789) == "12,3457"
+    for v in (1e6, 3.2e9, 1e-7, 123456.7):
+        assert "e" not in _fmt(v)
+
+
+def test_no_asymmetry_warning_when_symmetric_or_not_requested():
+    assert evaluate_rules([0.1] * 9, 0.0, sigma=1.0, rules=["WE4", "N2", "N3"]).warnings == []
+    assert evaluate_rules([1.0] * 9, 2.0, ucl=4.3, lcl=0.0, rules=["WE1", "WE2"]).warnings == []
+
+
+def test_serially_correlated_only_limit_rules():
+    # Panel MR: solo WE1 y N1; el resto se omite con el motivo de la correlación serial.
+    x = [0.5] * 9 + [5.0]
+    out = evaluate_rules(x, 1.128, ucl=3.686, lcl=0.0, rules=RULE_IDS, serially_correlated=True)
+    assert out.applied == list(LIMIT_RULES)
+    assert set(out.skipped) == set(RULE_IDS) - set(LIMIT_RULES)
+    assert all("correlacionados" in m for m in out.skipped.values())
+    assert [(v.rule, v.index) for v in out.violations] == [("WE1", 9), ("N1", 9)]
+    assert out.warnings == []                                   # no quedan reglas de racha
+    # sin la marca, WE4 y N2 sí señalarían en la misma serie
+    plain = evaluate_rules(x, 1.128, ucl=3.686, lcl=0.0, rules=["WE4", "N2"])
+    assert [v.index for v in plain.violations] == [7, 8, 8]
+
+
+def test_motivo_de_zonas_habla_de_la_distribucion_del_estadistico():
+    # H25: el motivo no afirma que los límites sean asimétricos (en R con n >= 7 son simétricos).
+    out = evaluate_rules([1.0] * 5, 1.0, ucl=2.0, lcl=0.0, rules=["WE2"], symmetric=False)
+    msg = out.skipped["WE2"]
+    assert msg.startswith("WE2 no se aplica: la distribución del estadístico graficado es asimétrica")
+    assert "los límites no son simétricos" not in msg
+
+
+def test_applicable_rules_default_unchanged():
+    # design.py depende de esta firma y de este comportamiento por defecto.
+    applied, skipped = applicable_rules(["WE1", "WE2", "WE4", "N3"], False, "motivo")
+    assert applied == ["WE1", "WE4", "N3"] and skipped == {"WE2": "WE2 no se aplica: motivo."}
+    applied, skipped = applicable_rules(["WE1", "WE4"], True, serially_correlated=True)
+    assert applied == ["WE1"] and list(skipped) == ["WE4"]
+    assert set(ASYMMETRY_SENSITIVE_RULES) == {"WE4", "N2", "N3", "N4"}
+
+
+def test_descriptions_use_decimal_comma():
+    out = evaluate_rules([0.0, 3.25], 0.0, sigma=1.0, rules=["WE1"])
+    (v,) = out.violations
+    assert "(3,25)" in v.description and "(3)" in v.description and "3.25" not in v.description
 
 
 def test_symmetric_false_forced_even_if_limits_look_symmetric():

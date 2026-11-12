@@ -5,11 +5,12 @@ import { useState } from "react";
 import { DatasetSelect, InterpretationBlock, SaveAnalysis } from "@/components/analysis-parts";
 import { AcfChart, HistogramChart, QQChart } from "@/components/charts/StatCharts";
 import { useStudy } from "@/components/study-context";
-import { Alert, Badge, Button, Card, EmptyState, Loading, PageHeader, SelectField, Table, Td, Th, fmtNum } from "@/components/ui";
+import { Alert, Badge, Button, Card, CheckField, EmptyState, Loading, PageHeader, SelectField, Table, Td, Th, fmtNum } from "@/components/ui";
 import { api } from "@/lib/api";
 import type { components } from "@/lib/api-types";
 import { getStore } from "@/lib/data";
 import { flatValues, isVariableDataset } from "@/lib/dataset-utils";
+import { describeDepuration, findDepuration } from "@/lib/depuration";
 import { useLoad } from "@/lib/use-load";
 
 type S = components["schemas"];
@@ -56,15 +57,32 @@ export default function AssumptionsPage() {
   const { study } = useStudy();
   const [datasetId, setDatasetId] = useState("");
   const [alpha, setAlpha] = useState("0.05");
-  const [run, setRun] = useState<{ id: string; alpha: number } | null>(null);
+  const [run, setRun] = useState<{ id: string; alpha: number; used: string; values: number[] } | null>(null);
+  const [useAll, setUseAll] = useState(false);
 
-  const base = useLoad(async () => (await getStore().datasets.list(study.id)).filter(isVariableDataset), [study.id]);
-  const list = base.data ?? [];
+  const base = useLoad(async () => {
+    const s = getStore();
+    const [datasets, limits] = await Promise.all([s.datasets.list(study.id), s.controlLimits.listActive(study.id)]);
+    return { datasets: datasets.filter(isVariableDataset), limits };
+  }, [study.id]);
+  const list = base.data?.datasets ?? [];
   const dataset = list.find((d) => d.id === datasetId) ?? list[0];
   const runDataset = list.find((d) => d.id === run?.id);
 
-  const req: S["AssumptionsRequest"] | null = runDataset && run ? { values: flatValues(runDataset), alpha: run.alpha } : null;
-  const res = useLoad(async () => (req ? api.assumptions(req) : null), [run?.id, run?.alpha]);
+  // Fase I depurada: por defecto solo las observaciones de los subgrupos retenidos.
+  const dep = dataset?.phase === "I" ? findDepuration(dataset, base.data?.limits ?? []) : null;
+  const trimmed = !!dep && dep.excluded.length > 0 && !useAll;
+  const valuesNow = !dataset ? [] : trimmed ? dep!.keptSubgroups.flat() : flatValues(dataset);
+  const usedText = !dataset
+    ? ""
+    : dep && dep.excluded.length > 0
+      ? trimmed
+        ? `${valuesNow.length} de ${dep.totalObservations} observaciones, de ${describeDepuration(dep)}`
+        : `${valuesNow.length} observaciones (todas; se incluyen los subgrupos excluidos en Fase I: ${dep.excluded.map((e) => e.label).join(", ")})`
+      : `${valuesNow.length} observaciones (todas)`;
+
+  const req: S["AssumptionsRequest"] | null = run ? { values: run.values, alpha: run.alpha } : null;
+  const res = useLoad(async () => (req ? api.assumptions(req) : null), [run?.id, run?.alpha, run?.values.length]);
   const r = req ? res.data : null;
 
   if (study.data_type !== "variable")
@@ -88,18 +106,31 @@ export default function AssumptionsPage() {
         <div className="flex flex-col gap-4">
           <Card title="Datos a analizar">
             <div className="grid gap-4 sm:grid-cols-3">
-              <DatasetSelect label="Conjunto de datos" datasets={list} value={dataset?.id ?? ""} onChange={setDatasetId} hint="Se usan todas las observaciones en el orden en que se tomaron." />
+              <DatasetSelect label="Conjunto de datos" datasets={list} value={dataset?.id ?? ""} onChange={setDatasetId} hint="Se usan las observaciones en el orden en que se tomaron." />
               <SelectField label="Nivel de significancia (α)" value={alpha} onChange={(e) => setAlpha(e.target.value)}>
                 <option value="0.1">0,10</option>
                 <option value="0.05">0,05</option>
                 <option value="0.01">0,01</option>
               </SelectField>
               <div className="flex items-end">
-                <Button variant="primary" loading={res.loading && !!req} disabled={!dataset} onClick={() => setRun({ id: dataset!.id, alpha: Number(alpha) })}>
+                <Button variant="primary" loading={res.loading && !!req} disabled={!dataset} onClick={() => setRun({ id: dataset!.id, alpha: Number(alpha), used: usedText, values: valuesNow })}>
                   Validar supuestos
                 </Button>
               </div>
             </div>
+            {dataset && (
+              <div className="mt-4 flex flex-col gap-2">
+                <Alert tone={trimmed || !dep ? "info" : "warn"} title="Datos que se usarán">{usedText}.</Alert>
+                {dep && dep.excluded.length > 0 && (
+                  <CheckField
+                    label="Usar todas las observaciones"
+                    hint="Incluye los subgrupos que se excluyeron con causa asignable al congelar los límites de Fase I. No es lo recomendado."
+                    checked={useAll}
+                    onChange={setUseAll}
+                  />
+                )}
+              </div>
+            )}
             <p className="mt-3 text-sm text-muted">
               Estabilidad y patrones no aleatorios: las reglas de Western Electric y Nelson se configuran en{" "}
               <Link className="underline" href={`/estudios/${study.id}/variables`}>Variables</Link>, donde se ven sobre el gráfico de control.
@@ -109,8 +140,9 @@ export default function AssumptionsPage() {
           {!run && <EmptyState title="Aún no hay resultados">Elige el conjunto de datos y pulsa «Validar supuestos».</EmptyState>}
           {run && res.loading && !r && <Loading label="Ejecutando pruebas…" />}
           {res.error && <Alert tone="error" title="La API no pudo validar los supuestos">{res.error}</Alert>}
-          {r && (
+          {r && run && (
             <>
+              <Alert tone="info" title="Datos usados en este análisis">{run.used}.</Alert>
               <div className="grid gap-3 sm:grid-cols-2">
                 <Alert tone={r.is_normal ? "ok" : "warn"} title={r.is_normal ? "Normalidad: se sostiene" : "Normalidad: no se sostiene"}>
                   {r.is_normal ? "Ninguna prueba rechaza la normalidad." : "Al menos una prueba rechaza la normalidad."}

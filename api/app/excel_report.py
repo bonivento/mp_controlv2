@@ -47,10 +47,28 @@ def _cell(value: Any) -> Any:
     if isinstance(value, (int, float, str)) or value is None:
         return value
     if isinstance(value, (list, tuple)):
+        if len(value) == 1 and isinstance(value[0], (int, float)) and not isinstance(value[0], bool):
+            return value[0]  # un solo número va como número, no como texto
         return ", ".join(str(_cell(v)) for v in value)
     if isinstance(value, dict):
         return "; ".join(f"{k}: {_cell(v)}" for k, v in value.items())
     return str(value)
+
+
+def _put(ws: Worksheet, row: int, col: int, value: Any):
+    """Escribe un valor: los números van como celdas numéricas con formato (nunca como texto) y
+    los textos tal como llegan (uno que empiece con '=' no se interpreta como fórmula)."""
+    c = ws.cell(row, col)
+    if isinstance(value, str):
+        c.value = value
+        c.data_type = "s"
+    else:
+        c.value = value
+        if isinstance(value, float):
+            c.number_format = "0.0000" if abs(value) < 1000 else "#,##0.00"
+        elif isinstance(value, int):
+            c.number_format = "0"
+    return c
 
 
 class _Sheet:
@@ -74,7 +92,9 @@ class _Sheet:
         a = self.ws.cell(self.row, 1, label)
         a.font = Font(bold=bold or value is not None)
         if value is not None:
-            self.ws.cell(self.row, 2, _cell(value))
+            self._track(1, label)
+        if value is not None:
+            _put(self.ws, self.row, 2, _cell(value))
             self._track(2, _cell(value))
         self.row += 1
 
@@ -82,7 +102,7 @@ class _Sheet:
         self.row += 1
 
     def paragraph(self, text: str) -> None:
-        c = self.ws.cell(self.row, 1, text)
+        c = _put(self.ws, self.row, 1, text)
         c.alignment = Alignment(wrap_text=False, vertical="top")
         self.row += 1
 
@@ -102,10 +122,8 @@ class _Sheet:
         for r in rows:
             for j, v in enumerate(r, start=1):
                 v = _cell(v)
-                c = self.ws.cell(self.row, j, v)
+                c = _put(self.ws, self.row, j, v)
                 c.border = _BORDER
-                if isinstance(v, float):
-                    c.number_format = "0.0000" if abs(v) < 1000 else "#,##0.00"
                 self._track(j, v if not isinstance(v, float) else f"{v:.4f}")
             self.row += 1
         last = self.row - 1
@@ -137,6 +155,7 @@ class _Sheet:
         for col, width in self.widths.items():
             self.ws.column_dimensions[get_column_letter(col)].width = max(width, 12)
         self.ws.column_dimensions["A"].width = max(self.ws.column_dimensions["A"].width or 0, 26)
+        self.ws.column_dimensions["A"].width = min(self.ws.column_dimensions["A"].width, 46)
 
 
 # --- Gráficos nativos -------------------------------------------------------------

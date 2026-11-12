@@ -131,7 +131,9 @@ def _keep(m: int, excluded: Iterable[int]) -> np.ndarray:
             raise SPCInputError(f"El índice excluido {i} está fuera de rango (0 a {m - 1}).")
         keep[i] = False
     if keep.sum() < 2:
-        raise SPCInputError(f"Quedan {int(keep.sum())} subgrupos después de las exclusiones; se necesitan "
+        k = int(keep.sum())
+        left = "Queda 1 subgrupo" if k == 1 else f"Quedan {k} subgrupos"
+        raise SPCInputError(f"{left} después de las exclusiones; se necesitan "
                             "al menos 2 para estimar los límites.", "insufficient_data")
     return keep
 
@@ -224,7 +226,8 @@ def _truncated_limits(center: np.ndarray, sd: np.ndarray, L: float, upper_cap: O
         upper_cut = bool(np.any(raw_u > upper_cap))
         ucl = np.minimum(raw_u, upper_cap)
     symmetric = not (lower_cut or upper_cut)
-    lim = ControlLimits(center=center, ucl=ucl, lcl=lcl, sigma=sd, symmetric=symmetric, limit_width=float(L))
+    lim = ControlLimits(center=center, ucl=ucl, lcl=lcl, sigma=sd, symmetric=symmetric, limit_width=float(L),
+                        discrete=True)
     return lim, lower_cut, upper_cut
 
 
@@ -298,9 +301,11 @@ def truncation_warnings(chart_type: str, limits: ControlLimits) -> list[str]:
     out = []
     raw_l = limits.center - limits.limit_width * limits.sigma
     if np.any(raw_l < 0):
-        out.append(f"El límite inferior del gráfico {chart_type} es negativo en "
-                   f"{int(np.sum(raw_l < 0))} punto(s) y se truncó en 0: el gráfico no puede señalar "
-                   "mejoras por debajo del límite y las reglas de zonas (WE2, WE3, N5 a N8) no se aplican.")
+        k = int(np.sum(raw_l < 0))
+        where = "1 punto" if k == 1 else f"{k} puntos"
+        out.append(f"El límite inferior del gráfico {chart_type} es negativo en {where} y se truncó en 0: "
+                   "el gráfico no puede señalar mejoras por debajo del límite y las reglas de zonas "
+                   "(WE2, WE3, N5 a N8) no se aplican.")
     if chart_type in ("p", "np"):
         cap = 1.0 if chart_type == "p" else None
         raw_u = limits.center + limits.limit_width * limits.sigma

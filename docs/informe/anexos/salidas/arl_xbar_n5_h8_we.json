@@ -1,0 +1,366 @@
+{
+ "ruta": "/api/design/arl",
+ "peticion": {
+  "chart": "xbar",
+  "n": 5,
+  "limit_width": 3.0,
+  "sampling_interval": 8.0,
+  "shifts": [
+   0.5,
+   1.0,
+   1.5,
+   2.0,
+   3.0
+  ],
+  "rules": {
+   "enabled": [
+    "WE1",
+    "WE2",
+    "WE3",
+    "WE4"
+   ]
+  },
+  "max_runs": 5000,
+  "seed": 12345
+ },
+ "respuesta": {
+  "method": "simulation",
+  "alpha": null,
+  "arl0": 91.5286,
+  "arl0_std_error": 1.2471841444093223,
+  "ats0": 732.2288,
+  "sampling_load": 0.625,
+  "rows": [
+   {
+    "shift": 0.5,
+    "beta": null,
+    "arl1": 7.6298,
+    "ats1": 61.0384,
+    "units_to_detect": 38.149,
+    "std_error": 0.06883645897064086
+   },
+   {
+    "shift": 1.0,
+    "beta": null,
+    "arl1": 2.6096,
+    "ats1": 20.8768,
+    "units_to_detect": 13.048,
+    "std_error": 0.01899446566621944
+   },
+   {
+    "shift": 1.5,
+    "beta": null,
+    "arl1": 1.4232,
+    "ats1": 11.3856,
+    "units_to_detect": 7.116,
+    "std_error": 0.008738170467816758
+   },
+   {
+    "shift": 2.0,
+    "beta": null,
+    "arl1": 1.0716,
+    "ats1": 8.5728,
+    "units_to_detect": 5.3580000000000005,
+    "std_error": 0.00372256087819909
+   },
+   {
+    "shift": 3.0,
+    "beta": null,
+    "arl1": 1.0,
+    "ats1": 8.0,
+    "units_to_detect": 5.0,
+    "std_error": 0.0
+   }
+  ],
+  "oc_curve": [
+   {
+    "x": 0.0,
+    "y": 0.9973002039367398
+   },
+   {
+    "x": 0.05,
+    "y": 0.997132970476147
+   },
+   {
+    "x": 0.1,
+    "y": 0.9966187800872002
+   },
+   {
+    "x": 0.15000000000000002,
+    "y": 0.9957200175886283
+   },
+   {
+    "x": 0.2,
+    "y": 0.9943735492517884
+   },
+   {
+    "x": 0.25,
+    "y": 0.9924902052602611
+   },
+   {
+    "x": 0.30000000000000004,
+    "y": 0.9899543370013744
+   },
+   {
+    "x": 0.35000000000000003,
+    "y": 0.9866237109878302
+   },
+   {
+    "x": 0.4,
+    "y": 0.9823300461509281
+   },
+   {
+    "x": 0.45,
+    "y": 0.9768805222927204
+   },
+   {
+    "x": 0.5,
+    "y": 0.9700605787724343
+   },
+   {
+    "x": 0.55,
+    "y": 0.9616382791759915
+   },
+   {
+    "x": 0.6000000000000001,
+    "y": 0.9513704369560183
+   },
+   {
+    "x": 0.65,
+    "y": 0.9390105791361641
+   },
+   {
+    "x": 0.7000000000000001,
+    "y": 0.9243186745125193
+   },
+   {
+    "x": 0.75,
+    "y": 0.907072378351773
+   },
+   {
+    "x": 0.8,
+    "y": 0.8870793610023645
+   },
+   {
+    "x": 0.8500000000000001,
+    "y": 0.8641901106316665
+   },
+   {
+    "x": 0.9,
+    "y": 0.8383104504443007
+   },
+   {
+    "x": 0.9500000000000001,
+    "y": 0.8094129084801346
+   },
+   {
+    "x": 1.0,
+    "y": 0.7775460413896245
+   },
+   {
+    "x": 1.05,
+    "y": 0.7428408553874556
+   },
+   {
+    "x": 1.1,
+    "y": 0.705513593433533
+   },
+   {
+    "x": 1.1500000000000001,
+    "y": 0.6658643640385121
+   },
+   {
+    "x": 1.2000000000000002,
+    "y": 0.6242713607135194
+   },
+   {
+    "x": 1.25,
+    "y": 0.5811807397791902
+   },
+   {
+    "x": 1.3,
+    "y": 0.5370925588725914
+   },
+   {
+    "x": 1.35,
+    "y": 0.492543496119512
+   },
+   {
+    "x": 1.4000000000000001,
+    "y": 0.448087337780567
+   },
+   {
+    "x": 1.4500000000000002,
+    "y": 0.4042744116728312
+   },
+   {
+    "x": 1.5,
+    "y": 0.3616312341865811
+   },
+   {
+    "x": 1.55,
+    "y": 0.320641620291625
+   },
+   {
+    "x": 1.6,
+    "y": 0.28173038058462224
+   },
+   {
+    "x": 1.6500000000000001,
+    "y": 0.24525051091196995
+   },
+   {
+    "x": 1.7000000000000002,
+    "y": 0.21147449203969532
+   },
+   {
+    "x": 1.75,
+    "y": 0.18058998963245587
+   },
+   {
+    "x": 1.8,
+    "y": 0.15269991171804603
+   },
+   {
+    "x": 1.85,
+    "y": 0.12782647388463791
+   },
+   {
+    "x": 1.9000000000000001,
+    "y": 0.10591866876610667
+   },
+   {
+    "x": 1.9500000000000002,
+    "y": 0.08686235522214827
+   },
+   {
+    "x": 2.0,
+    "y": 0.07049208394699581
+   },
+   {
+    "x": 2.0500000000000003,
+    "y": 0.056603760348043944
+   },
+   {
+    "x": 2.1,
+    "y": 0.044967304096208714
+   },
+   {
+    "x": 2.15,
+    "y": 0.03533858277945207
+   },
+   {
+    "x": 2.2,
+    "y": 0.027470055517197372
+   },
+   {
+    "x": 2.25,
+    "y": 0.021119740789942228
+   },
+   {
+    "x": 2.3000000000000003,
+    "y": 0.016058301831547436
+   },
+   {
+    "x": 2.35,
+    "y": 0.01207420657568439
+   },
+   {
+    "x": 2.4000000000000004,
+    "y": 0.008977055589304105
+   },
+   {
+    "x": 2.45,
+    "y": 0.006599273809939595
+   },
+   {
+    "x": 2.5,
+    "y": 0.004796428092279346
+   },
+   {
+    "x": 2.5500000000000003,
+    "y": 0.0034464644272655613
+   },
+   {
+    "x": 2.6,
+    "y": 0.002448161043902783
+   },
+   {
+    "x": 2.6500000000000004,
+    "y": 0.0017190730421322983
+   },
+   {
+    "x": 2.7,
+    "y": 0.0011932079988128314
+   },
+   {
+    "x": 2.75,
+    "y": 0.0008186271293896998
+   },
+   {
+    "x": 2.8000000000000003,
+    "y": 0.0005551191187251272
+   },
+   {
+    "x": 2.85,
+    "y": 0.00037204835776744283
+   },
+   {
+    "x": 2.9000000000000004,
+    "y": 0.00024643926350835
+   },
+   {
+    "x": 2.95,
+    "y": 0.00016132543783282894
+   },
+   {
+    "x": 3.0,
+    "y": 0.00010436726271053659
+   }
+  ],
+  "arl_curve": [
+   {
+    "x": 0.0,
+    "y": 91.5286
+   },
+   {
+    "x": 0.5,
+    "y": 7.6298
+   },
+   {
+    "x": 1.0,
+    "y": 2.6096
+   },
+   {
+    "x": 1.5,
+    "y": 1.4232
+   },
+   {
+    "x": 2.0,
+    "y": 1.0716
+   },
+   {
+    "x": 3.0,
+    "y": 1.0
+   }
+  ],
+  "interpretation": {
+   "summary": "Con un gráfico X-barra con L = 3, n = 5 y una muestra cada 8 h, el proceso en control da una falsa alarma cada 91,53 muestras en promedio (ATS0 = 732,2 h ≈ 30,5 días de operación continua) y un desplazamiento de la media de 1σ se detecta en 2,61 muestras (20,88 h). Valores estimados por simulación con reglas suplementarias.",
+   "findings": [
+    "Ante un desplazamiento de la media de 0,5σ: ARL1 = 7,63 muestras (error estándar 0,0688), ATS1 = 61,04 h ≈ 2,54 días de operación continua y unidades inspeccionadas hasta la señal: 38,15.",
+    "Ante un desplazamiento de la media de 1σ: ARL1 = 2,61 muestras (error estándar 0,019), ATS1 = 20,88 h y unidades inspeccionadas hasta la señal: 13,05.",
+    "Ante un desplazamiento de la media de 1,5σ: ARL1 = 1,423 muestras (error estándar 0,00874), ATS1 = 11,39 h y unidades inspeccionadas hasta la señal: 7,116.",
+    "Ante un desplazamiento de la media de 2σ: ARL1 = 1,072 muestras (error estándar 0,00372), ATS1 = 8,573 h y unidades inspeccionadas hasta la señal: 5,358.",
+    "Ante un desplazamiento de la media de 3σ: ARL1 = 1 muestra (error estándar 0), ATS1 = 8 h y unidades inspeccionadas hasta la señal: 5.",
+    "Carga muestral: 0,625 unidades inspeccionadas por hora. Es el costo que se compara con la rapidez de detección al elegir n y h.",
+    "Reglas evaluadas: WE1, WE2, WE3 y WE4. Con reglas suplementarias la longitud de corrida no es geométrica, así que se estimó por Monte Carlo: 5000 corridas por estado, cada una hasta 20000 muestras, semilla 12345. ARL0 = 91,53 con error estándar 1,25.",
+    "Solo con la regla de un punto fuera de límites el ARL0 sería 370,4: las reglas suplementarias multiplican las falsas alarmas por 4,05, a cambio de detectar un desplazamiento de la media de 1σ en 2,61 muestras en lugar de 4,495."
+   ],
+   "warnings": [
+    "La curva OC corresponde a la regla de un punto fuera de límites; con reglas suplementarias la probabilidad de no detectar depende de la historia y no se resume en un β por muestra. La curva ARL une los valores simulados.",
+    "Los ARL suponen parámetros del proceso conocidos. Si μ y σ (o p, c) se estimaron con pocos subgrupos en Fase I, el ARL0 real puede ser bastante menor que el calculado.",
+    "Las fórmulas suponen observaciones normales e independientes; con autocorrelación o colas pesadas las falsas alarmas son más frecuentes, en especial en el gráfico de individuales."
+   ]
+  }
+ }
+}

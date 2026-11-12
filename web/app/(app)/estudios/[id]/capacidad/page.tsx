@@ -5,11 +5,13 @@ import { useState } from "react";
 import { DatasetSelect, InterpretationBlock, SaveAnalysis } from "@/components/analysis-parts";
 import { HistogramChart } from "@/components/charts/StatCharts";
 import { useStudy } from "@/components/study-context";
-import { Alert, Badge, Button, Card, EmptyState, Loading, NumberField, PageHeader, SelectField, Table, Td, Th, fmtNum } from "@/components/ui";
+import { Alert, Badge, Button, Card, CheckField, EmptyState, Loading, NumberField, PageHeader, SelectField, Table, Td, Th, fmtNum } from "@/components/ui";
 import { api } from "@/lib/api";
 import type { components } from "@/lib/api-types";
 import { getStore } from "@/lib/data";
 import { isVariableDataset, variableSubgroups } from "@/lib/dataset-utils";
+import { describeDepuration, findDepuration, matchingAssumptions, matchingControlAnalysis } from "@/lib/depuration";
+import { SIGMA_METHOD_LABEL } from "@/lib/labels";
 import { useLoad } from "@/lib/use-load";
 
 type S = components["schemas"];
@@ -46,6 +48,9 @@ export default function CapabilityPage() {
   const [normal, setNormal] = useState<Tri>("auto");
   const [req, setReq] = useState<S["CapabilityRequest"] | null>(null);
   const [runDataset, setRunDataset] = useState<string | undefined>();
+  // Descripción de los datos que se usaron en el último cálculo (se guarda junto con la petición).
+  const [runUsed, setRunUsed] = useState<string>("");
+  const [useAll, setUseAll] = useState(false);
 
   const base = useLoad(async () => {
     const s = getStore();
@@ -55,12 +60,24 @@ export default function CapabilityPage() {
   const list = base.data?.datasets ?? [];
   const dataset = list.find((d) => d.id === datasetId) ?? list.find((d) => d.phase === "I") ?? list[0];
 
-  // Valores que el análisis ya guardado sugiere para estabilidad y normalidad.
-  const lastOf = (m: string, phase?: string) =>
-    [...(base.data?.analyses ?? [])].reverse().find((a) => a.module === m && (!phase || (a.result as { phase?: string }).phase === phase));
-  // La estabilidad se juzga en Fase I; un análisis de Fase II fuera de control no dice que los datos de Fase I fueran inestables.
-  const savedStable = (lastOf("variables", "I")?.result as { in_control?: boolean } | undefined)?.in_control;
-  const savedNormal = (lastOf("assumptions")?.result as { is_normal?: boolean } | undefined)?.is_normal;
+  // Depuración de Fase I: si los límites congelados vigentes salen de este conjunto, por defecto se
+  // usan solo los subgrupos retenidos y la sigma de corto plazo de Fase I.
+  const dep = findDepuration(dataset, base.data?.limits ?? []);
+  const depActive = !!dep && !useAll;
+  const excludedIdx = depActive ? dep!.excluded.map((e) => e.index) : [];
+  const dataText = dataset
+    ? depActive
+      ? `${describeDepuration(dep!)}; sigma de Fase I`
+      : dep
+        ? `${dep.total} de ${dep.total} subgrupos (todos, sin la depuración de Fase I${dep.excluded.length ? `: se incluyen el ${dep.excluded.map((e) => e.label).join(", ")}` : ""})`
+        : `${dataset.rows.length} subgrupos (todos; este conjunto no tiene límites congelados)`
+    : "";
+
+  // Estabilidad: del análisis de control guardado que corresponde a estos datos (mismo conjunto, misma
+  // fase y mismas exclusiones). Normalidad: del análisis de supuestos sobre las mismas observaciones.
+  const nObs = dataset ? (depActive ? dep!.keptObservations : variableSubgroups(dataset).subgroups.flat().length) : 0;
+  const savedStable = (matchingControlAnalysis(base.data?.analyses ?? [], dataset, excludedIdx)?.result as { in_control?: boolean } | undefined)?.in_control;
+  const savedNormal = (matchingAssumptions(base.data?.analyses ?? [], dataset, nObs)?.result as { is_normal?: boolean } | undefined)?.is_normal;
   const resolve = (t: Tri, saved: boolean | undefined): boolean | null => (t === "auto" ? (saved ?? null) : t === "yes" ? true : t === "no" ? false : null);
   const effStable = resolve(stable, savedStable);
   const effNormal = resolve(normal, savedNormal);
@@ -73,10 +90,15 @@ export default function CapabilityPage() {
 
   function run() {
     if (!dataset) return;
-    const frozen = method === "frozen" ? base.data?.limits.find((l) => l.chart_type === "xbar_r" || l.chart_type === "xbar_s" || l.chart_type === "i_mr") : undefined;
+    const anyFrozen = base.data?.limits.find((l) => l.chart_type === "xbar_r" || l.chart_type === "xbar_s" || l.chart_type === "i_mr");
+    // Límites congelados que fijan la sigma: los de la depuración (método automático) o los que se
+    // pidieron explícitamente. Con un método explícito la sigma sale de los subgrupos retenidos.
+    const frozen = method === "frozen" ? (dep?.limits ?? anyFrozen) : method === "auto" && depActive ? dep!.limits : undefined;
+    const subgroups = depActive ? dep!.keptSubgroups : variableSubgroups(dataset).subgroups;
     setRunDataset(dataset.id);
+    setRunUsed(dataText);
     setReq({
-      subgroups: variableSubgroups(dataset).subgroups,
+      subgroups,
       lsl,
       usl,
       target,
@@ -130,7 +152,7 @@ export default function CapabilityPage() {
               <NumberField label="USL (límite superior)" value={usl} onChange={setUsl} />
               <NumberField label="Objetivo (opcional)" value={target} onChange={setTarget} />
               <SelectField label="Estimación de σ dentro del subgrupo" value={method} onChange={(e) => setMethod(e.target.value)}>
-                <option value="auto">Automática según el tamaño de subgrupo</option>
+                <option value="auto">{depActive ? "Automática: sigma de Fase I (límites congelados)" : "Automática según el tamaño de subgrupo"}</option>
                 <option value="rbar_d2">R-barra / d2</option>
                 <option value="sbar_c4">S-barra / c4</option>
                 <option value="mrbar_d2">Rango móvil / d2 (individuales)</option>
@@ -148,6 +170,21 @@ export default function CapabilityPage() {
                 {triOptions(savedNormal)}
               </SelectField>
             </div>
+            {dataset && (
+              <div className="mt-4 flex flex-col gap-2">
+                <Alert tone={depActive ? "info" : "warn"} title="Datos que se usarán">
+                  {dataText}.
+                </Alert>
+                {dep && (
+                  <CheckField
+                    label="Calcular con todos los subgrupos"
+                    hint="Ignora la depuración de Fase I: los subgrupos excluidos con causa asignable vuelven a entrar y la sigma se estima de nuevo con ellos. No es lo recomendado."
+                    checked={useAll}
+                    onChange={setUseAll}
+                  />
+                )}
+              </div>
+            )}
             {lsl == null && usl == null && <Alert tone="warn" className="mt-3">Indica al menos una especificación (LSL o USL).</Alert>}
             <div className="mt-4">
               <Button variant="primary" onClick={run} disabled={!dataset || (lsl == null && usl == null)} loading={res.loading && !!req}>
@@ -166,12 +203,13 @@ export default function CapabilityPage() {
                 <Alert tone="warn" title="Antes de interpretar estos índices">
                   <ul className="list-disc pl-5">
                     {req.is_stable === false && <li>El proceso <strong>no es estable</strong>: los índices no predicen su desempeño futuro. Resuelve primero las causas asignables en Fase I.</li>}
-                    {req.is_stable == null && <li>No se verificó la estabilidad: corre la Fase I y guarda el análisis.</li>}
+                    {req.is_stable == null && <li>No se verificó la estabilidad: no hay un análisis de control guardado para estos mismos datos (mismo conjunto y mismas exclusiones). Corre el gráfico en Variables y guarda el análisis.</li>}
                     {req.is_normal === false && <li>Los datos <strong>no son normales</strong>: la fracción no conforme esperada puede estar sesgada; confía más en la observada.</li>}
-                    {req.is_normal == null && <li>No se verificó la normalidad: corre el módulo Supuestos y guarda el análisis.</li>}
+                    {req.is_normal == null && <li>No se verificó la normalidad: no hay un análisis de Supuestos guardado sobre estas mismas observaciones. Córrelo en Supuestos y guarda el análisis.</li>}
                   </ul>
                 </Alert>
               )}
+              <Alert tone="info" title="Datos usados en este cálculo">{runUsed}.</Alert>
               <div className="flex flex-wrap items-center gap-3">
                 <Badge tone={verdict.tone}>{verdict.icon} Capacidad {verdict.text}</Badge>
                 <Badge tone="neutral">n = {r.n}</Badge>
@@ -206,7 +244,7 @@ export default function CapabilityPage() {
                     })}
                   </tbody>
                 </Table>
-                <p className="mt-2 text-xs text-muted">σ dentro estimada con {r.sigma_method === "frozen_limits" ? "los límites congelados" : r.sigma_method.replace("_", "/").replace("rbar", "R-barra").replace("sbar", "S-barra").replace("mrbar", "MR-barra")}. «—» significa que no aplica con las especificaciones dadas.</p>
+                <p className="mt-2 text-xs text-muted">σ dentro estimada con {r.sigma_method === "frozen_limits" ? "los límites congelados de Fase I (sigma de Fase I)" : SIGMA_METHOD_LABEL[r.sigma_method]}. «—» significa que no aplica con las especificaciones dadas.</p>
               </Card>
               <Card title="Fracción no conforme">
                 <Table caption="Fracción no conforme esperada y observada">

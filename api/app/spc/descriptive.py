@@ -226,9 +226,9 @@ def flag_outliers_iqr(
         name = str(labels[i]) if labels is not None else str(i + 1)
         for j, v in enumerate(np.asarray(g, dtype=float).ravel()):
             if v > high:
-                side, limit, formula = "por encima", high, f"Q3 + {k:g}·IQR"
+                side, limit, formula = "por encima", high, f"Q3 + {_g(k)}·IQR"
             elif v < low:
-                side, limit, formula = "por debajo", low, f"Q1 - {k:g}·IQR"
+                side, limit, formula = "por debajo", low, f"Q1 - {_g(k)}·IQR"
             else:
                 continue
             flags.append(
@@ -316,5 +316,8 @@ def build_histogram(
 
 
 def _g(x: float, digits: int = 4) -> str:
-    """Número con `digits` cifras significativas, sin notación científica innecesaria."""
-    return f"{float(x):.{digits}g}"
+    """Número con `digits` cifras significativas y coma decimal (mismo formato
+    que `interpretation.fmt`)."""
+    from .interpretation import fmt
+
+    return fmt(x, digits)

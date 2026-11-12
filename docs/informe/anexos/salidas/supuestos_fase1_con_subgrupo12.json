@@ -1,0 +1,987 @@
+{
+ "ruta": "/api/assumptions",
+ "peticion": {
+  "values": [
+   500.83,
+   499.72,
+   499.92,
+   499.35,
+   502.26,
+   500.08,
+   501.34,
+   499.51,
+   499.78,
+   498.97,
+   498.82,
+   499.82,
+   498.33,
+   499.86,
+   500.89,
+   501.09,
+   498.61,
+   498.29,
+   501.54,
+   501.62,
+   498.83,
+   499.62,
+   500.85,
+   499.39,
+   499.68,
+   499.9,
+   498.86,
+   498.72,
+   498.18,
+   499.14,
+   502.85,
+   499.17,
+   499.95,
+   499.5,
+   499.31,
+   500.29,
+   496.85,
+   497.5,
+   500.72,
+   497.98,
+   499.65,
+   500.57,
+   498.97,
+   500.77,
+   499.64,
+   499.66,
+   499.16,
+   499.62,
+   498.37,
+   501.18,
+   502.1,
+   499.18,
+   500.87,
+   502.44,
+   500.54,
+   501.26,
+   499.3,
+   503.41,
+   503.08,
+   502.86,
+   501.05,
+   500.39,
+   500.64,
+   498.32,
+   500.61,
+   499.67,
+   498.31,
+   499.4,
+   501.32,
+   501.26,
+   498.82,
+   499.88,
+   501.55,
+   499.33,
+   497.71,
+   499.87,
+   499.3,
+   498.89,
+   500.15,
+   499.72,
+   502.06,
+   499.46,
+   501.19,
+   500.81,
+   500.46,
+   497.11,
+   498.38,
+   502.78,
+   500.57,
+   499.84,
+   500.87,
+   501.44,
+   499.42,
+   498.5,
+   499.37,
+   498.39,
+   500.91,
+   500.1,
+   497.83,
+   501.37,
+   499.99,
+   500.77,
+   497.81,
+   498.63,
+   498.7,
+   499.22,
+   500.83,
+   500.35,
+   500.27,
+   501.22,
+   499.22,
+   499.36,
+   496.53,
+   498.14,
+   498.47,
+   497.46,
+   500.28,
+   501.53,
+   500.42,
+   502.85,
+   498.01,
+   500.84,
+   501.2,
+   498.36,
+   498.96
+  ]
+ },
+ "respuesta": {
+  "descriptive": {
+   "count": 125,
+   "mean": 499.89615999999995,
+   "std": 1.3836136557533312,
+   "min": 496.53,
+   "q1": 498.96,
+   "median": 499.78,
+   "q3": 500.84,
+   "max": 503.41,
+   "skewness": 0.1981456439505552,
+   "kurtosis": -0.12449602113270952
+  },
+  "normality": [
+   {
+    "name": "Shapiro-Wilk",
+    "null_hypothesis": "Los datos provienen de una distribución normal",
+    "statistic": 0.9911087807751873,
+    "p_value": 0.6074377173222524,
+    "critical_value": null,
+    "reject": false,
+    "conclusion": "W = 0,9911, p = 0,6074: no se rechaza H0 al nivel α = 0,05. Los datos son compatibles con una distribución normal (no rechazar no demuestra que lo sean)."
+   },
+   {
+    "name": "Anderson-Darling",
+    "null_hypothesis": "Los datos provienen de una distribución normal",
+    "statistic": 0.31460599065047745,
+    "p_value": null,
+    "critical_value": 0.7474079257044718,
+    "reject": false,
+    "conclusion": "A² = 0,3146 frente al valor crítico 0,7474 (α = 0,05): no se rechaza H0 al nivel α = 0,05. No hay evidencia de desvío de la normalidad, tampoco en las colas (no rechazar no demuestra que los datos sean normales)."
+   }
+  ],
+  "is_normal": true,
+  "qq": [
+   {
+    "theoretical": -2.652069807902196,
+    "observed": 496.53
+   },
+   {
+    "theoretical": -2.2571292444862254,
+    "observed": 496.85
+   },
+   {
+    "theoretical": -2.053748910631823,
+    "observed": 497.11
+   },
+   {
+    "theoretical": -1.911035647549118,
+    "observed": 497.46
+   },
+   {
+    "theoretical": -1.7991181068379674,
+    "observed": 497.5
+   },
+   {
+    "theoretical": -1.706043396888962,
+    "observed": 497.71
+   },
+   {
+    "theoretical": -1.6257633862332344,
+    "observed": 497.81
+   },
+   {
+    "theoretical": -1.5547735945968535,
+    "observed": 497.83
+   },
+   {
+    "theoretical": -1.490853355246661,
+    "observed": 497.98
+   },
+   {
+    "theoretical": -1.4325027208258119,
+    "observed": 498.01
+   },
+   {
+    "theoretical": -1.378658728623277,
+    "observed": 498.14
+   },
+   {
+    "theoretical": -1.3285393288568095,
+    "observed": 498.18
+   },
+   {
+    "theoretical": -1.2815515655446004,
+    "observed": 498.29
+   },
+   {
+    "theoretical": -1.2372345991628273,
+    "observed": 498.31
+   },
+   {
+    "theoretical": -1.195222781437427,
+    "observed": 498.32
+   },
+   {
+    "theoretical": -1.1552208466119518,
+    "observed": 498.33
+   },
+   {
+    "theoretical": -1.11698672787661,
+    "observed": 498.36
+   },
+   {
+    "theoretical": -1.0803193408149558,
+    "observed": 498.37
+   },
+   {
+    "theoretical": -1.0450496996583887,
+    "observed": 498.38
+   },
+   {
+    "theoretical": -1.0110343281418164,
+    "observed": 498.39
+   },
+   {
+    "theoretical": -0.9781502862624716,
+    "observed": 498.47
+   },
+   {
+    "theoretical": -0.9462913579615762,
+    "observed": 498.5
+   },
+   {
+    "theoretical": -0.915365087842814,
+    "observed": 498.61
+   },
+   {
+    "theoretical": -0.8852904488296417,
+    "observed": 498.63
+   },
+   {
+    "theoretical": -0.8559959854926819,
+    "observed": 498.7
+   },
+   {
+    "theoretical": -0.8274183207043821,
+    "observed": 498.72
+   },
+   {
+    "theoretical": -0.7995009431327368,
+    "observed": 498.82
+   },
+   {
+    "theoretical": -0.7721932141886848,
+    "observed": 498.82
+   },
+   {
+    "theoretical": -0.7454495481807891,
+    "observed": 498.83
+   },
+   {
+    "theoretical": -0.7192287304399239,
+    "observed": 498.86
+   },
+   {
+    "theoretical": -0.6934933462832895,
+    "observed": 498.89
+   },
+   {
+    "theoretical": -0.6682092997257233,
+    "observed": 498.96
+   },
+   {
+    "theoretical": -0.643345405392917,
+    "observed": 498.97
+   },
+   {
+    "theoretical": -0.6188730405486286,
+    "observed": 498.97
+   },
+   {
+    "theoretical": -0.5947658468016781,
+    "observed": 499.14
+   },
+   {
+    "theoretical": -0.5709994731129875,
+    "observed": 499.16
+   },
+   {
+    "theoretical": -0.5475513533264015,
+    "observed": 499.17
+   },
+   {
+    "theoretical": -0.5244005127080409,
+    "observed": 499.18
+   },
+   {
+    "theoretical": -0.5015273989777081,
+    "observed": 499.22
+   },
+   {
+    "theoretical": -0.47891373411225585,
+    "observed": 499.22
+   },
+   {
+    "theoretical": -0.4565423838398404,
+    "observed": 499.3
+   },
+   {
+    "theoretical": -0.43439724225978127,
+    "observed": 499.3
+   },
+   {
+    "theoretical": -0.41246312944140473,
+    "observed": 499.31
+   },
+   {
+    "theoretical": -0.39072570019687003,
+    "observed": 499.33
+   },
+   {
+    "theoretical": -0.36917136250308974,
+    "observed": 499.35
+   },
+   {
+    "theoretical": -0.3477872042786274,
+    "observed": 499.36
+   },
+   {
+    "theoretical": -0.3265609274123727,
+    "observed": 499.37
+   },
+   {
+    "theoretical": -0.3054807880993974,
+    "observed": 499.39
+   },
+   {
+    "theoretical": -0.28453554267162146,
+    "observed": 499.4
+   },
+   {
+    "theoretical": -0.26371439822153003,
+    "observed": 499.42
+   },
+   {
+    "theoretical": -0.24300696740998223,
+    "observed": 499.46
+   },
+   {
+    "theoretical": -0.22240322692720635,
+    "observed": 499.5
+   },
+   {
+    "theoretical": -0.20189347914185088,
+    "observed": 499.51
+   },
+   {
+    "theoretical": -0.18146831652847692,
+    "observed": 499.62
+   },
+   {
+    "theoretical": -0.16111858851074543,
+    "observed": 499.62
+   },
+   {
+    "theoretical": -0.14083537039712724,
+    "observed": 499.64
+   },
+   {
+    "theoretical": -0.1206099341193072,
+    "observed": 499.65
+   },
+   {
+    "theoretical": -0.10043372051146975,
+    "observed": 499.66
+   },
+   {
+    "theoretical": -0.0802983128920549,
+    "observed": 499.67
+   },
+   {
+    "theoretical": -0.060195411728956635,
+    "observed": 499.68
+   },
+   {
+    "theoretical": -0.0401168101849681,
+    "observed": 499.72
+   },
+   {
+    "theoretical": -0.020054370352950636,
+    "observed": 499.72
+   },
+   {
+    "theoretical": 0.0,
+    "observed": 499.78
+   },
+   {
+    "theoretical": 0.020054370352950636,
+    "observed": 499.82
+   },
+   {
+    "theoretical": 0.0401168101849681,
+    "observed": 499.84
+   },
+   {
+    "theoretical": 0.060195411728956635,
+    "observed": 499.86
+   },
+   {
+    "theoretical": 0.08029831289205504,
+    "observed": 499.87
+   },
+   {
+    "theoretical": 0.10043372051146988,
+    "observed": 499.88
+   },
+   {
+    "theoretical": 0.12060993411930736,
+    "observed": 499.9
+   },
+   {
+    "theoretical": 0.14083537039712737,
+    "observed": 499.92
+   },
+   {
+    "theoretical": 0.1611185885107453,
+    "observed": 499.95
+   },
+   {
+    "theoretical": 0.18146831652847678,
+    "observed": 499.99
+   },
+   {
+    "theoretical": 0.20189347914185074,
+    "observed": 500.08
+   },
+   {
+    "theoretical": 0.2224032269272062,
+    "observed": 500.1
+   },
+   {
+    "theoretical": 0.24300696740998223,
+    "observed": 500.15
+   },
+   {
+    "theoretical": 0.26371439822153003,
+    "observed": 500.27
+   },
+   {
+    "theoretical": 0.28453554267162146,
+    "observed": 500.28
+   },
+   {
+    "theoretical": 0.3054807880993974,
+    "observed": 500.29
+   },
+   {
+    "theoretical": 0.3265609274123727,
+    "observed": 500.35
+   },
+   {
+    "theoretical": 0.3477872042786274,
+    "observed": 500.39
+   },
+   {
+    "theoretical": 0.36917136250308974,
+    "observed": 500.42
+   },
+   {
+    "theoretical": 0.39072570019687003,
+    "observed": 500.46
+   },
+   {
+    "theoretical": 0.4124631294414049,
+    "observed": 500.54
+   },
+   {
+    "theoretical": 0.43439724225978144,
+    "observed": 500.57
+   },
+   {
+    "theoretical": 0.45654238383984064,
+    "observed": 500.57
+   },
+   {
+    "theoretical": 0.478913734112256,
+    "observed": 500.61
+   },
+   {
+    "theoretical": 0.501527398977708,
+    "observed": 500.64
+   },
+   {
+    "theoretical": 0.5244005127080407,
+    "observed": 500.72
+   },
+   {
+    "theoretical": 0.5475513533264013,
+    "observed": 500.77
+   },
+   {
+    "theoretical": 0.5709994731129873,
+    "observed": 500.77
+   },
+   {
+    "theoretical": 0.5947658468016781,
+    "observed": 500.81
+   },
+   {
+    "theoretical": 0.6188730405486286,
+    "observed": 500.83
+   },
+   {
+    "theoretical": 0.643345405392917,
+    "observed": 500.83
+   },
+   {
+    "theoretical": 0.6682092997257233,
+    "observed": 500.84
+   },
+   {
+    "theoretical": 0.6934933462832895,
+    "observed": 500.85
+   },
+   {
+    "theoretical": 0.7192287304399239,
+    "observed": 500.87
+   },
+   {
+    "theoretical": 0.7454495481807891,
+    "observed": 500.87
+   },
+   {
+    "theoretical": 0.7721932141886848,
+    "observed": 500.89
+   },
+   {
+    "theoretical": 0.7995009431327368,
+    "observed": 500.91
+   },
+   {
+    "theoretical": 0.8274183207043821,
+    "observed": 501.05
+   },
+   {
+    "theoretical": 0.8559959854926822,
+    "observed": 501.09
+   },
+   {
+    "theoretical": 0.8852904488296418,
+    "observed": 501.18
+   },
+   {
+    "theoretical": 0.9153650878428138,
+    "observed": 501.19
+   },
+   {
+    "theoretical": 0.946291357961576,
+    "observed": 501.2
+   },
+   {
+    "theoretical": 0.9781502862624716,
+    "observed": 501.22
+   },
+   {
+    "theoretical": 1.0110343281418164,
+    "observed": 501.26
+   },
+   {
+    "theoretical": 1.0450496996583887,
+    "observed": 501.26
+   },
+   {
+    "theoretical": 1.0803193408149558,
+    "observed": 501.32
+   },
+   {
+    "theoretical": 1.11698672787661,
+    "observed": 501.34
+   },
+   {
+    "theoretical": 1.1552208466119518,
+    "observed": 501.37
+   },
+   {
+    "theoretical": 1.195222781437427,
+    "observed": 501.44
+   },
+   {
+    "theoretical": 1.2372345991628273,
+    "observed": 501.53
+   },
+   {
+    "theoretical": 1.2815515655446004,
+    "observed": 501.54
+   },
+   {
+    "theoretical": 1.3285393288568095,
+    "observed": 501.55
+   },
+   {
+    "theoretical": 1.3786587286232774,
+    "observed": 501.62
+   },
+   {
+    "theoretical": 1.432502720825812,
+    "observed": 502.06
+   },
+   {
+    "theoretical": 1.490853355246661,
+    "observed": 502.1
+   },
+   {
+    "theoretical": 1.5547735945968535,
+    "observed": 502.26
+   },
+   {
+    "theoretical": 1.6257633862332344,
+    "observed": 502.44
+   },
+   {
+    "theoretical": 1.7060433968889614,
+    "observed": 502.78
+   },
+   {
+    "theoretical": 1.799118106837967,
+    "observed": 502.85
+   },
+   {
+    "theoretical": 1.911035647549118,
+    "observed": 502.85
+   },
+   {
+    "theoretical": 2.0537489106318225,
+    "observed": 502.86
+   },
+   {
+    "theoretical": 2.257129244486225,
+    "observed": 503.08
+   },
+   {
+    "theoretical": 2.652069807902196,
+    "observed": 503.41
+   }
+  ],
+  "histogram": {
+   "edges": [
+    496.53,
+    497.39,
+    498.25,
+    499.11,
+    499.97,
+    500.83,
+    501.69,
+    502.55,
+    503.41
+   ],
+   "counts": [
+    3,
+    9,
+    22,
+    37,
+    20,
+    24,
+    4,
+    6
+   ],
+   "normal_curve_x": [
+    495.0535122048633,
+    495.150365160766,
+    495.24721811666876,
+    495.3440710725715,
+    495.4409240284742,
+    495.53777698437693,
+    495.6346299402797,
+    495.73148289618246,
+    495.82833585208516,
+    495.92518880798787,
+    496.0220417638906,
+    496.1188947197934,
+    496.2157476756961,
+    496.3126006315988,
+    496.40945358750156,
+    496.5063065434043,
+    496.603159499307,
+    496.70001245520973,
+    496.7968654111125,
+    496.89371836701525,
+    496.99057132291796,
+    497.08742427882066,
+    497.1842772347234,
+    497.2811301906262,
+    497.3779831465289,
+    497.4748361024316,
+    497.57168905833436,
+    497.6685420142371,
+    497.7653949701398,
+    497.8622479260425,
+    497.9591008819453,
+    498.05595383784805,
+    498.15280679375076,
+    498.24965974965346,
+    498.3465127055562,
+    498.443365661459,
+    498.5402186173617,
+    498.6370715732644,
+    498.73392452916715,
+    498.8307774850699,
+    498.9276304409726,
+    499.0244833968753,
+    499.1213363527781,
+    499.21818930868085,
+    499.31504226458355,
+    499.41189522048626,
+    499.508748176389,
+    499.6056011322918,
+    499.7024540881945,
+    499.7993070440972,
+    499.89615999999995,
+    499.9930129559027,
+    500.0898659118054,
+    500.1867188677081,
+    500.2835718236109,
+    500.38042477951365,
+    500.47727773541635,
+    500.57413069131906,
+    500.6709836472218,
+    500.7678366031246,
+    500.8646895590273,
+    500.96154251493,
+    501.05839547083275,
+    501.1552484267355,
+    501.2521013826382,
+    501.3489543385409,
+    501.4458072944437,
+    501.54266025034644,
+    501.63951320624915,
+    501.73636616215185,
+    501.8332191180546,
+    501.9300720739574,
+    502.0269250298601,
+    502.1237779857628,
+    502.22063094166555,
+    502.3174838975683,
+    502.414336853471,
+    502.5111898093737,
+    502.6080427652765,
+    502.70489572117924,
+    502.80174867708195,
+    502.89860163298465,
+    502.9954545888874,
+    503.0923075447902,
+    503.1891605006929,
+    503.2860134565956,
+    503.38286641249834,
+    503.4797193684011,
+    503.5765723243038,
+    503.6734252802065,
+    503.7702782361093,
+    503.86713119201204,
+    503.96398414791474,
+    504.06083710381745,
+    504.1576900597202,
+    504.25454301562297,
+    504.3513959715257,
+    504.4482489274284,
+    504.54510188333114,
+    504.6419548392339,
+    504.7388077951366
+   ],
+   "normal_curve_y": [
+    0.06780316841144722,
+    0.08641479724767787,
+    0.10959688204193054,
+    0.13831849013640973,
+    0.17371376667691169,
+    0.21710018425337013,
+    0.26999648100178436,
+    0.33413961866533015,
+    0.41149996110073883,
+    0.5042937449557481,
+    0.6149917945895601,
+    0.7463233307843842,
+    0.9012736463952384,
+    1.0830743814624586,
+    1.2951851353641024,
+    1.541265213920618,
+    1.8251344336665745,
+    2.1507221008352153,
+    2.522003553656484,
+    2.942924004931919,
+    3.4173098452990076,
+    3.948768059532445,
+    4.540574957266947,
+    5.195556009319634,
+    5.915959190129384,
+    6.703324830080544,
+    7.558355549359617,
+    8.480790345699024,
+    9.469287308999496,
+    10.521319704152843,
+    11.633090269754005,
+    12.799468499726755,
+    14.01395538869144,
+    15.268679620090293,
+    16.554428458512927,
+    17.860715685189557,
+    19.175887810612664,
+    20.487268544485193,
+    21.781340145021296,
+    23.04395886037745,
+    24.260600274757415,
+    25.416629044567056,
+    26.49758632065685,
+    27.489487163093678,
+    28.379119520545135,
+    29.15433591294552,
+    29.804328856560083,
+    30.319881322610197,
+    30.693584125258543,
+    30.920013075617803,
+    30.995859982174395,
+    30.920013075617803,
+    30.693584125258543,
+    30.319881322610197,
+    29.804328856560083,
+    29.15433591294552,
+    28.379119520545135,
+    27.489487163093678,
+    26.49758632065685,
+    25.416629044567056,
+    24.260600274757415,
+    23.04395886037745,
+    21.781340145021296,
+    20.487268544485193,
+    19.175887810612664,
+    17.860715685189557,
+    16.554428458512927,
+    15.268679620090293,
+    14.01395538869144,
+    12.799468499726755,
+    11.633090269754005,
+    10.521319704152843,
+    9.469287308999496,
+    8.480790345699024,
+    7.558355549359617,
+    6.703324830080544,
+    5.915959190129384,
+    5.195556009319634,
+    4.540574957266947,
+    3.948768059532445,
+    3.4173098452990076,
+    2.942924004931919,
+    2.522003553656484,
+    2.1507221008352153,
+    1.8251344336665745,
+    1.541265213920618,
+    1.2951851353641024,
+    1.0830743814624586,
+    0.9012736463952384,
+    0.7463233307843842,
+    0.6149917945895601,
+    0.5042937449557481,
+    0.41149996110073883,
+    0.33413961866533015,
+    0.26999648100178436,
+    0.21710018425337013,
+    0.17371376667691169,
+    0.13831849013640973,
+    0.10959688204193054,
+    0.08641479724767787,
+    0.06780316841144722
+   ]
+  },
+  "autocorrelation": {
+   "lags": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+   ],
+   "values": [
+    0.1567152260661952,
+    0.01704104423622826,
+    0.12441736737956505,
+    0.016375473178567072,
+    -0.04213024781799434,
+    -0.2202190896903986,
+    -0.028890410757532226,
+    0.15674649684329606,
+    0.09509189582098665,
+    0.11468178772896401,
+    0.11414857416514369,
+    0.08026065160272307,
+    -0.16006580480420965,
+    -0.11964431809656205,
+    -0.019054559730887224,
+    -0.10364348231977838,
+    -0.12221163665092202,
+    -0.02072230274999,
+    0.14318816946099572,
+    0.016741510005868824
+   ],
+   "band": 0.1753045081153163,
+   "significant_lags": [
+    6
+   ]
+  },
+  "independence": [
+   {
+    "name": "Ljung-Box",
+    "null_hypothesis": "Las observaciones son independientes (no hay autocorrelación)",
+    "statistic": 33.82179836251601,
+    "p_value": 0.02735572459379322,
+    "critical_value": 31.410432844230925,
+    "reject": true,
+    "conclusion": "Q = 33,82 con 20 rezagos (χ² con 20 g.l.), p = 0,0274: se rechaza H0 al nivel α = 0,05. En conjunto, las autocorrelaciones de los rezagos 1 a 20 son mayores que las esperables por azar: hay evidencia contra la independencia. Para saber de dónde viene, mire qué rezagos salen de la banda de la función de autocorrelación."
+   },
+   {
+    "name": "Rachas",
+    "null_hypothesis": "La secuencia de observaciones arriba y abajo de la mediana es aleatoria",
+    "statistic": -0.5410196613147604,
+    "p_value": 0.6528020117407911,
+    "critical_value": null,
+    "reject": false,
+    "conclusion": "60 rachas observadas frente a 63 esperadas (62 datos arriba y 62 abajo de la mediana 499,8); z = -0,541, p = 0,6528 (exacto): no se rechaza H0 al nivel α = 0,05. La alternancia arriba y abajo de la mediana es compatible con un proceso aleatorio."
+   }
+  ],
+  "is_independent": false,
+  "interpretation": {
+   "summary": "Con 125 observaciones, no hay evidencia contra la normalidad y la evidencia contra la independencia es débil (Ljung-Box, p = 0,0274; rachas, p = 0,6528, no rechaza; 1 rezago de 20 fuera de la banda: r6 = -0,22, cuando con 20 rezagos y datos independientes se esperan unos 0,8 rezagos fuera de banda por azar, de modo que uno aislado no es raro). No alcanza para afirmar que las observaciones estén autocorrelacionadas; conviene confirmarlo con más datos o revisando cómo se ordenaron las mediciones.",
+   "findings": [
+    "Se analizaron 125 observaciones en orden temporal: media 499,9, desviación estándar 1,384, mínimo 496,5 y máximo 503,4.",
+    "Shapiro-Wilk: W = 0,9911, p = 0,6074: no se rechaza H0 al nivel α = 0,05. Los datos son compatibles con una distribución normal (no rechazar no demuestra que lo sean).",
+    "Anderson-Darling: A² = 0,3146 frente al valor crítico 0,7474 (α = 0,05): no se rechaza H0 al nivel α = 0,05. No hay evidencia de desvío de la normalidad, tampoco en las colas (no rechazar no demuestra que los datos sean normales).",
+    "En el gráfico Q-Q la correlación entre cuantiles teóricos y observados es 0,9961; cuanto más cerca de 1, más se alinean los puntos sobre la recta normal.",
+    "La autocorrelación supera la banda ±0,175 en 1 de 20 rezagos (negativa): r6 = -0,22. Con 20 rezagos, n = 125 y α = 0,05 se esperan unos 0,8 rezagos fuera de banda solo por azar (aproximación con la varianza (n - k)/(n(n + 2)) de cada autocorrelación).",
+    "El rezago 1 no sale de la banda (r1 = 0,157): no hay evidencia de que cada observación dependa de la inmediatamente anterior. Un rezago k aislado fuera de banda puede reflejar un patrón que se repite cada k observaciones (posición dentro del subgrupo, cavidad, turno) o ser casual.",
+    "Ljung-Box: Q = 33,82 con 20 rezagos (χ² con 20 g.l.), p = 0,0274: se rechaza H0 al nivel α = 0,05. En conjunto, las autocorrelaciones de los rezagos 1 a 20 son mayores que las esperables por azar: hay evidencia contra la independencia. Para saber de dónde viene, mire qué rezagos salen de la banda de la función de autocorrelación.",
+    "Rachas: 60 rachas observadas frente a 63 esperadas (62 datos arriba y 62 abajo de la mediana 499,8); z = -0,541, p = 0,6528 (exacto): no se rechaza H0 al nivel α = 0,05. La alternancia arriba y abajo de la mediana es compatible con un proceso aleatorio."
+   ],
+   "warnings": [
+    "La evidencia contra la independencia no viene del rezago 1 (r1 = 0,157, dentro de la banda ±0,175); salen de banda r6 = -0,22. Con 20 rezagos y α = 0,05 se esperan unos 0,8 rezagos fuera de banda solo por azar (aproximación con la varianza (n - k)/(n(n + 2)) de cada autocorrelación), así que un rezago aislado fuera de banda no es raro, y con muchos rezagos el tamaño real de Ljung-Box es algo mayor que α. No alcanza para elegir un modelo de la serie: confirme con más datos o revisando el orden de muestreo.",
+    "La conclusión de independencia combina dos pruebas: aunque cada una tiene nivel α = 0,05, la probabilidad de que alguna rechace por azar con datos independientes es mayor (del orden del 7 % al 13 % con α = 0,05).",
+    "Ljung-Box, la autocorrelación y las rachas suponen observaciones igualmente espaciadas en el tiempo. Si la serie concatena subgrupos (varias piezas seguidas y luego una pausa) o tiene huecos porque se excluyeron subgrupos, el rezago k no corresponde siempre al mismo intervalo y estas pruebas son aproximadas."
+   ]
+  }
+ }
+}
