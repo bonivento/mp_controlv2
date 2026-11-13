@@ -28,20 +28,66 @@ _DMY_DATE = re.compile(r"^(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})$")
 
 
 # --- Celdas --------------------------------------------------------------
-def parse_number(text: str) -> Optional[float]:
-    """Número desde texto: punto o coma decimal. None si no es un número finito."""
-    s = text.strip().replace(" ", "").replace(" ", "")
-    if not s or not _NUMBER.match(s):
+_THOUSANDS = re.compile(r"^([+-]?)(\d{1,3}(?:([.,])\d{3})+)(?:([.,])(\d+))?([eE][+-]?\d+)?$")
+
+
+def _strip_thousands(s: str) -> Optional[tuple[str, bool]]:
+    """Si `s` usa separador de miles, devuelve (texto con punto decimal, True); si no, None.
+
+    Solo se reconoce el patrón estricto: primer grupo de 1 a 3 dígitos y grupos de
+    exactamente 3 dígitos separados por el mismo signo (`1.234.567`, `1,234.5`).
+    """
+    m = _THOUSANDS.match(s)
+    if not m:
         return None
-    if _DECIMAL_COMMA.match(s) or s.count(",") == 1 and "." not in s:
+    sign, integer, group_sep, dec_sep, decimals, exp = m.groups()
+    if dec_sep is not None and dec_sep == group_sep:
+        return None  # `1.234.567.5`: el último signo no puede ser a la vez miles y decimal
+    digits = re.sub(r"[.,]", "", integer)
+    return f"{sign}{digits}{'.' + decimals if decimals else ''}{exp or ''}", True
+
+
+def parse_number(text: str) -> Optional[float]:
+    """Número desde texto, con punto o coma decimal y separador de miles. None si no es finito.
+
+    Reglas (en este orden):
+
+    1. Con los dos signos (`.` y `,`) el ÚLTIMO es el decimal y el otro es separador de
+       miles: `1.234,5` -> 1234.5; `1,234.5` -> 1234.5; `1.234.567,89` -> 1234567.89.
+       Los miles deben venir en grupos de exactamente 3 dígitos; si no (`1,5.2,3`,
+       `12.34,5`) el texto no es un número y devuelve None en vez de adivinar.
+    2. Un solo signo repetido (`1.234.567`, `1,234,567`) solo puede ser miles, porque un
+       decimal no se repite; se acepta si los grupos son de 3 dígitos.
+    3. Un solo signo, una sola vez, es DECIMAL siempre, también con tres dígitos después:
+       `12,5` -> 12.5, `1,234` -> 1.234 y `1.234` -> 1.234. Es ambiguo (podría ser 1234),
+       pero se conserva así porque en este software los datos son mediciones con
+       decimales y porque tratar `1.234` como miles cambiaría en silencio el valor de
+       archivos que ya se leen bien. No se usa el contexto de la columna. Quien tenga
+       miles sin decimales debe escribir `1.234,0` o `1,234.0`, o usar celdas numéricas.
+    4. Se admiten signo `+`/`-`, espacios (incluido el no separable) y exponente
+       (`1.234,5e2` -> 123450.0). No se interpretan `%` ni monedas: devuelven None.
+    """
+    s = text.strip().replace(" ", "").replace(" ", "")
+    if not s:
+        return None
+    th = _strip_thousands(s) if ("." in s and "," in s or s.count(".") > 1 or s.count(",") > 1) else None
+    if th is not None:
+        s = th[0]
+    elif not _NUMBER.match(s):
+        return None
+    else:
         s = s.replace(",", ".")
-    elif "," in s:  # 1,234.5 -> separador de miles
-        s = s.replace(",", "")
     try:
         value = float(s)
     except ValueError:
         return None
     return value if math.isfinite(value) else None
+
+
+def has_thousands_separator(text: str) -> bool:
+    """True si `parse_number` quitó separadores de miles de este texto."""
+    s = text.strip().replace(" ", "").replace(" ", "")
+    return ("." in s and "," in s or s.count(".") > 1 or s.count(",") > 1) and _strip_thousands(s) is not None
 
 
 def parse_date(text: str) -> Optional[str]:
@@ -110,6 +156,9 @@ def _classify(column: list[Any], name: str = "", warnings: Optional[list[str]] =
         commas = sum(1 for c in cells if isinstance(c, str) and _DECIMAL_COMMA.match(c.replace(" ", "")))
         bad = [c for c in cells if isinstance(c, str) and parse_number(c) is None]
         other = sum(1 for c in cells if isinstance(c, tuple))
+        thousands = sum(1 for c in cells if isinstance(c, str) and has_thousands_separator(c))
+        if thousands:
+            w.append(f"{col}: {_plural(thousands, 'valor con separador de miles convertido', 'valores con separador de miles convertidos')} (el último signo se tomó como decimal).")
         if commas:
             w.append(f"{col}: {_plural(commas, 'valor con coma decimal convertido', 'valores con coma decimal convertidos')} a punto.")
         if bad or other:

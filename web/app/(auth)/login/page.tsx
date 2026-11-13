@@ -3,9 +3,12 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useAuth } from "@/components/auth-provider";
+import { SigmalenaMark } from "@/components/logo";
 import { Alert, Button, Loading, TextField, errMsg } from "@/components/ui";
+import { UniversityShield } from "@/components/university-badge";
 import { getStore } from "@/lib/data";
 import { DEMO_EMAIL, DEMO_PASSWORD } from "@/lib/data/demo-store";
+import { BRAND_DESCRIPTOR, BRAND_NAME, UNIVERSITY_NAME } from "@/lib/brand";
 import { DEMO_MODE, NOT_CONFIGURED } from "@/lib/env";
 
 export default function LoginPage() {
@@ -77,14 +80,35 @@ export default function LoginPage() {
   }
 
   return (
-    <main id="contenido" className="mx-auto flex w-full max-w-md flex-1 flex-col justify-center px-4 py-10">
-      <div className="mb-6 text-center">
-        <span aria-hidden className="mx-auto mb-3 flex size-12 items-center justify-center rounded-lg bg-brand text-lg font-bold text-brand-ink">
-          CEP
-        </span>
-        <h1 className="text-2xl font-semibold">Control Estadístico de Procesos</h1>
-        <p className="mt-1 text-sm text-muted">Inicia sesión para ver tus estudios.</p>
-      </div>
+    <main id="contenido" className="flex flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+      <section className="on-brand relative flex flex-col justify-between overflow-hidden bg-gradient-to-br from-hero-from to-hero-to px-6 py-8 text-white sm:px-10 lg:px-14 lg:py-16">
+        {/* Gráfico de control de fondo: límites punteados y una serie, muy tenues. Solo adorno. */}
+        <svg aria-hidden viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" className="pointer-events-none absolute inset-0 size-full opacity-[0.14]">
+          <path d="M0 90H400M0 220H400" stroke="#fff" strokeWidth="1.5" strokeDasharray="5 6" fill="none" />
+          <path d="M0 160H400" stroke="#fff" strokeWidth="1" fill="none" />
+          <path d="M0 170L40 140L80 185L120 150L160 175L200 135L240 180L280 145L320 170L360 120L400 100" stroke="#fff" strokeWidth="2" fill="none" strokeLinejoin="round" />
+          <circle cx="400" cy="100" r="6" fill="#FF9400" />
+        </svg>
+        <div className="relative">
+          <SigmalenaMark variant="onDark" size={64} />
+          <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl">
+            {BRAND_NAME}
+            <span className="mt-1.5 block text-lg font-normal tracking-normal text-white/90 sm:text-xl">{BRAND_DESCRIPTOR}</span>
+          </h1>
+          <p className="mt-4 hidden max-w-sm text-sm leading-relaxed text-white/85 lg:block">
+            Gráficos de control por variables y atributos, capacidad de proceso, diseño de cartas y muestreo de aceptación, con
+            reporte listo para imprimir.
+          </p>
+        </div>
+        <div className="relative mt-8 hidden items-center gap-3 text-sm text-white/90 lg:flex">
+          <UniversityShield tone="dark" height={52} src={192} />
+          <span className="max-w-[8rem] leading-tight">{UNIVERSITY_NAME}</span>
+        </div>
+      </section>
+
+      <section className="flex flex-1 items-center justify-center px-4 py-8 sm:py-10">
+        <div className="w-full max-w-md">
+          <p className="mb-5 text-sm text-muted">Inicia sesión para ver tus estudios.</p>
 
       {NOT_CONFIGURED && (
         <Alert tone="error" title="Falta configurar el acceso" className="mb-4">
@@ -116,7 +140,7 @@ export default function LoginPage() {
                 setMode(m);
                 setError(null);
               }}
-              className={`min-h-9 rounded text-sm font-medium ${mode === m ? "bg-surface shadow-sm" : "text-muted"}`}
+              className={`min-h-9 rounded border-b-[3px] text-sm font-medium ${mode === m ? "border-accent bg-surface font-semibold text-brand-text shadow-sm" : "border-transparent text-muted"}`}
             >
               {m === "in" ? "Iniciar sesión" : "Crear cuenta"}
             </button>
@@ -155,6 +179,8 @@ export default function LoginPage() {
           sesión o los datos del sitio. Después puedes crear una cuenta para conservarlos.
         </p>
       </div>
+        </div>
+      </section>
     </main>
   );
 }

@@ -11,7 +11,7 @@ export default function EditStudyPage() {
   const router = useRouter();
   return (
     <>
-      <title>{`Editar ${study.name} · CEP`}</title>
+      <title>{`Editar ${study.name} · Sigmalena`}</title>
       <PageHeader title="Editar estudio" />
       <Card>
         <StudyForm

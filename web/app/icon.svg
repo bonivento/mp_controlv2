@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>Sigmalena</title>
+  <rect width="64" height="64" rx="14" fill="#004A87"/>
+  <path d="M8 19H56M8 53H56" stroke="#fff" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="2.5 3" fill="none"/>
+  <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round"><circle cx="21" cy="38" r="10" stroke-width="4.8"/><path d="M21 28H33" stroke-width="4.8"/><path d="M33 28L38.5 36L43.5 28.5L48.5 35L54 12" stroke-width="3"/></g>
+  <circle cx="54" cy="12" r="5.2" fill="#FF9400"/>
+</svg>

@@ -95,7 +95,7 @@ export default function DesignPage() {
 
   return (
     <>
-      <title>{`Diseño · ${study.name} · CEP`}</title>
+      <title>{`Diseño · ${study.name} · Sigmalena`}</title>
       <PageHeader
         title="Diseño de gráficos de control"
         subtitle="Módulo 6. Evalúa qué tan rápido detecta un gráfico un cambio (ARL1, ATS) frente a cuántas falsas alarmas da (ARL0), según el tamaño de muestra n, el ancho de límites L y el intervalo h."

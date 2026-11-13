@@ -78,7 +78,7 @@ export default function ReportPage() {
 
   return (
     <>
-      <title>{`Reporte · ${study.name} · CEP`}</title>
+      <title>{`Reporte · ${study.name} · Sigmalena`}</title>
       <div className="no-print">
         <PageHeader
           title="Reporte"

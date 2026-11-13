@@ -180,3 +180,41 @@ def test_warning_for_non_utf8_encoding(client):
     sheet = _upload(client, "d.csv", "turno,valor\nMañana,1\nNoche,2\n".encode("cp1252")).json()["sheets"][0]
     assert any(x.startswith("Codificación detectada: Windows-1252") for x in sheet["warnings"])
     assert sheet["rows"][0][0] == "Mañana"
+
+
+# --- parse_number: separadores de miles y decimales ---------------------------
+@pytest.mark.parametrize("text,expected", [
+    ("1.234,5", 1234.5), ("1,234.5", 1234.5), ("1.234.567,89", 1234567.89),
+    ("1,234,567.89", 1234567.89), ("-1.234,5", -1234.5), ("+1,234.5", 1234.5),
+    (" 1.234,5 ", 1234.5), ("1 234,5", 1234.5), ("1.234,5e2", 123450.0),
+    ("1.234.567", 1234567.0), ("1,234,567", 1234567.0),
+    ("12,5", 12.5), ("12.5", 12.5), ("1,234", 1.234), ("1.234", 1.234),
+    ("-12,5", -12.5), (",5", 0.5), ("1234", 1234.0),
+])
+def test_parse_number_valid(text, expected):
+    from app.files import parse_number
+    assert parse_number(text) == pytest.approx(expected)
+
+
+@pytest.mark.parametrize("text", [
+    "1,5.2,3", "12.34,5", "1.2.3", "1.234.567.5", "1,234,567,5", "12,5%", "$1,234.5",
+    "abc", "", "nan", "inf", "1e999", "1.234,5e999", "1..234,5",
+])
+def test_parse_number_invalid_or_nonfinite(text):
+    import math
+    from app.files import parse_number
+    v = parse_number(text)
+    assert v is None or math.isfinite(v)
+    assert v is None
+
+
+def test_thousands_warning_and_values():
+    from app.files import build_sheet
+    table = [["x"], ["1.234,5"], ["2.000,25"], ["12,5"], ["3"]]
+    sheet = build_sheet("h", table)
+    col = sheet["columns"][0] if "columns" in sheet else None
+    assert sheet["warnings"]
+    assert any("separador de miles" in w and "2 valores" in w for w in sheet["warnings"])
+    assert any("coma decimal" in w for w in sheet["warnings"])
+    rows = sheet["rows"]
+    assert [r[0] for r in rows] == [1234.5, 2000.25, 12.5, 3.0]

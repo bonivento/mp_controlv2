@@ -212,7 +212,7 @@ export function ChartWorkbench({ kind }: { kind: Kind }) {
           role="tab"
           aria-selected={phase === p}
           onClick={() => resetFor(p)}
-          className={`min-h-10 rounded px-3 text-sm font-medium ${phase === p ? "bg-brand text-brand-ink shadow-sm" : "text-muted hover:text-ink"}`}
+          className={`min-h-10 rounded border-b-[3px] px-3 text-sm font-medium ${phase === p ? "border-accent bg-brand text-brand-ink shadow-sm" : "border-transparent text-muted hover:text-ink"}`}
         >
           {p === "I" ? "Fase I · estimar y congelar límites" : "Fase II · monitorear"}
         </button>
@@ -222,7 +222,7 @@ export function ChartWorkbench({ kind }: { kind: Kind }) {
 
   return (
     <>
-      <title>{`${isVar ? "Variables" : "Atributos"} · ${study.name} · CEP`}</title>
+      <title>{`${isVar ? "Variables" : "Atributos"} · ${study.name} · Sigmalena`}</title>
       <PageHeader
         title={isVar ? "Gráficos de control por variables" : "Gráficos de control por atributos"}
         subtitle={
@@ -500,7 +500,7 @@ function AttributeAssistant({ dataset, onUse }: { dataset?: Dataset; onUse: (t: 
             ] as const
           ).map(([v, t]) => (
             <label key={v} className="mb-1 flex items-start gap-2 text-sm">
-              <input type="radio" name="counting" className="mt-1 accent-[var(--brand)]" checked={eff === v} onChange={() => setCount(v)} />
+              <input type="radio" name="counting" className="mt-1 accent-brand-text" checked={eff === v} onChange={() => setCount(v)} />
               <span>{t}</span>
             </label>
           ))}
@@ -514,7 +514,7 @@ function AttributeAssistant({ dataset, onUse }: { dataset?: Dataset; onUse: (t: 
             ] as const
           ).map(([v, t]) => (
             <label key={String(v)} className="mb-1 flex items-start gap-2 text-sm">
-              <input type="radio" name="constant" className="mt-1 accent-[var(--brand)]" checked={effConst === v} onChange={() => setConstant(v)} />
+              <input type="radio" name="constant" className="mt-1 accent-brand-text" checked={effConst === v} onChange={() => setConstant(v)} />
               <span>{t}</span>
             </label>
           ))}

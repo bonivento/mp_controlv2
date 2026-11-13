@@ -21,7 +21,7 @@ const state = fresh
 test("R1.1 una ruta protegida sin sesión redirige a /login", async ({ page }) => {
   await page.goto("/estudios");
   await expect(page).toHaveURL(/\/login$/);
-  await expect(page.getByRole("heading", { name: "Control Estadístico de Procesos" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sigmalena" })).toBeVisible();
   await page.goto("/estudios/00000000-0000-0000-0000-000000000000/variables");
   await expect(page).toHaveURL(/\/login$/);
   await shot(page, "01-login.png");

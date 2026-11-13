@@ -1,8 +1,8 @@
-# Manual de usuario: Software CEP
+# Manual de usuario: Sigmalena
 
-Control Estadístico de Procesos en el navegador. Versión de la API 0.1.0.
+**Sigmalena** (sigma + Magdalena) es una aplicación de control estadístico de procesos (CEP) que se usa en el navegador. Versión de la API 0.1.0. Usa la paleta de la Universidad del Magdalena (azul `#004A87` y complemento naranja `#FF9400`).
 
-> El software está publicado en <https://cep-web.vercel.app>. También puede usarse en local (sección 3).
+> Sigmalena está publicada en <https://cep-web.vercel.app>. También puede usarse en local (sección 3).
 
 ## Tabla de contenido
 
@@ -26,7 +26,7 @@ Todos los ejemplos de este manual usan **datos sintéticos** (llenado de envases
 
 El programa ayuda a decidir si un proceso de producción es estable, si cumple sus especificaciones y cuánta inspección hace falta para vigilarlo. Con él se puede:
 
-- Cargar datos de Excel o CSV, formar subgrupos racionales y limpiar los datos con registro de cada decisión.
+- Cargar datos de Excel o CSV, o escribirlos o pegarlos desde una hoja de cálculo en una tabla de la propia página, formar subgrupos racionales y limpiar los datos con registro de cada decisión.
 - Construir gráficos de control por variables (X-barra y R, X-barra y S, individuales y rango móvil) y por atributos (p, np, c, u), separando la **Fase I** (estimar y congelar límites) de la **Fase II** (monitorear contra límites congelados).
 - Validar normalidad e independencia de los datos.
 - Calcular Cp, Cpk, Cpl, Cpu, Pp, Ppk, Cpm y la fracción no conforme esperada y observada.
@@ -41,7 +41,7 @@ El programa ayuda a decidir si un proceso de producción es estable, si cumple s
 | Ingeniero de proceso o de calidad | Carga datos, construye gráficos, valida supuestos y calcula capacidad |
 | Jefe de producción | Lee el resumen del gráfico y las advertencias para decidir si intervenir |
 | Responsable de metrología o de inspección | Define cuántas muestras tomar y cada cuánto con el módulo de diseño |
-| Estudiante o docente de CEP | Explora los conceptos con los archivos sintéticos |
+| Estudiante o docente de control estadístico de procesos | Explora los conceptos con los archivos sintéticos |
 
 Se supone conocimiento básico de qué es un subgrupo, un límite de control y una especificación. El glosario (sección 10) define los términos.
 
@@ -49,7 +49,7 @@ Se supone conocimiento básico de qué es un subgrupo, un límite de control y u
 
 ### Para quien solo usa el programa ya desplegado
 
-Un navegador actual (Chrome, Edge, Firefox o Safari) y una cuenta. No hay que instalar nada. El archivo de datos debe pesar como máximo 4 MB y tener hasta 20 000 filas.
+Un navegador actual (Chrome, Edge, Firefox o Safari) y una cuenta (o entrar como invitado, sección 5.1). No hay que instalar nada. El archivo de datos debe pesar como máximo 4 MB y tener hasta 20 000 filas.
 
 > El programa se abre en <https://cep-web.vercel.app>.
 
@@ -81,7 +81,7 @@ npm run dev
 
 Abrir `http://localhost:3000`. En `web/.env.local` hay dos formas de trabajar:
 
-- **Modo de demostración:** poner `NEXT_PUBLIC_DEMO_MODE=1`. No hace falta base de datos; las cuentas y los datos viven solo en el navegador. La pantalla de acceso ofrece una cuenta de ejemplo con estudios sintéticos.
+- **Modo de demostración:** poner `NEXT_PUBLIC_DEMO_MODE=1`. No hace falta base de datos; las cuentas y los datos viven solo en el navegador. La pantalla de acceso ofrece una cuenta de ejemplo con estudios sintéticos y también el acceso como invitado, que en este modo queda guardado solo en ese navegador.
 - **Modo real:** poner `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` de un proyecto de Supabase. Los datos se guardan en la base de datos y cada usuario ve solo lo suyo.
 
 Después de cambiar `.env.local` hay que reiniciar `npm run dev`. Las instrucciones de despliegue en Vercel están en `docs/despliegue.md`.
@@ -121,13 +121,32 @@ Las capturas están en `docs/capturas/`. Si una imagen no se ve al leer este arc
 
 ![Pantalla de acceso](../capturas/01-login.png)
 
+> **Captura pendiente:** `docs/capturas/14-invitado.png` (pantalla de acceso con el botón «Continuar como invitado» y, ya dentro, la cabecera con «Invitado» y el aviso de sesión de invitado). La imagen anterior se regenerará con la marca Sigmalena.
+
+**Con cuenta.**
+
 1. Abrir la dirección del programa.
 2. En la pestaña **Iniciar sesión** escribir el correo y la contraseña, y pulsar **Entrar**.
 3. Para una cuenta nueva, elegir la pestaña **Crear cuenta** (la contraseña lleva mínimo 6 caracteres) y pulsar **Crear cuenta**.
 4. En modo de demostración aparece el recuadro «Modo de demostración» con el botón **Entrar con la cuenta de demostración**.
 5. Para salir, pulsar **Cerrar sesión** en la barra superior.
 
-Si aparece «Falta configurar el acceso», el equipo no tiene las variables de Supabase ni el modo de demostración (sección 3).
+**Como invitado (sin registrarse).** Debajo del formulario hay un recuadro con el botón **Continuar como invitado**. No pide correo ni contraseña: se abre una sesión anónima y se llega a la lista de Estudios. Sirve para probar el programa. Lo que hay que saber:
+
+- La barra superior muestra «Invitado» en lugar del correo, y debajo aparece de forma permanente el aviso **«Sesión de invitado. Tus datos solo existen en este navegador y se pierden si cierras la sesión o borras los datos del sitio.»**
+- Un invitado tiene las mismas funciones que un usuario con cuenta y sus estudios son tan privados como los de cualquiera: ningún otro usuario puede verlos.
+- Sus estudios quedan ligados a ese navegador. Si se borran los datos del sitio, se cambia de navegador o de equipo, o se cierra la sesión, **no hay forma de volver a entrar** en la sesión de invitado.
+
+**Convertir al invitado en cuenta.** Para conservar los datos:
+
+1. Pulsar **Crear cuenta para conservar mis datos** en el aviso.
+2. Escribir un correo electrónico válido y una contraseña de al menos 6 caracteres, y pulsar **Crear cuenta**.
+3. Los estudios y conjuntos de datos que ya existían pasan a la cuenta nueva; no hay que cargarlos otra vez. Desde entonces el aviso desaparece y la barra muestra el correo.
+4. Si el sistema pide confirmar el correo, aparece «Revisa tu correo». Hasta abrir el enlace de confirmación se sigue como invitado y los estudios no se pierden ni cambian.
+
+**Salir como invitado.** Al pulsar **Cerrar sesión** siendo invitado, el programa abre la ventana «¿Cerrar la sesión de invitado?», que advierte que se perderá el acceso a los estudios y conjuntos de datos porque un invitado no puede volver a entrar. Hay dos salidas: **Cerrar sesión y perder mis datos** (confirma) o **Cancelar** y usar antes «Crear cuenta para conservar mis datos».
+
+Si aparece «Falta configurar el acceso», el equipo no tiene las variables de Supabase ni el modo de demostración (sección 3). Si al pulsar **Continuar como invitado** aparece un error, es probable que el proyecto de Supabase no tenga habilitados los inicios de sesión anónimos (ver sección 9).
 
 ### 5.2 Estudios
 
@@ -155,10 +174,10 @@ La pestaña **Resumen** muestra los datos del estudio, un contador de conjuntos 
 
 ![Módulo Datos con el archivo sintetico_fase1.csv cargado: columnas detectadas, formato de columnas, justificación del subgrupo, estadística descriptiva y resumen por subgrupo](../capturas/03-datos-carga.png)
 
-En la pestaña **Datos** se ve la lista de conjuntos guardados (nombre, fase, número de subgrupos, tamaño, archivo y fecha) con las acciones **Ver resumen** y **Eliminar**. Debajo está **Cargar datos nuevos**, que se hace en cuatro pasos.
+En la pestaña **Datos** se ve la lista de conjuntos guardados (nombre, fase, número de subgrupos, tamaño, archivo y fecha) con las acciones **Ver resumen** y **Eliminar**. Debajo está **Cargar datos nuevos**, que se hace en cuatro pasos. El primer paso ofrece dos pestañas: **Subir archivo** (CSV o Excel) y **Escribir o pegar datos** (tabla en la página, sección 5.3.1). Los pasos 2 a 4 son idénticos con cualquiera de las dos.
 
 **Paso 1. Archivo.**
-1. Pulsar el selector «Archivo CSV o Excel (.xlsx)» y elegir el archivo (máximo 4 MB y 20 000 filas; la primera fila debe tener los nombres de columna).
+1. En la pestaña **Subir archivo**, pulsar el selector «Archivo CSV o Excel (.xlsx)» y elegir el archivo (máximo 4 MB y 20 000 filas; la primera fila debe tener los nombres de columna).
 2. El programa lo lee y muestra «Columnas detectadas»: tipo (Numérica, Texto, Fecha y hora, Vacía), cuántas celdas están vacías o no son numéricas y los primeros valores.
 3. Si el libro de Excel tiene varias hojas, aparece el selector **Hoja**.
 4. Si la lectura tuvo que corregir algo, aparece el recuadro amarillo **Avisos al leer el archivo (n)** con una línea por conversión: fechas escritas día/mes/año que se pasaron a `AAAA-MM-DD`, textos con espacios recortados, celdas vacías o textos no numéricos (como `N/D`) registrados como faltantes y valores con coma decimal convertidos a punto. Estos avisos **no se pierden**: al guardar el conjunto pasan a la bitácora de limpieza. Con un archivo limpio, como `sintetico_fase1.csv` en la captura anterior, el recuadro no aparece.
@@ -205,6 +224,43 @@ Cada retiro aparece en la tarjeta **Bitácora de limpieza (de esta carga)** como
 3. Pulsar **Guardar conjunto de datos**. Se necesitan al menos 2 subgrupos y la justificación escrita. Al guardar, la bitácora de limpieza incluye los avisos de la lectura del archivo, las decisiones sobre atípicos y los subgrupos retirados.
 
 Al guardar aparece un enlace a los gráficos de control. En **Ver resumen** de un conjunto guardado se consultan la justificación del subgrupo, la bitácora de limpieza y los resúmenes.
+
+#### 5.3.1 Ingreso manual: escribir o pegar datos
+
+> **Captura pendiente:** `docs/capturas/15-ingreso-manual.png` (pestaña «Escribir o pegar datos» con la tabla editable y el botón «Usar estos datos»).
+
+Para pocos datos, o cuando se tienen en una hoja de cálculo y no se quiere guardar un archivo, se pueden ingresar en la propia página.
+
+1. En **Datos**, abrir la pestaña **Escribir o pegar datos**. Aparece una tabla con 10 filas vacías. En un estudio por variables las columnas iniciales se llaman `subgrupo`, `x1`, `x2`, `x3`, `x4` y `x5`; en uno por atributos, `muestra`, `inspeccionados` y `defectuosos`. Esos nombres los reconoce el mapeo automático del paso 2.
+2. Escribir los valores en las celdas, o **pegar** desde Excel o Google Sheets (ver abajo). La primera fila de la tabla (la de arriba, sobre la numeración) contiene los **nombres de las columnas** y también se puede editar.
+3. Agregar o quitar filas y columnas con los botones **Agregar fila** y **Agregar columna**, o con la «×» de cada fila y de cada encabezado de columna. Una columna nueva se llama `columna_N` hasta que se renombre. **Restablecer tabla** vuelve a la tabla inicial vacía.
+4. Debajo de la tabla un contador indica cuántas filas tienen datos. **Las filas totalmente vacías no se envían.**
+5. Pulsar **Usar estos datos** (se habilita cuando hay al menos una fila con datos). El programa convierte la tabla en un CSV en memoria y la lee exactamente igual que un archivo: aparecen «Columnas detectadas», los posibles «Avisos al leer el archivo» y los pasos 2 a 4 de la sección anterior (formato de los datos, subgrupos, justificación, atípicos y guardado).
+6. Si después se modifica la tabla, hay que volver a pulsar **Usar estos datos** para que los pasos siguientes usen la versión nueva. El texto «Datos en uso: tabla escrita en la página» lo recuerda.
+
+El conjunto que se guarda recibe por defecto el nombre «Ingreso manual» con la fecha del día (se puede cambiar en el paso 4), y su bitácora de limpieza abre con «Ingreso manual en la página (tabla escrita o pegada): N filas, M columnas». El origen del conjunto figura como «Ingreso manual» en lugar de un nombre de archivo.
+
+**Pegar desde Excel.**
+
+1. En Excel o Google Sheets, seleccionar el bloque de celdas y copiarlo (Ctrl+C o Cmd+C).
+2. En la tabla de Sigmalena, hacer clic en la celda donde debe empezar el bloque y pegar (Ctrl+V o Cmd+V). El bloque se reparte hacia la derecha y hacia abajo desde la celda activa; si faltan filas o columnas, **se crean solas**.
+3. Para traer también los encabezados, pegar con la celda activa en un **nombre de columna** (la fila superior): la primera línea del bloque reemplaza los nombres y el resto cae en el cuerpo desde la fila 1.
+4. Se acepta la **coma decimal** (`500,83`): se envía tal cual y la API la convierte a punto, dejando el aviso correspondiente en la bitácora, igual que con un archivo.
+5. Un texto pegado de una sola celda se pega de forma normal. Si el bloque supera los límites, se recorta y el programa lo avisa.
+
+**Límites.** Hasta **2000 filas** y **50 columnas**. Al llegar al tope aparece un aviso: «El máximo en esta tabla es 2000 filas. Para más datos sube un archivo» (el archivo admite hasta 20 000 filas).
+
+**Atajos de teclado.**
+
+| Tecla | Efecto |
+|---|---|
+| Tab / Mayús+Tab | Pasa a la celda siguiente / anterior |
+| Enter o flecha abajo | Baja a la celda de abajo; en la última fila agrega una fila nueva |
+| Mayús+Enter o flecha arriba | Sube a la celda de arriba |
+| Ctrl+V / Cmd+V | Pega un bloque desde la celda activa |
+| Flecha izquierda o derecha (sobre las pestañas) | Cambia entre **Subir archivo** y **Escribir o pegar datos** |
+
+La tabla no se pierde al cambiar de pestaña mientras no se recargue la página.
 
 ### 5.4 Módulo 2: Gráficos de control por variables
 
@@ -355,6 +411,8 @@ La respuesta trae n, c, el α y el β reales, las curvas OC, AOQ y ATI, el AOQL 
 
 ## 6. Formato de entrada de datos
 
+Lo que sigue vale para archivos y también para la tabla de ingreso manual (sección 5.3.1), con una diferencia: en la tabla se acepta la coma decimal y las filas vacías se omiten.
+
 Archivo **CSV** (UTF-8, separador coma, punto decimal) o **Excel (.xlsx)** con una hoja, sin celdas combinadas ni filas de totales. La primera fila lleva los encabezados, en minúsculas y sin espacios. Una fila por subgrupo (formato ancho) o por observación (formato largo). Las fechas, en formato `AAAA-MM-DD`. Las celdas sin medir, vacías (no `N/D` ni `0`).
 
 **Variables, formato ancho (X-barra-R, X-barra-S):**
@@ -498,6 +556,11 @@ Cargar con «Una columna con los valores», columna `valor` y «Por tamaño fijo
 | Mensaje o síntoma | Causa probable | Qué hacer |
 |---|---|---|
 | «Falta configurar el acceso» | No hay variables de Supabase ni modo de demostración | Completar `web/.env.local` (sección 3) y reiniciar `npm run dev` |
+| «El acceso como invitado no está habilitado en este proyecto» al pulsar **Continuar como invitado** | El proyecto de Supabase tiene desactivados los inicios de sesión anónimos | Crear una cuenta o iniciar sesión con correo; quien administre el proyecto debe activar *Anonymous sign-ins* en Authentication (el `README.md` lo explica; `docs/despliegue.md` aún no lo menciona) |
+| Al volver a entrar ya no están mis estudios de invitado | Se cerró la sesión de invitado, se borraron los datos del sitio o se cambió de navegador: un invitado no puede volver a entrar | Antes de salir, usar **Crear cuenta para conservar mis datos**. Los datos de una sesión de invitado perdida no se pueden recuperar |
+| «El máximo en esta tabla es 2000 filas» o «50 columnas» | Se llegó al tope de la tabla de ingreso manual | Subir un archivo (hasta 20 000 filas) |
+| «Escribe o pega al menos una fila de datos para continuar» | La tabla de ingreso manual no tiene filas con datos | Escribir o pegar valores; las filas vacías no cuentan |
+| Los pasos 2 a 4 no reflejan lo que acabo de cambiar en la tabla | Se editó la tabla después de pulsar **Usar estos datos** | Volver a pulsar **Usar estos datos** |
 | «No se pudo leer el archivo» | Formato no soportado, archivo de más de 4 MB o de más de 20 000 filas | Guardar como CSV UTF-8 o `.xlsx`, una sola hoja; reducir el tamaño |
 | Error 401 o sesión que se pierde | Sesión vencida o `SUPABASE_URL` mal puesta en la API | Cerrar sesión y volver a entrar; revisar la configuración (`docs/despliegue.md`) |
 | La web no encuentra la API (error 404 en `/api/...`) | `API_URL` vacía o la API no está encendida | Encender la API y poner `API_URL=http://localhost:8000` en `.env.local` |

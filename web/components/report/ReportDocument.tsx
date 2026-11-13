@@ -2,7 +2,10 @@
 
 import { Component, type ReactNode } from "react";
 import { ChartModeContext } from "@/components/charts/theme";
+import { SigmalenaLogo } from "@/components/logo";
 import { Alert, fmtNum } from "@/components/ui";
+import { UniversityShield } from "@/components/university-badge";
+import { BRAND_DESCRIPTOR, BRAND_NAME, UNIVERSITY_NAME } from "@/lib/brand";
 import type { components } from "@/lib/api-types";
 import type { Analysis, Dataset, Study } from "@/lib/db";
 import { MODULE_LABEL, fmtDateTime } from "@/lib/labels";
@@ -125,7 +128,14 @@ export function ReportDocument({ study, analyses, datasets }: { study: Study; an
         )}
 
         <header className="report-cover">
-          <p className="text-xs uppercase tracking-widest">Control estadístico de procesos</p>
+          <div className="report-brand">
+            <SigmalenaLogo size={40} />
+            <span className="report-brand-univ">
+              <UniversityShield tone="light" height={44} src={192} />
+              <span className="text-xs leading-tight">{UNIVERSITY_NAME}</span>
+            </span>
+          </div>
+          <p className="mt-5 text-xs uppercase tracking-widest">{BRAND_DESCRIPTOR}</p>
           <h1 className="mt-1 text-2xl font-bold">Reporte del estudio: {study.name}</h1>
           <p className="mt-1 text-sm">
             Generado el {generated} · {sections.length} análisis
@@ -210,7 +220,11 @@ export function ReportDocument({ study, analyses, datasets }: { study: Study; an
           </section>
         )}
 
-        <PageFooterStyle text={`${study.name}${study.is_synthetic ? " · DATOS SINTÉTICOS" : ""}`} />
+        <p className="report-colophon">
+          Reporte generado con {BRAND_NAME} · {UNIVERSITY_NAME}
+        </p>
+
+        <PageFooterStyle text={`${BRAND_NAME} · ${study.name}${study.is_synthetic ? " · DATOS SINTÉTICOS" : ""}`} />
       </article>
     </ChartModeContext>
   );

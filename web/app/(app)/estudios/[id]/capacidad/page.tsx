@@ -131,7 +131,7 @@ export default function CapabilityPage() {
 
   return (
     <>
-      <title>{`Capacidad · ${study.name} · CEP`}</title>
+      <title>{`Capacidad · ${study.name} · Sigmalena`}</title>
       <PageHeader
         title="Capacidad del proceso"
         subtitle="Módulo 5. Compara la variación natural del proceso con las especificaciones. Solo tiene sentido si el proceso es estable y, para el modelo normal, si los datos son normales."

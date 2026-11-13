@@ -44,6 +44,9 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Todo menos la API (rewrite), recursos estáticos e imágenes.
-  matcher: ["/((?!api|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)"],
+  // Todo menos la API (rewrite), recursos estáticos, imágenes y los archivos de marca que deben
+  // ser públicos (iconos, manifiesto, imagen Open Graph): un rastreador no tiene sesión.
+  matcher: [
+    "/((?!api|_next/static|_next/image|favicon.ico|icon|apple-icon|opengraph-image|twitter-image|manifest\\.webmanifest|brand/|icons/|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+  ],
 };

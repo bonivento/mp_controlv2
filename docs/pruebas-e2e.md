@@ -1,6 +1,6 @@
 # Pruebas de extremo a extremo (Playwright)
 
-Prueban el software como lo vería un usuario nuevo: navegador real (Chromium), web Next.js, API FastAPI con **autenticación activa** y Supabase real. Todo con datos sintéticos de `data/ejemplos/`.
+Prueban Sigmalena (antes «CEP», Control estadístico de procesos) como lo vería un usuario nuevo: navegador real (Chromium), web Next.js, API FastAPI con **autenticación activa** y Supabase real. Todo con datos sintéticos de `data/ejemplos/`.
 
 ## Cómo correrlas
 
@@ -22,11 +22,14 @@ Requisitos: `web/.env.local` con el proyecto de Supabase (`NEXT_PUBLIC_DEMO_MODE
 | `E2E_WEB_DIR` | Carpeta desde donde se lanza `next dev`. Next 16 solo permite un `next dev` por carpeta; si ya hay uno en `web/`, usa una copia. |
 | `E2E_KEEP=1` | No borra los estudios creados al final. |
 
+Si ya hay un `next dev` corriendo en `web/` (por ejemplo en el puerto 3000), la suite no puede lanzar el suyo: copia `web/` (con `node_modules`, sin `.next`) a otra carpeta y corre `E2E_WEB_DIR=<copia> npx playwright test`; la copia solo aporta el código de la web, las capturas siguen saliendo en `docs/capturas/`.
+
 Contra producción: `BASE_URL=https://<dominio> npx playwright test`.
 
 ### Usuarios y datos
 
 - Los usuarios A y B se registran por la interfaz la primera vez y quedan en `web/e2e/.auth/state.json` (ignorado por git, con sus sesiones). Se reutilizan en las corridas siguientes; no se pueden borrar sin clave de servicio. Para crear otros, borra `web/e2e/.auth/`.
+- **Invitado:** cada corrida crea exactamente un usuario anónimo de Supabase (`08-invitado`), que al final del recorrido se convierte en la cuenta `e2e-g-<sello>@example.com` (contraseña de las pruebas). Su sesión queda en `e2e/.auth/user-g.json` (y sus credenciales en `user-g.creds.json`) solo para que `99-limpieza` borre su estudio. Esos usuarios no se pueden borrar sin clave de servicio: se acumulan uno por corrida. Reutilizar la cuenta convertida entre corridas haría que la corrida siguiente no ejerciera el alta anónima, que es lo que se quiere probar; por eso no se reutiliza. Una opción razonable sería correr la parte anónima solo en las corridas completas y, en las rápidas, iniciar sesión con la última cuenta convertida (R9.2, R9.3 y R9.5 no dependen de que sea anónima).
 - Todos los estudios se llaman `E2E ...` y `99-limpieza.spec.ts` los elimina al final.
 - Cerrar sesión revoca todas las sesiones del usuario (alcance global de Supabase): por eso la sesión guardada se toma después del cierre.
 - Los archivos están en orden numérico y comparten estado: corren en serie, de uno en uno.
@@ -42,7 +45,9 @@ Contra producción: `BASE_URL=https://<dominio> npx playwright test`.
 | `05-muestreo.spec.ts` | 5. Muestreo de aceptación |
 | `06-sucio-y-errores.spec.ts` | 6. Archivo sucio (D2, D3, D4) y 7. Errores |
 | `07-extras.spec.ts` | 8. Comparador de diseños, XLSX guardado, móvil 390 px, PDF del reporte, reglas en MR |
-| `99-limpieza.spec.ts` | Borra estudios de prueba |
+| `08-invitado.spec.ts` | 9. Modo invitado: entrada anónima, aviso, estudio, API real, cancelar cierre, conversión en cuenta, aislamiento |
+| `09-manual.spec.ts` | 10. Ingreso manual: teclado, pegado con tabuladores y coma decimal, renombrar, borrador entre pestañas, Fase I, valores; atributos con `1.000,0` |
+| `99-limpieza.spec.ts` | Borra estudios de prueba (usuarios A, B e invitado/convertido) |
 | `helpers.ts`, `pdf.ts` | Utilidades; `pdf.ts` lee páginas y texto de un PDF de Chromium sin librerías externas |
 
 Las pruebas comprueban valores calculados aparte: línea central y límites contra la media y R-barra del CSV y contra la respuesta de la API; Cp/Cpk/sigma contra R-barra/d2 sobre los subgrupos retenidos; ARL0, ARL1, ATS y carga de las 24 alternativas del comparador contra la normal estándar; plan de muestreo contra una búsqueda binomial propia; línea central de `sintetico_sucio` contra el CSV con comas decimales y sin los subgrupos retirados.
@@ -79,8 +84,15 @@ Ninguno funcional. Observaciones menores, no bloqueantes:
 | ARL0, ARL1 y ATS conectados con muestreo y carga muestral | R3.7 (ARL0 370,4; ARL1 1,57 en 1,5 sigma), R8.1 (comparador de 24 diseños: ARL, ATS, carga u/h contra cálculo propio) | Aprobado, incluido el comparador |
 | Diseño y aplicación de planes de muestreo | R5.1-R5.3 | Aprobado |
 | El informe contiene diagnóstico, alcance, resultados, propuestas, conclusiones y anexos | No es software: no cubierto por E2E (el reporte de la aplicación sí: R3.8, R8.4) | No aplica a esta prueba |
-| El manual permite instalar, cargar datos y usar el programa | No cubierto; `docs/capturas/` (15 imágenes) es su insumo | No aplica a esta prueba |
+| El manual permite instalar, cargar datos y usar el programa | No cubierto; `docs/capturas/` (17 imágenes) es su insumo | No aplica a esta prueba |
 | El video comunica el valor empresarial | No cubierto | No aplica a esta prueba |
+
+## Recorridos nuevos (marca Sigmalena)
+
+- R1.1 comprueba ahora `heading` «Sigmalena» en `/login`.
+- R9.1-R9.5 (invitado): cabecera «Invitado» y aviso «Crear cuenta para conservar mis datos» que persiste al recargar; estudio y carga de `sintetico_fase1` con la sesión anónima y gráfico cuya línea central y límites coinciden con la API y con el CSV; cancelar el cierre de sesión mantiene sesión y datos; el formulario de conversión valida correo y contraseña, y al convertir el estudio sigue ahí (también tras recargar, con su conjunto de datos), aparece el correo y desaparece el aviso; el usuario A no ve el estudio ni lo abre por URL.
+- R10.1-R10.3 (manual): escritura con Tab y Enter, pegado de un bloque 14 x 7 (crea 5 filas y una columna), renombrar columna, borrador intacto al cambiar de pestaña; «Usar estos datos», aviso de coma decimal, guardado como Fase I y límites X-barra calculados aparte (media, R-barra, 0,577 R-barra); en atributos, `1.000,0` se lee como 1000 con su aviso de separador de miles y p-barra = suma de defectuosos / suma de inspeccionados.
+- Capturas nuevas: `14-invitado.png`, `15-ingreso-manual.png`. El pegado se simula con un `ClipboardEvent` real con `DataTransfer` (no con el portapapeles del sistema).
 
 ## Cobertura adicional
 
@@ -92,5 +104,7 @@ Ninguno funcional. Observaciones menores, no bloqueantes:
 ## Pendiente de probar
 
 Datos reales; navegadores distintos de Chromium; Safari/iOS real (el móvil es emulación de Chromium).
+
+Última corrida local completa (2026-11-13, tras el rediseño): **44 pasan y 2 se omiten** (R1.3 y R1.5, registro de A y B, porque ya existen). Las pruebas nuevas no se han corrido contra producción (la marca y las funciones nuevas no están desplegadas).
 
 Contra producción sí se corrió el 2026-11-11 con `BASE_URL=https://cep-web.vercel.app`: 35 pasan y 2 se omiten (R1.6 inicia la sesión de B cuando el usuario ya existe, porque la sesión guardada vale solo para el dominio en que se creó).

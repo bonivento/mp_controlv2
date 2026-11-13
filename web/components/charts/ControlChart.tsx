@@ -81,7 +81,7 @@ export function ControlChart({
       y: series.center,
       mode: "lines",
       name: "Línea central",
-      line: { color: t.muted, width: 1, shape },
+      line: { color: t.center, width: 1.2, shape },
       hovertemplate: "LC %{y:,.4f}<extra></extra>",
     },
     {
@@ -129,7 +129,7 @@ export function ControlChart({
 
   // En escritorio los valores de los límites se rotulan a la derecha; en móvil no hay ancho
   // para eso y van en la nota bajo la figura.
-  const label = (text: string, y: number): Partial<Annotation> => ({
+  const label = (text: string, y: number, color: string): Partial<Annotation> => ({
     x: 1,
     xref: "paper",
     y,
@@ -137,15 +137,15 @@ export function ControlChart({
     xanchor: "left",
     text,
     showarrow: false,
-    font: { size: 11, color: t.muted },
+    font: { size: 11, color },
   });
   const layout: Partial<Layout> = {
     annotations: narrow
       ? []
       : [
-      label(`LCS ${fmt(series.ucl[lastI])}`, series.ucl[lastI]),
-      label(`LC ${fmt(series.center[lastI])}`, series.center[lastI]),
-      label(`LCI ${fmt(series.lcl[lastI])}`, series.lcl[lastI]),
+      label(`LCS ${fmt(series.ucl[lastI])}`, series.ucl[lastI], t.limit),
+      label(`LC ${fmt(series.center[lastI])}`, series.center[lastI], t.center),
+      label(`LCI ${fmt(series.lcl[lastI])}`, series.lcl[lastI], t.limit),
         ],
     xaxis: { type: "category", title: { text: "Subgrupo" }, gridcolor: t.grid, linecolor: t.grid, tickfont: { color: t.muted }, automargin: true },
     // Holgura arriba y abajo para que los rótulos de las señales no queden contra el borde (solo geometría).

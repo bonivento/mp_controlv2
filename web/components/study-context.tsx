@@ -67,7 +67,7 @@ export function StudyShell({ children }: { children: ReactNode }) {
     <StudyContext value={{ study, refresh: reload }}>
       <div className="no-print mb-5">
         <p className="text-sm">
-          <Link href="/estudios" className="text-brand hover:underline">
+          <Link href="/estudios" className="text-brand-text hover:underline">
             ← Estudios
           </Link>
         </p>
@@ -87,7 +87,7 @@ export function StudyShell({ children }: { children: ReactNode }) {
                     href={href}
                     aria-current={active ? "page" : undefined}
                     className={`inline-block border-b-2 px-3 py-2 text-sm font-medium ${
-                      active ? "border-brand text-brand" : "border-transparent text-muted hover:text-ink"
+                      active ? "border-accent font-semibold text-brand-text" : "border-transparent text-muted hover:text-ink"
                     }`}
                   >
                     {label}

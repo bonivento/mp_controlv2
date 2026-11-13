@@ -1,6 +1,11 @@
-# Software CEP
+# Sigmalena
 
-Aplicación web de Control Estadístico de Procesos (CEP). Construye gráficos de control por variables (X-barra-R, X-barra-S, I-MR) y por atributos (p, np, c, u) en Fase I y Fase II; valida los supuestos de normalidad e independencia; calcula Cp, Cpk, Cpl, Cpu, Pp, Ppk y la fracción no conforme; diseña gráficos con ARL0, ARL1 y ATS; diseña y evalúa planes de muestreo de aceptación; y reúne los resultados en un reporte imprimible y exportable a Excel.
+**Sigmalena** (sigma + Magdalena) es una aplicación web de *Control estadístico de procesos* (CEP), con la identidad cromática de la Universidad del Magdalena (azul `#004A87` y complemento naranja `#FF9400`). Construye gráficos de control por variables (X-barra-R, X-barra-S, I-MR) y por atributos (p, np, c, u) en Fase I y Fase II; valida los supuestos de normalidad e independencia; calcula Cp, Cpk, Cpl, Cpu, Pp, Ppk y la fracción no conforme; diseña gráficos con ARL0, ARL1 y ATS; diseña y evalúa planes de muestreo de aceptación; y reúne los resultados en un reporte imprimible y exportable a Excel.
+
+Además:
+
+- **Modo invitado:** en la pantalla de acceso, «Continuar como invitado» entra sin correo (inicio de sesión anónimo de Supabase). El invitado es un usuario real con sesión, así que el aislamiento por RLS y la verificación del JWT en la API no cambian; puede convertirse en cuenta con «Crear cuenta para conservar mis datos» sin perder sus estudios.
+- **Ingreso manual de datos:** la pantalla Datos tiene la pestaña «Escribir o pegar datos», una tabla editable (hasta 2000 filas y 50 columnas) que acepta bloques pegados desde Excel con coma decimal y sigue después el mismo camino que un archivo.
 
 Es el trabajo final de la asignatura Control Estadístico de Procesos. El enunciado y la rúbrica están en [TRABAJO FINAL.md](TRABAJO%20FINAL.md).
 
@@ -99,8 +104,10 @@ npm run dev
 
 | Modo | Configuración en `web/.env.local` | Qué se guarda y dónde |
 |---|---|---|
-| Real | `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` con los valores del proyecto de Supabase | En Supabase, con inicio de sesión y RLS |
-| Demostración | `NEXT_PUBLIC_DEMO_MODE=1` | En el `localStorage` del navegador; la pantalla de acceso ofrece una cuenta de ejemplo con estudios sintéticos |
+| Real | `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` con los valores del proyecto de Supabase | En Supabase, con inicio de sesión y RLS. El modo invitado exige habilitar los inicios de sesión anónimos en el proyecto (ver nota abajo) |
+| Demostración | `NEXT_PUBLIC_DEMO_MODE=1` | En el `localStorage` del navegador; la pantalla de acceso ofrece una cuenta de ejemplo con estudios sintéticos, y el invitado es local a ese navegador |
+
+> **Nota sobre el invitado en modo real:** `supabase/config.toml` trae `enable_anonymous_sign_ins = false`. Para que «Continuar como invitado» funcione contra Supabase hay que activar *Anonymous sign-ins* en el proyecto (Authentication, Providers); de lo contrario la web muestra un mensaje de error al pulsarlo.
 
 `API_URL` apunta a la API (en local, `http://localhost:8000`). Las variables completas están en [docs/despliegue.md](docs/despliegue.md).
 
@@ -131,7 +138,7 @@ npm run lint && npm run build          # verificación estática y compilación
 npx playwright test                    # extremo a extremo (requiere web y API en marcha)
 ```
 
-La última corrida de la suite de la API entregó `953 passed, 1 skipped`: 953 pruebas que pasan, una omitida y ninguna marcada como fallo esperado (ver [docs/validacion.md](docs/validacion.md)). Esas pruebas incluyen `api/tests/validation/`, la revisión estadística independiente: un revisor recalculó por otro camino constantes, límites, índices, ARL, reglas de corrida y planes de muestreo, encontró errores (por ejemplo, los grados de libertad de los intervalos de capacidad y los valores críticos de Anderson-Darling) y se corrigieron; en una segunda pasada midió por simulación la cobertura de los intervalos corregidos (0,944 a 0,955) y registró otros diez hallazgos, casi todos de redacción de la interpretación, también corregidos.
+La última corrida de la suite de la API entregó `986 passed, 1 skipped`: 986 pruebas que pasan, una omitida y ninguna marcada como fallo esperado (ver [docs/validacion.md](docs/validacion.md)). Esas pruebas incluyen `api/tests/validation/`, la revisión estadística independiente: un revisor recalculó por otro camino constantes, límites, índices, ARL, reglas de corrida y planes de muestreo, encontró errores (por ejemplo, los grados de libertad de los intervalos de capacidad y los valores críticos de Anderson-Darling) y se corrigieron; en una segunda pasada midió por simulación la cobertura de los intervalos corregidos (0,944 a 0,955) y registró otros diez hallazgos, casi todos de redacción de la interpretación, también corregidos.
 
 ## Reproducir las cifras del informe
 

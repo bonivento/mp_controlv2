@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { SigmalenaMark } from "@/components/logo";
 import { Alert, Badge, Button, Card, ConfirmDialog, EmptyState, Loading, PageHeader, errMsg } from "@/components/ui";
 import { getStore } from "@/lib/data";
 import type { Study } from "@/lib/db";
@@ -32,7 +33,7 @@ export default function StudiesPage() {
 
   return (
     <>
-      <title>Estudios · CEP</title>
+      <title>Estudios · Sigmalena</title>
       <PageHeader
         title="Estudios"
         subtitle="Cada estudio es un proceso y una característica de calidad. Dentro de él cargas datos, construyes gráficos de control y generas el reporte."
@@ -50,9 +51,13 @@ export default function StudiesPage() {
       {error && <Alert tone="error" title="No se pudieron cargar los estudios">{error}</Alert>}
       {studies && studies.length === 0 && (
         <EmptyState
+          icon={<SigmalenaMark size={56} />}
           title="Aún no tienes estudios"
           action={
-            <Link href="/estudios/nuevo" className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-brand-ink">
+            <Link
+              href="/estudios/nuevo"
+              className="inline-flex min-h-10 items-center rounded-md bg-accent px-4 py-2 text-sm font-semibold text-accent-ink hover:bg-accent-strong"
+            >
               Crear el primer estudio
             </Link>
           }

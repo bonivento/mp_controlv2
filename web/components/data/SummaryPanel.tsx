@@ -197,11 +197,11 @@ export function SummaryPanel({
             <fieldset className="flex flex-col gap-2">
               <legend className="mb-1 font-medium">¿Qué haces con este dato?</legend>
               <label className="flex items-start gap-2">
-                <input type="radio" name="outlier-kind" className="mt-1 accent-[var(--brand)]" checked={kind === "keep"} onChange={() => setKind("keep")} />
+                <input type="radio" name="outlier-kind" className="mt-1 accent-brand-text" checked={kind === "keep"} onChange={() => setKind("keep")} />
                 <span>Conservarlo: es variación real del proceso y debe verse en los gráficos.</span>
               </label>
               <label className="flex items-start gap-2">
-                <input type="radio" name="outlier-kind" className="mt-1 accent-[var(--brand)]" checked={kind === "remove"} onChange={() => setKind("remove")} />
+                <input type="radio" name="outlier-kind" className="mt-1 accent-brand-text" checked={kind === "remove"} onChange={() => setKind("remove")} />
                 <span>Retirar el subgrupo completo: hay un error de medición o de captura comprobado.</span>
               </label>
             </fieldset>

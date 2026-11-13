@@ -1,4 +1,4 @@
-# Control estadístico de un proceso de llenado: desarrollo y aplicación de un software de CEP
+# Control estadístico de un proceso de llenado: desarrollo y aplicación de Sigmalena, un software de control estadístico de procesos
 
 **Informe técnico final**
 
@@ -6,7 +6,7 @@
 
 | Elemento de portada (APA 7) | Contenido |
 |---|---|
-| Título | Control estadístico de un proceso de llenado: desarrollo y aplicación de un software de CEP |
+| Título | Control estadístico de un proceso de llenado: desarrollo y aplicación de Sigmalena, un software de control estadístico de procesos |
 | Autores | POR COMPLETAR |
 | Afiliación | Facultad de Ingeniería, POR COMPLETAR (institución y programa) |
 | Curso | Control Estadístico de Procesos |
@@ -19,7 +19,7 @@
 
 Este informe tiene dos partes de naturaleza distinta y conviene no confundirlas.
 
-1. **El software**, que está terminado y probado: 953 pruebas automáticas de la API pasan (1 omitida, ninguna con fallo esperado; ver sección 7.4), y un revisor independiente recalculó sus resultados por otro camino (`docs/validacion.md`).
+1. **El software, Sigmalena** (de «sigma» y «Magdalena», con la identidad cromática de la Universidad del Magdalena), que está terminado y probado: 986 pruebas automáticas de la API pasan (1 omitida, ninguna con fallo esperado; ver sección 7.4), y un revisor independiente recalculó sus resultados por otro camino (`docs/validacion.md`).
 2. **El análisis del caso**. Al momento de redactar **no existe empresa ni datos reales**. El caso que se analiza es un **ejemplo de aplicación con datos sintéticos** (archivos `sintetico_*` de `data/ejemplos/`), generado por un programa con semilla fija. Ninguna cifra de este informe describe un proceso productivo real, y toda sección que dependa de la empresa está marcada con un bloque `POR COMPLETAR CON LA EMPRESA`. El ejemplo sintético demuestra que el software y la metodología funcionan de punta a punta; **no** sustituye la visita a la planta ni los hallazgos reales que pide el enunciado.
 
 Convenciones: en el texto los decimales se escriben con coma; en las salidas del software y en los anexos, con punto. Cada cifra se puede rastrear a un archivo de `docs/informe/anexos/salidas/` (petición y respuesta reales de la API), citado en la nota de la tabla o figura. Los scripts que generan esas salidas y las figuras están en `docs/informe/anexos/`.
@@ -28,7 +28,7 @@ Convenciones: en el texto los decimales se escriben con coma; en las salidas del
 
 ## Resumen ejecutivo
 
-Se desarrolló un software web de Control Estadístico de Procesos (CEP) con ocho módulos: gestión de datos, gráficos de control por variables y por atributos con separación explícita de Fase I y Fase II, validación de supuestos, capacidad del proceso, diseño de gráficos con ARL0, ARL1 y ATS, muestreo de aceptación y reportes. El motor de cálculo (Python, FastAPI, NumPy y SciPy) está probado con 953 pruebas automáticas y revisado por un validador independiente que recalculó sus resultados por otro camino, encontró errores y los vio corregidos, y la interfaz (Next.js) guarda los estudios en una base de datos Supabase con acceso por usuario.
+Se desarrolló **Sigmalena**, un software web de control estadístico de procesos (CEP) con ocho módulos: gestión de datos, gráficos de control por variables y por atributos con separación explícita de Fase I y Fase II, validación de supuestos, capacidad del proceso, diseño de gráficos con ARL0, ARL1 y ATS, muestreo de aceptación y reportes. El motor de cálculo (Python, FastAPI, NumPy y SciPy) está probado con 986 pruebas automáticas y revisado por un validador independiente que recalculó sus resultados por otro camino, encontró errores y los vio corregidos, y la interfaz (Next.js) guarda los estudios en una base de datos Supabase con acceso por usuario.
 
 Para demostrar el flujo completo se analizó un **proceso sintético** de llenado de envases de 500 g de salsa, con especificaciones de 495 g a 505 g. En Fase I (25 subgrupos de cinco envases) el gráfico X-barra señaló el subgrupo 12; tras excluirlo con una causa asignable (ficticia, propia del ejemplo) los límites quedaron en 498,072 g y 501,547 g y la dispersión en R-barra = 3,012 g. La capacidad de corto plazo resultó marginal: Cp = 1,287 y Cpk = 1,238 (IC 95 %: 1,044 a 1,431), con 133 partes por millón fuera de especificación esperadas. En Fase II, con los límites congelados, 11 de 15 subgrupos dieron señal y el Cpk calculado sobre esos datos cayó a 0,841, aunque ninguna de las 75 unidades medidas salió de especificación: el proceso se desplazó antes de producir producto no conforme observable. El análisis ARL/ATS muestra que, con n = 5 y una muestra cada 8 horas, un desplazamiento de 1,5 sigmas tarda en promedio 1,57 muestras (12,5 horas) en detectarse, y que activar las reglas de Western Electric reduce el ARL0 de 370,4 a 91,5.
 
@@ -40,7 +40,7 @@ Las conclusiones son de método y de software: el ejemplo ilustra el flujo y sus
 
 La calidad de un proceso se decide durante la producción, no en la inspección final. El Control Estadístico de Procesos ofrece herramientas para distinguir la variación natural de un proceso (causas comunes) de la variación atribuible a hechos concretos (causas especiales), para medir qué tan bien cumple sus especificaciones y para dimensionar el esfuerzo de inspección necesario (Montgomery, 2009). Aplicar esas herramientas exige cálculo repetitivo y decisiones documentadas, lo que justifica un software propio que las integre.
 
-Este informe documenta el diseño, la validación y la aplicación de ese software. Describe qué calcula y cómo, muestra su uso con un caso sintético completo y deja identificados los puntos que se llenarán con una empresa manufacturera real.
+Este informe documenta el diseño, la validación y la aplicación de ese software, que se llama Sigmalena. Describe qué calcula y cómo, muestra su uso con un caso sintético completo y deja identificados los puntos que se llenarán con una empresa manufacturera real.
 
 ## 2. Planteamiento del problema
 
@@ -52,7 +52,7 @@ Las empresas manufactureras suelen registrar mediciones de sus procesos en hojas
 
 ## 3. Objetivos
 
-**Objetivo general.** Diseñar, desarrollar y validar un software de CEP que permita analizar datos de producción, diagnosticar el comportamiento estadístico de un proceso y sustentar propuestas de mejora con evidencia cuantitativa.
+**Objetivo general.** Diseñar, desarrollar y validar un software de control estadístico de procesos (Sigmalena) que permita analizar datos de producción, diagnosticar el comportamiento estadístico de un proceso y sustentar propuestas de mejora con evidencia cuantitativa.
 
 **Objetivos específicos.**
 
@@ -162,11 +162,13 @@ El script `docs/informe/anexos/generar_salidas.py` llama a la API local con los 
 
 Tres piezas con responsabilidades separadas (ver `docs/arquitectura.md`): una interfaz web (Next.js) que gestiona la sesión y guarda los datos, un motor de cálculo sin estado (FastAPI con NumPy y SciPy) y una base de datos (Supabase) con seguridad por filas, de modo que cada usuario ve solo sus estudios. El motor de cálculo es determinista y no guarda nada; el contrato entre interfaz y motor son esquemas Pydantic de los que se generan los tipos de la interfaz. La librería estadística `api/app/spc/` es Python puro, sin dependencia de la web.
 
+El producto se llama **Sigmalena** (sigma + Magdalena), con el descriptor «Control estadístico de procesos». Su identidad cromática toma la de la Universidad del Magdalena (azul base #004A87 y complemento naranja #FF9400; fuente de la paleta: Universidad del Magdalena, s. f.); el logotipo es un isotipo propio y original. La marca es una capa visual: no altera rutas, contrato ni cálculos.
+
 ### 7.2 Módulos
 
 | Módulo del enunciado | Pantalla | Rutas de la API | Qué entrega |
 |---|---|---|---|
-| 1. Gestión de datos | Datos | `/api/data/parse`, `/api/data/summary`, `/api/data/summary/attributes` | Lectura de CSV y Excel con avisos de limpieza por hoja, subgrupos racionales con justificación obligatoria, retiro de subgrupos incompletos con justificación, bitácora de limpieza, atípicos marcados sin borrarlos, tablas resumen |
+| 1. Gestión de datos | Datos | `/api/data/parse`, `/api/data/summary`, `/api/data/summary/attributes` | Lectura de CSV y Excel con avisos de limpieza por hoja, ingreso manual mediante una tabla editable con pegado desde Excel (ver abajo), subgrupos racionales con justificación obligatoria, retiro de subgrupos incompletos con justificación, bitácora de limpieza, atípicos marcados sin borrarlos, tablas resumen |
 | 2. Variables | Variables | `/api/charts/variables` | X-barra-R, X-barra-S e I-MR, Fase I con exclusión por causa asignable, congelado de límites y Fase II |
 | 3. Atributos | Atributos | `/api/charts/attributes`, `/api/charts/attributes/recommend` | p, np, c y u con asistente de selección justificado |
 | 4. Supuestos | Supuestos | `/api/assumptions` | Cuatro pruebas, Q-Q, histograma y ACF |
@@ -175,18 +177,20 @@ Tres piezas con responsabilidades separadas (ver `docs/arquitectura.md`): una in
 | 7. Muestreo | Muestreo | `/api/sampling/single/design`, `/single/evaluate`, `/double/evaluate` | Planes simples y dobles, curvas OC, AOQ, ATI y ASN |
 | 8. Reportes | Reporte | `/api/reports/excel` | Reporte imprimible con tablas y figuras numeradas y exportación a Excel |
 
+**Ingreso manual de datos (módulo 1).** Además de subir un archivo, la pantalla Datos ofrece la pestaña «Escribir o pegar datos»: una tabla editable con nombres de columna modificables, filas y columnas que se agregan o quitan, desplazamiento con Tab, Enter y flechas, y pegado de bloques desde hojas de cálculo (con coma decimal), con un tope de 2000 filas y 50 columnas. El diseño evita duplicar lógica: al pulsar «Usar estos datos» la interfaz convierte la tabla en un CSV en memoria y lo envía a la misma ruta `/api/data/parse` que un archivo, de modo que el mapeo de columnas, la formación de subgrupos con justificación obligatoria, la limpieza y el guardado son los mismos, y la bitácora registra el origen como «Ingreso manual». La interfaz no interpreta números: la conversión de la coma decimal y su aviso son responsabilidad de la API, igual que con un archivo (`web/lib/manual-table.ts`).
+
 ### 7.3 Características de calidad del software
 
-- **Pruebas:** 953 pruebas automáticas de la API (librería `spc`, rutas HTTP, contrato y validación independiente) pasan; ver la subsección 7.4.
+- **Pruebas:** 986 pruebas automáticas de la API (librería `spc`, rutas HTTP, contrato y validación independiente) pasan; ver la subsección 7.4.
 - **Interpretación automática:** cada respuesta incluye una conclusión, hallazgos y advertencias en español, con coma decimal y redactadas con cautela (por ejemplo, que no se interpreta la capacidad de un proceso inestable y que no rechazar una prueba no demuestra el supuesto).
 - **Trazabilidad:** causas asignables, decisiones sobre atípicos y justificaciones de subgrupo se guardan con el estudio.
 - **Prevención de errores:** nunca devuelve NaN ni infinito (va `null` con advertencia); no permite excluir puntos sin causa ni calcular Fase II sin límites congelados.
-- **Seguridad:** inicio de sesión y políticas RLS; la API verifica el JWT de Supabase.
-- **Estado de despliegue:** en producción en Vercel desde el 11 de noviembre de 2026: web en <https://cep-web.vercel.app> y API en <https://cep-api-xi.vercel.app>. Las pruebas de extremo a extremo se repitieron contra producción (35 pasan, 2 omitidas).
+- **Seguridad:** inicio de sesión y políticas RLS; la API verifica el JWT de Supabase. Ver la gestión de usuarios y el modo invitado en la subsección 7.5.
+- **Estado de despliegue:** en producción en Vercel desde el 11 de noviembre de 2026: web en <https://cep-web.vercel.app> y API en <https://cep-api-xi.vercel.app>. Las pruebas de extremo a extremo se repitieron contra producción (35 pasan, 2 omitidas; última verificación, anterior al modo invitado y al ingreso manual).
 
 ### 7.4 Verificación del software
 
-La verificación tiene dos niveles. El primero son las pruebas automáticas de los autores, que contrastan cada fórmula con un resultado conocido. La última corrida de `cd api && .venv/bin/python -m pytest -q` entregó la línea `953 passed, 1 skipped`: 953 pruebas que pasan y una omitida (una prueba de rutas que exige celdas vacías, que la API limpia antes de calcular). No queda ninguna prueba marcada como fallo esperado: todos los hallazgos de la revisión independiente quedaron corregidos.
+La verificación tiene dos niveles. El primero son las pruebas automáticas de los autores, que contrastan cada fórmula con un resultado conocido. La última corrida de `cd api && .venv/bin/python -m pytest -q` entregó la línea `986 passed, 1 skipped`: 986 pruebas que pasan y una omitida (una prueba de rutas que exige celdas vacías, que la API limpia antes de calcular). No queda ninguna prueba marcada como fallo esperado: todos los hallazgos de la revisión independiente quedaron corregidos.
 
 El segundo nivel es una **revisión estadística independiente** (`docs/validacion.md`) hecha por un revisor que no participó en la implementación y que recalculó cada resultado por otro camino: otras integrales para las constantes, fórmulas escritas a mano para límites e índices, implementaciones con bucles explícitos para las doce reglas de corrida, cadenas de Markov propias para los ARL con reglas, enumeración exhaustiva para la prueba de rachas y para el plan de muestreo de menor tamaño, y simulación de Monte Carlo para la cobertura de intervalos y el tamaño real de las pruebas. Sus pruebas (`api/tests/validation/`) son parte de las 953.
 
@@ -206,11 +210,28 @@ La revisión **encontró errores y se corrigieron**, lo que es evidencia de que 
 
 1. *Los hallazgos de la primera pasada quedaron corregidos.* De las 20 pruebas ejecutables con que el revisor documentó esos hallazgos (marcadas `xfail` mientras el error existía), 18 pasaron a verde de inmediato. Las otras dos estaban mal planteadas, porque llamaban a la función del intervalo sin informar con qué estimador se había calculado sigma, y se reescribieron para medir el camino real; hoy pasan.
 2. *La corrección de los intervalos de capacidad se verificó por simulación propia.* Con un proceso normal de Cp = 1,5 y Cpk = 4/3, el intervalo nominal del 95 % cubrió el valor verdadero entre 0,944 y 0,955 de las veces en seis casos (sigma estimada con $\bar{R}/d_2$, con $\bar{S}/c_4$, con $\overline{MR}/d_2$, por desviación combinada con $n$ variable y con límites congelados de X-barra-R y de I-MR), frente a 0,58 a 0,93 con los grados de libertad $N-1$ de la versión anterior. Este es el respaldo empírico de que los intervalos de la sección 12 tienen la confianza que declaran.
-3. *Se registraron diez hallazgos nuevos (H17 a H26)*, casi todos de redacción de la interpretación automática y de gravedad baja o media-baja: una frase de confianza sobre Cpk que se daba también con proceso inestable (H20); un hallazgo de formas de distribución afirmado por ruido de muestreo con $n$ pequeño (H21); la probabilidad de ver algún rezago fuera de banda por azar, sobrestimada al suponer rezagos independientes (H23: 0,64 frente a 0,52 por simulación con $n$ = 120 y 20 rezagos); una advertencia de falsas alarmas que no valía cuando la línea central coincide con un conteo posible (H19) y un hallazgo que contradecía la advertencia sobre N3 y N4 (H18); el texto «no puede señalar mejoras» en el diseño con WE4 aplicada (H22); el texto sobre «variabilidad dentro de los subgrupos» en un gráfico de individuales (H24); una sobrestimación leve de los grados de libertad de I-MR con exclusiones intermedias (H26); errores aritméticos en dos archivos de referencia (H17); y detalles de redacción (H25). Todos se corrigieron y **la suite quedó sin pruebas con fallo esperado**: la línea final es `953 passed, 1 skipped`. Las cifras numéricas de este informe no cambiaron con esas correcciones; cambiaron los textos de interpretación, y las salidas del anexo A se regeneraron con el software corregido.
+3. *Se registraron diez hallazgos nuevos (H17 a H26)*, casi todos de redacción de la interpretación automática y de gravedad baja o media-baja: una frase de confianza sobre Cpk que se daba también con proceso inestable (H20); un hallazgo de formas de distribución afirmado por ruido de muestreo con $n$ pequeño (H21); la probabilidad de ver algún rezago fuera de banda por azar, sobrestimada al suponer rezagos independientes (H23: 0,64 frente a 0,52 por simulación con $n$ = 120 y 20 rezagos); una advertencia de falsas alarmas que no valía cuando la línea central coincide con un conteo posible (H19) y un hallazgo que contradecía la advertencia sobre N3 y N4 (H18); el texto «no puede señalar mejoras» en el diseño con WE4 aplicada (H22); el texto sobre «variabilidad dentro de los subgrupos» en un gráfico de individuales (H24); una sobrestimación leve de los grados de libertad de I-MR con exclusiones intermedias (H26); errores aritméticos en dos archivos de referencia (H17); y detalles de redacción (H25). Todos se corrigieron y **la suite quedó sin pruebas con fallo esperado**: la línea final es `986 passed, 1 skipped`. Las cifras numéricas de este informe no cambiaron con esas correcciones; cambiaron los textos de interpretación, y las salidas del anexo A se regeneraron con el software corregido.
 
 > **Alcance de la verificación de H17 a H26.** El cuerpo de `docs/validacion.md` describe la segunda pasada tal como quedó antes de corregir esos diez hallazgos; su nota inicial registra el estado posterior. Estas últimas correcciones se comprobaron con la prueba ejecutable que el revisor dejó para cada hallazgo, no con una tercera revisión independiente.
 
 **Límites de la verificación.** Los datos de libro de los ejemplos de las pruebas se transcribieron de memoria y solo se verificó su consistencia interna; los números de sección y de ejemplo de Montgomery citados en el código no se cotejaron con el ejemplar. La verificación confirma que el software calcula lo que dice calcular y que sus textos no afirman más de lo que los datos permiten; no sustituye la validación con datos reales de una empresa.
+
+### 7.5 Gestión de usuarios y modo invitado
+
+Hay dos formas de entrar. La primera es una cuenta con correo y contraseña. La segunda es el **modo invitado** («Continuar como invitado» en la pantalla de acceso), pensado para que un evaluador o un posible usuario pruebe el software sin registrarse. Se implementa con el inicio de sesión anónimo de Supabase (`signInAnonymously`): el invitado es un **usuario real con sesión**, con su propio identificador y su JWT. Por eso el aislamiento no cambia: las políticas RLS filtran por el identificador del usuario y la API verifica el JWT igual que con una cuenta; un invitado solo ve lo que creó y nadie más ve lo suyo.
+
+Dentro de la aplicación, la cabecera muestra «Invitado» en lugar del correo y un aviso permanente informa que los datos solo existen en ese navegador. El invitado puede **convertirse en cuenta** con «Crear cuenta para conservar mis datos»: la interfaz asigna correo y contraseña al mismo usuario (`updateUser`), de modo que conserva su identificador y, con él, todos sus estudios y conjuntos de datos, sin copiarlos. Si el proyecto exige confirmar el correo, el usuario sigue siendo invitado hasta abrir el enlace y no se pierde nada. Al cerrar la sesión como invitado, una ventana de confirmación advierte que se pierde el acceso, porque un invitado no puede volver a entrar. Código: `web/app/(auth)/login/page.tsx`, `web/components/guest.tsx`, `web/components/app-shell.tsx` y `web/lib/data/supabase-store.ts`.
+
+**Riesgos y mitigación.**
+
+| Riesgo | Efecto | Mitigación en el software o pendiente |
+|---|---|---|
+| Datos ligados al navegador: el invitado no tiene credenciales para volver a entrar | Pérdida irrecuperable de estudios si se cierra la sesión o se borran los datos del sitio | Aviso permanente, confirmación al cerrar sesión y conversión a cuenta conservando los datos |
+| Acumulación de usuarios anónimos en la base de datos (cada visita de prueba crea uno que nunca se reclama) | Crecimiento de filas de usuarios y de estudios huérfanos, y consumo del plan gratuito | **Pendiente:** no hay una tarea de limpieza en el repositorio; se sugiere borrar periódicamente los usuarios anónimos inactivos de Supabase y, si hiciera falta, limitar la tasa de altas anónimas del proyecto |
+| Abuso por altas anónimas automatizadas | Consumo de recursos sin una persona detrás | Mitigación pendiente, de configuración del proyecto (límites de tasa y captcha de Supabase); no se probó |
+| El proveedor anónimo está desactivado por defecto en `supabase/config.toml` | En ese proyecto, el botón muestra un error explicativo en lugar de entrar | Habilitar *Anonymous sign-ins* en el proyecto que se use; la interfaz traduce el error a un mensaje en español |
+
+> **Estado de las pruebas de estas funciones.** Las pruebas de extremo a extremo del modo invitado y del ingreso manual se están escribiendo en el momento de redactar. Por eso este informe no las cuenta: las cifras de pruebas (API: 953 pasan y 1 omitida; extremo a extremo: 35 pasan y 2 omitidas) son las de la última verificación, anterior a estas dos funciones, y no deben leerse como cobertura de ellas. La lógica del ingreso manual es TypeScript de la interfaz y no entra en el conteo de la API.
 
 ## 8. Caracterización de los datos
 
@@ -643,7 +664,7 @@ Las conclusiones separan lo que el trabajo logró sobre el software, lo que mues
 
 **Sobre el software.**
 
-1. El software cubre los ocho módulos del enunciado, diferencia Fase I y Fase II en la interfaz y en la API (que impide excluir puntos en Fase II y exige límites congelados), exige justificación de subgrupo racional y causa asignable y devuelve en cada análisis conclusiones y advertencias en español. Sus 953 pruebas automáticas pasan (1 omitida y ninguna con fallo esperado).
+1. El software cubre los ocho módulos del enunciado, diferencia Fase I y Fase II en la interfaz y en la API (que impide excluir puntos en Fase II y exige límites congelados), exige justificación de subgrupo racional y causa asignable y devuelve en cada análisis conclusiones y advertencias en español. Sus 986 pruebas automáticas pasan (1 omitida y ninguna con fallo esperado).
 2. Por regla del proyecto, cada fórmula lleva su fuente y una prueba contra un resultado conocido; además, los archivos sintéticos traen un resultado esperado calculado de forma independiente, y una revisión estadística independiente (`docs/validacion.md`) recalculó los resultados por otro camino. Esa revisión **encontró errores** (16 confirmados en la primera pasada, entre ellos los grados de libertad de los intervalos de capacidad, los valores críticos de Anderson-Darling y la prueba de rachas) y **se corrigieron**; las cifras de este informe se regeneraron después de las correcciones. Los resultados del caso coinciden con los esperados del README de datos: límites de Fase I con R-barra ≈ 3,06 antes de excluir (obtenido: 3,056), y 11 de 15 subgrupos con señal en Fase II (subgrupos 26, 28, 30 a 36, 38 y 39).
 
 **Sobre el caso sintético.**
@@ -686,7 +707,8 @@ Las conclusiones separan lo que el trabajo logró sobre el software, lo que mues
 **Para el software.**
 
 9. Extender a CUSUM y EWMA para detectar cambios pequeños, y a un análisis de autocorrelación sobre las medias de subgrupo.
-10. Hecho el 11 de noviembre de 2026: el software se desplegó en Vercel (<https://cep-web.vercel.app>) y la prueba de aislamiento entre usuarios y las demás pruebas de extremo a extremo se repitieron contra producción (`docs/pruebas-e2e.md`).
+10. Antes de abrir el modo invitado a un público amplio, programar la limpieza de usuarios anónimos inactivos y configurar límites de tasa y captcha en Supabase (subsección 7.5), y terminar y ejecutar las pruebas de extremo a extremo del invitado y del ingreso manual.
+11. Hecho el 11 de noviembre de 2026: el software se desplegó en Vercel (<https://cep-web.vercel.app>) y la prueba de aislamiento entre usuarios y las demás pruebas de extremo a extremo se repitieron contra producción (`docs/pruebas-e2e.md`).
 
 ## Referencias
 
@@ -729,6 +751,8 @@ Sturges, H. A. (1926). The choice of a class interval. *Journal of the American 
 Tippett, L. H. C. (1925). On the extreme individuals and the range of samples taken from a normal population. *Biometrika, 17*(3-4), 364-387.
 
 Tukey, J. W. (1977). *Exploratory data analysis*. Addison-Wesley.
+
+Universidad del Magdalena. (s. f.). *Recursos institucionales de la Universidad del Magdalena* [Sitio web]. https://cdn.unimagdalena.edu.co/
 
 Virtanen, P., Gommers, R., Oliphant, T. E., Haberland, M., Reddy, T., Cournapeau, D., ... SciPy 1.0 Contributors. (2020). SciPy 1.0: Fundamental algorithms for scientific computing in Python. *Nature Methods, 17*, 261-272.
 
@@ -787,4 +811,4 @@ Cada archivo contiene la ruta, la petición y la respuesta (carpeta `docs/inform
 
 ### Anexo F. Evidencia de ejecución del software
 
-Las pruebas automáticas de la API se ejecutan con `cd api && .venv/bin/python -m pytest -q`; la última corrida entregó `953 passed, 1 skipped`. La evidencia de validación estadística independiente se documenta en `docs/validacion.md` y los fundamentos en `docs/fundamentos-estadisticos.md` (secciones 6.2 y 7.4). Las capturas de pantalla de cada módulo están en `docs/capturas/`.
+Las pruebas automáticas de la API se ejecutan con `cd api && .venv/bin/python -m pytest -q`; la última corrida entregó `986 passed, 1 skipped`. La evidencia de validación estadística independiente se documenta en `docs/validacion.md` y los fundamentos en `docs/fundamentos-estadisticos.md` (secciones 6.2 y 7.4). Las capturas de pantalla de cada módulo están en `docs/capturas/`.

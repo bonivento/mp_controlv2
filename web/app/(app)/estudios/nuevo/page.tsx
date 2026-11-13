@@ -10,9 +10,9 @@ export default function NewStudyPage() {
   const router = useRouter();
   return (
     <>
-      <title>Nuevo estudio · CEP</title>
+      <title>Nuevo estudio · Sigmalena</title>
       <p className="mb-2 text-sm">
-        <Link href="/estudios" className="text-brand hover:underline">
+        <Link href="/estudios" className="text-brand-text hover:underline">
           ← Estudios
         </Link>
       </p>

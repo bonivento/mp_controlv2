@@ -13,11 +13,13 @@ import {
 export const errMsg = (e: unknown) => (e instanceof Error ? e.message : "Ocurrió un error inesperado.");
 
 // --- Botones -------------------------------------------------------------------
-type Variant = "primary" | "secondary" | "danger" | "ghost";
+type Variant = "primary" | "accent" | "secondary" | "danger" | "ghost" | "onBrand";
 const variants: Record<Variant, string> = {
   primary: "bg-brand text-brand-ink hover:bg-brand-strong border-transparent",
   secondary: "bg-surface text-ink hover:bg-surface-2 border-line",
-  danger: "bg-danger text-white hover:opacity-90 border-transparent",
+  accent: "bg-accent text-accent-ink hover:bg-accent-strong border-transparent font-semibold",
+  danger: "bg-danger-fill text-white hover:bg-danger-fill-strong border-transparent",
+  onBrand: "bg-transparent text-white hover:bg-white/15 border-white/50",
   ghost: "bg-transparent text-ink hover:bg-surface-2 border-transparent",
 };
 
@@ -219,7 +221,7 @@ export function CheckField({
       <input
         id={id}
         type="checkbox"
-        className="mt-1 size-4 accent-[var(--brand)]"
+        className="mt-1 size-4 accent-brand-text"
         checked={checked}
         disabled={disabled}
         onChange={(e) => onChange(e.target.checked)}
@@ -319,9 +321,10 @@ export function Loading({ label = "Cargando…" }: { label?: string }) {
   );
 }
 
-export function EmptyState({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) {
+export function EmptyState({ title, children, action, icon }: { title: string; children?: ReactNode; action?: ReactNode; icon?: ReactNode }) {
   return (
     <div className="rounded-lg border border-dashed border-line bg-surface p-8 text-center">
+      {icon && <div className="mb-3 flex justify-center">{icon}</div>}
       <p className="font-semibold">{title}</p>
       {children && <div className="mx-auto mt-1 max-w-xl text-sm text-muted">{children}</div>}
       {action && <div className="mt-4 flex justify-center">{action}</div>}

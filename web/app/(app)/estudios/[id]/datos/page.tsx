@@ -40,7 +40,7 @@ export default function DataPage() {
 
   return (
     <>
-      <title>{`Datos · ${study.name} · CEP`}</title>
+      <title>{`Datos · ${study.name} · Sigmalena`}</title>
       <PageHeader
         title="Datos"
         subtitle="Módulo 1: carga el archivo, forma los subgrupos racionales, revisa el resumen y los atípicos, y guarda el conjunto como Fase I o Fase II."
@@ -51,7 +51,7 @@ export default function DataPage() {
           {error && <Alert tone="error">{error}</Alert>}
           {delError && <Alert tone="error" className="mb-3">{delError}</Alert>}
           {datasets && datasets.length === 0 && (
-            <EmptyState title="Este estudio aún no tiene datos">Carga un archivo más abajo y guárdalo como Fase I.</EmptyState>
+            <EmptyState title="Este estudio aún no tiene datos">Carga un archivo o escribe los datos más abajo y guárdalos como Fase I.</EmptyState>
           )}
           {datasets && datasets.length > 0 && (
             <Table caption="Conjuntos de datos guardados">

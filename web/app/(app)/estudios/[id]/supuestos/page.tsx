@@ -90,7 +90,7 @@ export default function AssumptionsPage() {
 
   return (
     <>
-      <title>{`Supuestos · ${study.name} · CEP`}</title>
+      <title>{`Supuestos · ${study.name} · Sigmalena`}</title>
       <PageHeader
         title="Validación de supuestos"
         subtitle="Módulo 4. Los gráficos de Shewhart y los índices de capacidad suponen datos normales e independientes. Verifícalo antes de interpretar."

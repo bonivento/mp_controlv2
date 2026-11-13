@@ -59,6 +59,7 @@ La clave `service_role` de Supabase no se usa en ninguna parte y no debe copiars
    ```
 4. En *Authentication → URL Configuration*, poner como *Site URL* la URL de producción de la web y añadir `http://localhost:3000` a las de redirección.
 5. Comprobar en *Table Editor* que las cinco tablas existen y tienen RLS activo.
+6. En *Authentication → Sign In / Providers*, activar **Allow anonymous sign-ins**. Lo usa el modo invitado («Continuar como invitado»); sin ese interruptor el botón muestra que el acceso de invitado no está habilitado. En el proyecto de producción está activo desde el 2026-11-12.
 
 ## Paso 2. Repositorio
 

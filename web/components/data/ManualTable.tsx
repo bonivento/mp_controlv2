@@ -5,7 +5,7 @@ import { MAX_COLS, MAX_ROWS, filledRows, isBlock, pasteBlock, parsePasted, type 
 import { Alert, Button } from "../ui";
 
 const cellCls =
-  "block w-full min-w-[5.5rem] border-0 bg-transparent px-2 py-1.5 text-sm text-ink focus:relative focus:z-10 focus:outline-2 focus:-outline-offset-2 focus:outline-[var(--brand)]";
+  "block w-full min-w-[5.5rem] border-0 bg-transparent px-2 py-1.5 text-sm text-ink focus:relative focus:z-10 focus:outline-2 focus:-outline-offset-2 focus:outline-focus";
 
 /**
  * Tabla editable para escribir o pegar datos. El borrador vive en el padre (así no se pierde al

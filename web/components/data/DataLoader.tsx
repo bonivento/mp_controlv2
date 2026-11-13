@@ -251,7 +251,7 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
                     document.getElementById(`tab-datos-${other}`)?.focus();
                   }
                 }}
-                className={`min-h-9 rounded text-sm font-medium ${tab === k ? "bg-surface shadow-sm" : "text-muted"}`}
+                className={`min-h-9 rounded border-b-[3px] text-sm font-medium ${tab === k ? "border-accent bg-surface font-semibold text-brand-text shadow-sm" : "border-transparent text-muted"}`}
               >
                 {t}
               </button>
@@ -522,7 +522,7 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
                     ] as const
                   ).map(([v, t]) => (
                     <label key={v} className="flex items-start gap-2">
-                      <input type="radio" name="fase" className="mt-1 accent-[var(--brand)]" checked={phase === v} onChange={() => setPhase(v)} />
+                      <input type="radio" name="fase" className="mt-1 accent-brand-text" checked={phase === v} onChange={() => setPhase(v)} />
                       <span>{t}</span>
                     </label>
                   ))}

@@ -38,7 +38,7 @@ export default function StudyOverviewPage() {
 
   return (
     <>
-      <title>{`${study.name} · CEP`}</title>
+      <title>{`${study.name} · Sigmalena`}</title>
       <PageHeader
         title="Resumen del estudio"
         actions={
@@ -98,7 +98,7 @@ export default function StudyOverviewPage() {
       <ol className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
         {steps.map((s) => (
           <li key={s.href}>
-            <Link href={s.href} className="block h-full rounded-lg border border-line bg-surface p-4 shadow-sm hover:border-brand">
+            <Link href={s.href} className="block h-full rounded-lg border border-line bg-surface p-4 shadow-sm hover:border-brand-text">
               <p className="font-semibold">{s.title}</p>
               <p className="mt-1 text-sm text-muted">{s.text}</p>
             </Link>

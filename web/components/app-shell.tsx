@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "./auth-provider";
 import { GuestBanner, GuestSignOutConfirm } from "./guest";
+import { SigmalenaLogo } from "./logo";
 import { Button, Loading } from "./ui";
 import { getStore } from "@/lib/data";
 
@@ -35,22 +36,24 @@ export function AppShell({ children }: { children: ReactNode }) {
   const demo = getStore().mode === "demo";
   return (
     <>
-      <header className="no-print border-b border-line bg-surface">
+      <header className="no-print on-brand border-b-[3px] border-accent bg-header text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-2.5">
-          <Link href="/estudios" className="flex items-center gap-2 font-semibold">
-            <span aria-hidden className="flex size-8 items-center justify-center rounded-md bg-brand text-sm font-bold text-brand-ink">
-              CEP
+          <Link href="/estudios" className="flex items-center gap-3 rounded-md" aria-label="Sigmalena, ir a estudios">
+            <SigmalenaLogo size={34} variant="onDark" />
+            <span className="hidden border-l border-white/30 pl-3 text-xs leading-tight text-white/85 md:inline">
+              Control estadístico
+              <br />
+              de procesos
             </span>
-            <span className="hidden sm:inline">Control Estadístico de Procesos</span>
           </Link>
           <div className="flex items-center gap-3 text-sm">
             {demo && (
-              <span className="rounded-full border border-warn/50 bg-warn-soft px-2 py-0.5 text-xs">
+              <span className="rounded-full border border-warn/50 bg-warn-soft px-2 py-0.5 text-xs text-ink">
                 Modo de demostración (datos en este navegador)
               </span>
             )}
-            <span className={`${user.isGuest ? "" : "hidden "}text-muted sm:inline`}>{user.isGuest ? "Invitado" : user.email}</span>
-            <Button loading={leaving} onClick={() => (user.isGuest ? setConfirmLeave(true) : signOut())}>
+            <span className={`${user.isGuest ? "" : "hidden "}text-white/85 sm:inline`}>{user.isGuest ? "Invitado" : user.email}</span>
+            <Button variant="onBrand" loading={leaving} onClick={() => (user.isGuest ? setConfirmLeave(true) : signOut())}>
               Cerrar sesión
             </Button>
           </div>

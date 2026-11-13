@@ -41,6 +41,7 @@ export function trackStudy(name: string) {
   const s = readState()!;
   writeState({ ...s, createdStudies: [...s.createdStudies, name] });
 }
+export const guestFile = path.join(AUTH_DIR, "user-g.json");
 export const authFile = (u: "a" | "b") => path.join(AUTH_DIR, `user-${u}.json`);
 
 /** Captura de pantalla de escritorio para el manual de usuario. */

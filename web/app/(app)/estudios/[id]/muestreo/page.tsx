@@ -276,14 +276,14 @@ export default function SamplingPage() {
   ] as const;
   return (
     <>
-      <title>{`Muestreo · ${study.name} · CEP`}</title>
+      <title>{`Muestreo · ${study.name} · Sigmalena`}</title>
       <PageHeader
         title="Muestreo de aceptación"
         subtitle="Módulo 7. Decide si aceptar o rechazar un lote a partir de una muestra. Diseña un plan por atributos o evalúa uno que ya tengas; la curva OC muestra qué tan bien discrimina."
       />
       <div role="tablist" aria-label="Tipo de plan" className="mb-4 grid max-w-3xl grid-cols-3 gap-1 rounded-md bg-surface-2 p-1">
         {tabs.map(([k, t]) => (
-          <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`min-h-10 rounded px-2 text-sm font-medium ${tab === k ? "bg-brand text-brand-ink shadow-sm" : "text-muted hover:text-ink"}`}>
+          <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)} className={`min-h-10 rounded border-b-[3px] px-2 text-sm font-medium ${tab === k ? "border-accent bg-brand text-brand-ink shadow-sm" : "border-transparent text-muted hover:text-ink"}`}>
             {t}
           </button>
         ))}
