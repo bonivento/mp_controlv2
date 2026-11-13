@@ -186,7 +186,7 @@ El producto se llama **Sigmalena** (sigma + Magdalena), con el descriptor «Cont
 - **Trazabilidad:** causas asignables, decisiones sobre atípicos y justificaciones de subgrupo se guardan con el estudio.
 - **Prevención de errores:** nunca devuelve NaN ni infinito (va `null` con advertencia); no permite excluir puntos sin causa ni calcular Fase II sin límites congelados.
 - **Seguridad:** inicio de sesión y políticas RLS; la API verifica el JWT de Supabase. Ver la gestión de usuarios y el modo invitado en la subsección 7.5.
-- **Estado de despliegue:** en producción en Vercel desde el 11 de noviembre de 2026: web en <https://cep-web.vercel.app> y API en <https://cep-api-xi.vercel.app>. Las pruebas de extremo a extremo se repitieron contra producción (35 pasan, 2 omitidas; última verificación, anterior al modo invitado y al ingreso manual).
+- **Estado de despliegue:** en producción en Vercel desde el 11 de noviembre de 2026: web en <https://cep-web.vercel.app> y API en <https://cep-api-xi.vercel.app>. Las pruebas de extremo a extremo se repitieron contra producción (44 pasan, 2 omitidas, el 13 de noviembre de 2026, incluidos el modo invitado y el ingreso manual).
 
 ### 7.4 Verificación del software
 
@@ -231,7 +231,7 @@ Dentro de la aplicación, la cabecera muestra «Invitado» en lugar del correo y
 | Abuso por altas anónimas automatizadas | Consumo de recursos sin una persona detrás | Mitigación pendiente, de configuración del proyecto (límites de tasa y captcha de Supabase); no se probó |
 | El proveedor anónimo está desactivado por defecto en `supabase/config.toml` | En ese proyecto, el botón muestra un error explicativo en lugar de entrar | Habilitar *Anonymous sign-ins* en el proyecto que se use; la interfaz traduce el error a un mensaje en español |
 
-> **Estado de las pruebas de estas funciones.** Las pruebas de extremo a extremo del modo invitado y del ingreso manual se están escribiendo en el momento de redactar. Por eso este informe no las cuenta: las cifras de pruebas (API: 953 pasan y 1 omitida; extremo a extremo: 35 pasan y 2 omitidas) son las de la última verificación, anterior a estas dos funciones, y no deben leerse como cobertura de ellas. La lógica del ingreso manual es TypeScript de la interfaz y no entra en el conteo de la API.
+> **Estado de las pruebas de estas funciones.** El modo invitado y el ingreso manual tienen pruebas de extremo a extremo propias (recorridos R9 y R10 de `docs/pruebas-e2e.md`): entrada como invitado, cálculo con esa sesión, conversión a cuenta conservando el estudio, aislamiento frente a otro usuario, y escritura y pegado de datos con límites comparados contra valores calculados aparte. La suite completa (44 pasan, 2 omitidas) se corrió en local y contra producción el 13 de noviembre de 2026. No cubren el cierre de sesión confirmado de un invitado, la conversión con confirmación de correo ni los topes de 2000 filas y 50 columnas. La lógica del ingreso manual es TypeScript de la interfaz y no entra en el conteo de la API.
 
 ## 8. Caracterización de los datos
 
@@ -707,7 +707,7 @@ Las conclusiones separan lo que el trabajo logró sobre el software, lo que mues
 **Para el software.**
 
 9. Extender a CUSUM y EWMA para detectar cambios pequeños, y a un análisis de autocorrelación sobre las medias de subgrupo.
-10. Antes de abrir el modo invitado a un público amplio, programar la limpieza de usuarios anónimos inactivos y configurar límites de tasa y captcha en Supabase (subsección 7.5), y terminar y ejecutar las pruebas de extremo a extremo del invitado y del ingreso manual.
+10. Antes de abrir el modo invitado a un público amplio, programar la limpieza de usuarios anónimos inactivos y configurar límites de tasa y captcha en Supabase (subsección 7.5).
 11. Hecho el 11 de noviembre de 2026: el software se desplegó en Vercel (<https://cep-web.vercel.app>) y la prueba de aislamiento entre usuarios y las demás pruebas de extremo a extremo se repitieron contra producción (`docs/pruebas-e2e.md`).
 
 ## Referencias

@@ -121,7 +121,7 @@ Las capturas están en `docs/capturas/`. Si una imagen no se ve al leer este arc
 
 ![Pantalla de acceso](../capturas/01-login.png)
 
-> **Captura pendiente:** `docs/capturas/14-invitado.png` (pantalla de acceso con el botón «Continuar como invitado» y, ya dentro, la cabecera con «Invitado» y el aviso de sesión de invitado). La imagen anterior se regenerará con la marca Sigmalena.
+![Sesión de invitado: cabecera «Invitado» y aviso para crear una cuenta](../capturas/14-invitado.png)
 
 **Con cuenta.**
 
@@ -227,7 +227,7 @@ Al guardar aparece un enlace a los gráficos de control. En **Ver resumen** de u
 
 #### 5.3.1 Ingreso manual: escribir o pegar datos
 
-> **Captura pendiente:** `docs/capturas/15-ingreso-manual.png` (pestaña «Escribir o pegar datos» con la tabla editable y el botón «Usar estos datos»).
+![Pestaña «Escribir o pegar datos» con la tabla editable](../capturas/15-ingreso-manual.png)
 
 Para pocos datos, o cuando se tienen en una hoja de cálculo y no se quiere guardar un archivo, se pueden ingresar en la propia página.
 

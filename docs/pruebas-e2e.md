@@ -105,6 +105,6 @@ Ninguno funcional. Observaciones menores, no bloqueantes:
 
 Datos reales; navegadores distintos de Chromium; Safari/iOS real (el móvil es emulación de Chromium).
 
-Última corrida local completa (2026-11-13, tras el rediseño): **44 pasan y 2 se omiten** (R1.3 y R1.5, registro de A y B, porque ya existen). Las pruebas nuevas no se han corrido contra producción (la marca y las funciones nuevas no están desplegadas).
+Última corrida local completa (2026-11-13, tras el rediseño): **44 pasan y 2 se omiten** (R1.3 y R1.5, registro de A y B, porque ya existen). 
 
-Contra producción sí se corrió el 2026-11-11 con `BASE_URL=https://cep-web.vercel.app`: 35 pasan y 2 se omiten (R1.6 inicia la sesión de B cuando el usuario ya existe, porque la sesión guardada vale solo para el dominio en que se creó).
+Contra producción se corrió el 2026-11-13 con `BASE_URL=https://cep-web.vercel.app`, ya con la marca y las funciones nuevas desplegadas: 44 pasan y 2 se omiten (R1.6 inicia la sesión de B cuando el usuario ya existe, porque la sesión guardada vale solo para el dominio en que se creó).
