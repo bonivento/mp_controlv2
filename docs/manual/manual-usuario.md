@@ -102,6 +102,8 @@ Tras iniciar sesión se llega a la lista de **Estudios**. Un estudio es un proce
 | Muestreo | 7. Muestreo de aceptación | sí | sí |
 | Reporte | 8. Reportes | sí | sí |
 
+En todas las pantallas está además el botón **Asistente** de la cabecera, una ayuda de conversación sobre lo que se ve en pantalla (sección 5.11); no es un módulo de cálculo.
+
 Orden de trabajo recomendado en un estudio por variables:
 
 1. Crear el estudio con sus especificaciones.
@@ -409,6 +411,74 @@ La respuesta trae n, c, el α y el β reales, las curvas OC, AOQ y ATI, el AOQL 
 4. **Imprimir / guardar PDF** abre el diálogo de impresión del navegador; elegir «Guardar como PDF».
 5. **Exportar a Excel** descarga un archivo `.xlsx` con los resultados.
 
+### 5.11 Asistente con IA
+
+![Panel «Asistente con IA» abierto sobre la pantalla Variables, en un estudio de prueba con datos sintéticos](../capturas/16-asistente.png)
+
+El asistente es una ayuda de conversación incluida en todas las pantallas. Explica lo que se ve, interpreta los resultados ya calculados y orienta sobre qué muestras tomar. **No sustituye el análisis ni el juicio de quien lo usa:** puede equivocarse, y los cálculos oficiales son siempre los de la aplicación. La nota «Ayuda generada por IA: puede equivocarse. Los cálculos oficiales son los de la aplicación.» aparece al pie del panel.
+
+**Cómo abrirlo.**
+
+1. Pulsar **Asistente** en la cabecera (visible en todas las pantallas, también en la lista de estudios).
+2. Se abre el panel **Asistente con IA**: una columna a la derecha en un computador y una pantalla completa en un teléfono. La tecla Esc o el botón **×** lo cierran.
+3. Bajo el título, la línea **Viendo:** indica la pantalla y el estudio sobre los que responde el asistente. Si se cambia de pantalla con el panel cerrado, el asistente pasa a responder sobre la nueva.
+4. Elegir una de las **preguntas sugeridas** o escribir la propia en el cuadro inferior. **Intro** envía; **Mayús+Intro** añade una línea. La respuesta aparece a medida que se escribe.
+
+**Controles del panel.**
+
+| Control | Qué hace |
+|---|---|
+| **Detener** | Corta la respuesta en curso. Lo ya escrito queda en pantalla, con la marca «Respuesta detenida» |
+| **Reintentar** | Aparece en el último mensaje cuando hubo un error; repite la pregunta |
+| **Nueva conversación** | Borra la conversación de este estudio y vuelve a las sugerencias |
+| **¿Qué se envía al asistente?** | Desplegable que lista, para la pantalla actual, qué información viaja con la pregunta (ver más abajo) |
+
+Si la respuesta se corta por su longitud, el panel lo avisa; basta pedir al asistente que continúe.
+
+**Qué preguntas sirven en cada pantalla.** Las sugerencias cambian con la pantalla y con que haya o no un resultado en ella.
+
+| Pantalla | Sugerencias | Para qué sirven |
+|---|---|---|
+| Estudios | «¿Qué estoy viendo?», «¿Cómo empiezo un estudio nuevo?», «¿Qué muestras debo tomar?» | Orientación general y planeación de la toma de datos |
+| Resumen del estudio | «¿Qué estoy viendo?», «¿Qué hago ahora?», «¿Qué muestras debo tomar?» | Saber en qué paso del flujo de trabajo va el estudio |
+| Datos | «¿Cómo organizo mis subgrupos?», «¿Qué estoy viendo?», «¿Qué hago ahora?» | Criterios para formar subgrupos racionales y para leer el resumen y los avisos de limpieza |
+| Variables, Atributos, Supuestos, Capacidad y Diseño | «¿Qué estoy viendo?», «Interpreta estos resultados» (solo con un resultado en pantalla), «¿Qué muestras debo tomar?», «¿Qué hago ahora?» | Leer el gráfico o la tabla, entender qué significa para el proceso y decidir el siguiente paso |
+| Muestreo | «¿Qué plan me conviene?», «Interpreta estos resultados», «¿Qué estoy viendo?», «¿Qué hago ahora?» | Elegir y evaluar un plan de aceptación |
+| Reporte | «¿Qué estoy viendo?», «Resume el reporte», «¿Qué falta por analizar?» | Revisar qué análisis incluye el reporte y cuáles faltan |
+
+**Cómo pedirle un plan de muestras.** Dimensionar la inspección es una decisión de compromiso entre costo y rapidez de detección, y el asistente la plantea así: antes de recomendar, pregunta lo que le falta. Conviene darle desde el principio estos datos:
+
+- **Ritmo de producción:** unidades por hora o por turno, y si la línea opera de forma continua.
+- **Costo y tiempo de medir:** cuánto cuesta y cuánto demora medir una unidad (o si la medición es destructiva).
+- **Cambio que importa detectar:** de cuánto debe ser el desplazamiento de la media (por ejemplo, 1 desviación estándar) y en cuánto tiempo conviene enterarse.
+- **Fuentes de variación:** turnos, máquinas, lotes u operarios que deben quedar dentro o entre subgrupos.
+- Si se trata de aceptar o rechazar lotes: **AQL, LTPD** y los riesgos α y β aceptables.
+
+Si no se conoce algún dato, el asistente propone un supuesto razonable y lo declara. Para apoyar la recomendación puede calcular el ARL y el ATS de un diseño, comparar diseños X-barra o diseñar y evaluar un plan de muestreo simple; esos cálculos los hace el mismo motor que usa el módulo **Diseño** y el módulo **Muestreo**, de modo que sus cifras se pueden contrastar en esas pantallas. Ejemplo (con datos de práctica): para subgrupos de 5 cada hora y un cambio de 1 sigma, el asistente informó una detección en 4,50 h y una falsa alarma cada 370,4 h, las mismas cifras que entrega el módulo Diseño; para AQL 1 %, LTPD 6 %, α 5 % y β 10 % informó n = 110 y c = 3, igual que el módulo Muestreo.
+
+**Qué se envía y qué no.** Con cada pregunta viajan: la ficha del estudio (nombre, característica, especificaciones, tipo de datos y si es sintético), los parámetros elegidos en la pantalla, el resultado ya calculado en forma reducida (límites, señales, índices, interpretación y advertencias), un resumen de los conjuntos de datos guardados y de los límites congelados, la conversación en curso y el texto que se escribe. **Nunca se envían las filas de datos.** El desplegable **¿Qué se envía al asistente?** muestra el detalle de la pantalla actual. Esa información sale de Sigmalena hacia el proveedor del modelo de IA, un servicio externo: antes de usar el asistente con datos reales de una empresa hay que confirmar que su acuerdo de confidencialidad lo permite, o anonimizar la ficha del estudio (ver `docs/empresa/confidencialidad.md`). La conversación se guarda solo en la memoria del navegador, una por estudio, mientras dure la sesión de navegación; no se guarda en la base de datos y se pierde al cerrar la pestaña o recargar la página.
+
+**Cómo usar bien sus respuestas.**
+
+- Contrastar las cifras con el módulo correspondiente. El asistente debe tomarlas del resultado enviado o de sus herramientas de cálculo, y no inventarlas, pero puede equivocarse al interpretarlas.
+- Si el estudio está marcado como sintético, el asistente trata los datos como un ejemplo de práctica y no como un proceso real.
+- Las decisiones de planta (excluir un punto, cambiar un plan de inspección) siguen requiriendo la verificación y la causa asignable de quien conoce el proceso.
+
+**Quién puede usarlo y qué pasa si no está disponible.** El asistente exige haber iniciado sesión. En la instalación publicada, el administrador lo habilitó también para invitados; en una instalación propia, si no se define `ASSISTANT_ALLOW_GUESTS=1`, un invitado verá la invitación a crear una cuenta. Si el servidor no tiene la clave del servicio de IA (`ANTHROPIC_API_KEY`), el panel muestra «El asistente no está configurado» con el botón **Volver a comprobar**; el resto de Sigmalena funciona con normalidad. Variables de la API, en `api/.env.local` (descritas en `api/.env.example`):
+
+| Variable | Para qué sirve | Valor por defecto |
+|---|---|---|
+| `ANTHROPIC_API_KEY` | Credencial del servicio de IA; sin ella el asistente se desactiva | sin valor |
+| `ASSISTANT_MODEL` | Modelo que responde | `claude-opus-5-5` |
+| `ASSISTANT_EFFORT` | Esfuerzo de razonamiento: `low`, `medium`, `high`, `xhigh` o `max` (más alto es más lento y caro) | `medium` |
+| `ASSISTANT_MAX_TOKENS` | Máximo de tokens de salida por respuesta (256 a 16000) | 4000 |
+| `ASSISTANT_ALLOW_GUESTS` | Con `1`, los invitados pueden usarlo | desactivado |
+| `ASSISTANT_TIME_BUDGET` | Tiempo máximo de una consulta, en segundos | 240 |
+
+Cada petición tiene topes: el contexto enviado no puede superar 60 KB, y el asistente puede hacer hasta 6 llamadas al modelo y 4 cálculos por pregunta. No hay un límite de preguntas por usuario.
+
+> **Estado en producción:** comprobado en producción el 18 de noviembre de 2026: como invitado y con cuenta, la respuesta llega en flujo a través de la web, y la suite de extremo a extremo (45 pasan, 2 omitidas) incluye una conversación real (<https://cep-web.vercel.app>).
+
 ## 6. Formato de entrada de datos
 
 Lo que sigue vale para archivos y también para la tabla de ingreso manual (sección 5.3.1), con una diferencia: en la tabla se acepta la coma decimal y las filas vacías se omiten.
@@ -578,6 +648,13 @@ Cargar con «Una columna con los valores», columna `valor` y «Por tamaño fijo
 | «No se verificó la normalidad: no hay un análisis de Supuestos guardado sobre estas mismas observaciones» (Capacidad) | No se guardó Supuestos, o se guardó con otro número de observaciones (por ejemplo, con todos los subgrupos en lugar de los retenidos) | Correr **Supuestos** con los mismos datos (revisar «Datos que se usarán») y guardar el análisis |
 | Capacidad da otros valores que el ejemplo B | Está marcada **Calcular con todos los subgrupos** o no se congelaron límites con ese conjunto, por lo que no se usa la depuración | Congelar los límites en Fase I y dejar la casilla desmarcada |
 | «Reglas pedidas que no se evaluaron en este gráfico» | La regla pedida no es válida en ese panel (zonas en R, S, atributos truncados; todo salvo el punto fuera de límites en MR) | No es un error: leer el motivo. Para vigilar la variabilidad, usar la regla de un punto fuera de límites |
+| El botón **Asistente** muestra «El asistente no está configurado» | El servidor no tiene `ANTHROPIC_API_KEY` | Quien administra la API debe definirla (`api/.env.example`) y reiniciar; luego pulsar **Volver a comprobar**. El resto del programa funciona sin ella |
+| «El asistente es solo para cuentas» (invitado) | La instalación no define `ASSISTANT_ALLOW_GUESTS=1` | Pulsar **Crear cuenta para conservar mis datos**, o pedir al administrador que habilite a los invitados |
+| «El asistente no pudo responder» | Falla de red, servicio de IA no disponible o consulta que superó el tiempo máximo | Pulsar **Reintentar**; si persiste, acortar la pregunta o iniciar una **Nueva conversación** |
+| El asistente se detiene a media respuesta y dice que se cortó por su longitud | Se alcanzó el máximo de tokens de salida | Pedirle que continúe, o hacer preguntas más concretas |
+| Error 422 al preguntar con una conversación larga o un estudio muy grande | El contexto supera 60 KB o el mensaje las 6000 caracteres | Iniciar una **Nueva conversación** o acortar el mensaje |
+| La cifra que da el asistente no coincide con la pantalla | El asistente puede interpretar mal un dato o suponer valores que no se le dieron | Valen las cifras de la aplicación; repetir la pregunta indicando los valores exactos o usar el módulo correspondiente |
+| Al volver al estudio la conversación ya no está | La conversación vive solo en la memoria del navegador | No es un error; copiar lo que se quiera conservar antes de cerrar o recargar |
 | La simulación tarda o falla por tiempo | Demasiadas corridas | Bajar las **Corridas de simulación** |
 | Mensaje de error de la API | Datos inválidos o insuficientes (código 422) | Leer el mensaje en español: indica qué falta |
 | La tabla de estudios sale vacía con sesión iniciada | Datos de otro usuario o política RLS mal aplicada | Verificar el usuario; revisar las migraciones (`docs/despliegue.md`) |
@@ -590,6 +667,7 @@ Cargar con «Una columna con los valores», columna `valor` y «Por tamaño fijo
 | AOQ y AOQL | Calidad promedio de salida con inspección rectificadora, y su máximo |
 | AQL | Nivel de calidad aceptable: fracción defectuosa que el plan debe aceptar casi siempre |
 | ARL0 y ARL1 | Longitud promedio de corrida: muestras hasta una falsa alarma (proceso en control) o hasta detectar un cambio dado |
+| Asistente con IA | Ayuda de conversación de la cabecera que explica y orienta a partir del resultado ya calculado; puede equivocarse y no reemplaza los cálculos de la aplicación |
 | ATI | Inspección total promedio por lote |
 | ATS | Tiempo promedio hasta la señal: ARL por el intervalo de muestreo |
 | α | En gráficos, probabilidad de falsa alarma por muestra; en muestreo, riesgo del productor |

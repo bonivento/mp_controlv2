@@ -107,4 +107,8 @@ Datos reales; navegadores distintos de Chromium; Safari/iOS real (el móvil es e
 
 Última corrida local completa (2026-11-13, tras el rediseño): **44 pasan y 2 se omiten** (R1.3 y R1.5, registro de A y B, porque ya existen). 
 
-Contra producción se corrió el 2026-11-13 con `BASE_URL=https://cep-web.vercel.app`, ya con la marca y las funciones nuevas desplegadas: 44 pasan y 2 se omiten (R1.6 inicia la sesión de B cuando el usuario ya existe, porque la sesión guardada vale solo para el dominio en que se creó).
+Contra producción se corrió el 2026-11-18 con `BASE_URL=https://cep-web.vercel.app`, ya con el asistente con IA desplegado: 45 pasan y 2 se omiten (R1.6 inicia la sesión de B cuando el usuario ya existe, porque la sesión guardada vale solo para el dominio en que se creó).
+
+## Recorrido 11: asistente con IA
+
+`10-asistente.spec.ts` (R11.1) abre el panel «Asistente con IA» en Variables con el estudio del recorrido 3, comprueba que la web envía la pantalla, la ficha del estudio y el resultado reducido (menos de 60 KB), pulsa «Interpreta estos resultados» y espera una respuesta real del modelo en `text/event-stream` que mencione el gráfico, la fase y cifras con coma decimal; después cierra con Esc y verifica que la conversación se conserva. Cada corrida hace una conversación real y cuesta unos centavos de la cuenta de Anthropic; si la API no tiene `ANTHROPIC_API_KEY`, comprueba el aviso «El asistente no está configurado» y omite la conversación. No cubre el asistente como invitado (se comprobó a mano en producción el 2026-11-18) ni las herramientas de cálculo desde la interfaz (están cubiertas en `api/tests/routers/test_assistant.py`).

@@ -19,7 +19,7 @@
 
 Este informe tiene dos partes de naturaleza distinta y conviene no confundirlas.
 
-1. **El software, Sigmalena** (de «sigma» y «Magdalena», con la identidad cromática de la Universidad del Magdalena), que está terminado y probado: 986 pruebas automáticas de la API pasan (1 omitida, ninguna con fallo esperado; ver sección 7.4), y un revisor independiente recalculó sus resultados por otro camino (`docs/validacion.md`).
+1. **El software, Sigmalena** (de «sigma» y «Magdalena», con la identidad cromática de la Universidad del Magdalena), que está terminado y probado: 1040 pruebas automáticas de la API pasan (1 omitida, ninguna con fallo esperado; ver sección 7.4), y un revisor independiente recalculó sus resultados por otro camino (`docs/validacion.md`).
 2. **El análisis del caso**. Al momento de redactar **no existe empresa ni datos reales**. El caso que se analiza es un **ejemplo de aplicación con datos sintéticos** (archivos `sintetico_*` de `data/ejemplos/`), generado por un programa con semilla fija. Ninguna cifra de este informe describe un proceso productivo real, y toda sección que dependa de la empresa está marcada con un bloque `POR COMPLETAR CON LA EMPRESA`. El ejemplo sintético demuestra que el software y la metodología funcionan de punta a punta; **no** sustituye la visita a la planta ni los hallazgos reales que pide el enunciado.
 
 Convenciones: en el texto los decimales se escriben con coma; en las salidas del software y en los anexos, con punto. Cada cifra se puede rastrear a un archivo de `docs/informe/anexos/salidas/` (petición y respuesta reales de la API), citado en la nota de la tabla o figura. Los scripts que generan esas salidas y las figuras están en `docs/informe/anexos/`.
@@ -91,7 +91,7 @@ Los valores de las especificaciones, el nominal y el intervalo de muestreo de 8 
 
 ## 5. Alcance del análisis
 
-**Dentro del alcance.** El software completo (ocho módulos) y su aplicación al caso sintético: Fase I y Fase II de variables con X-barra-R (y X-barra-S como contraste), gráfico p de atributos con tamaño de muestra variable, supuestos, capacidad, ARL/ATS, un plan de muestreo de aceptación y los archivos de prueba para casos particulares (datos no normales, autocorrelados, con errores de captura).
+**Dentro del alcance.** El software completo (ocho módulos y el asistente con IA como ayuda transversal) y su aplicación al caso sintético: Fase I y Fase II de variables con X-barra-R (y X-barra-S como contraste), gráfico p de atributos con tamaño de muestra variable, supuestos, capacidad, ARL/ATS, un plan de muestreo de aceptación y los archivos de prueba para casos particulares (datos no normales, autocorrelados, con errores de captura).
 
 **Fuera del alcance.** Gráficos de memoria (CUSUM, EWMA) y multivariados; análisis de sistemas de medición (repetibilidad y reproducibilidad); transformaciones de datos no normales; modelado de series autocorrelacionadas.
 
@@ -181,18 +181,19 @@ El producto se llama **Sigmalena** (sigma + Magdalena), con el descriptor «Cont
 
 ### 7.3 Características de calidad del software
 
-- **Pruebas:** 986 pruebas automáticas de la API (librería `spc`, rutas HTTP, contrato y validación independiente) pasan; ver la subsección 7.4.
+- **Pruebas:** 1040 pruebas automáticas de la API (librería `spc`, rutas HTTP, contrato, validación independiente y asistente con IA, este último con un doble del modelo y sin red) pasan; ver la subsección 7.4.
+- **Asistente con IA:** ayuda de conversación sobre la pantalla en uso, con cifras tomadas del resultado calculado o de herramientas que llaman al motor de cálculo; ver la subsección 7.6.
 - **Interpretación automática:** cada respuesta incluye una conclusión, hallazgos y advertencias en español, con coma decimal y redactadas con cautela (por ejemplo, que no se interpreta la capacidad de un proceso inestable y que no rechazar una prueba no demuestra el supuesto).
 - **Trazabilidad:** causas asignables, decisiones sobre atípicos y justificaciones de subgrupo se guardan con el estudio.
 - **Prevención de errores:** nunca devuelve NaN ni infinito (va `null` con advertencia); no permite excluir puntos sin causa ni calcular Fase II sin límites congelados.
 - **Seguridad:** inicio de sesión y políticas RLS; la API verifica el JWT de Supabase. Ver la gestión de usuarios y el modo invitado en la subsección 7.5.
-- **Estado de despliegue:** en producción en Vercel desde el 11 de noviembre de 2026: web en <https://cep-web.vercel.app> y API en <https://cep-api-xi.vercel.app>. Las pruebas de extremo a extremo se repitieron contra producción (44 pasan, 2 omitidas, el 13 de noviembre de 2026, incluidos el modo invitado y el ingreso manual).
+- **Estado de despliegue:** en producción en Vercel desde el 11 de noviembre de 2026: web en <https://cep-web.vercel.app> y API en <https://cep-api-xi.vercel.app>. Las pruebas de extremo a extremo se repitieron contra producción (45 pasan, 2 omitidas, el 18 de noviembre de 2026, incluidos el modo invitado, el ingreso manual y el asistente con IA).
 
 ### 7.4 Verificación del software
 
-La verificación tiene dos niveles. El primero son las pruebas automáticas de los autores, que contrastan cada fórmula con un resultado conocido. La última corrida de `cd api && .venv/bin/python -m pytest -q` entregó la línea `986 passed, 1 skipped`: 986 pruebas que pasan y una omitida (una prueba de rutas que exige celdas vacías, que la API limpia antes de calcular). No queda ninguna prueba marcada como fallo esperado: todos los hallazgos de la revisión independiente quedaron corregidos.
+La verificación tiene dos niveles. El primero son las pruebas automáticas de los autores, que contrastan cada fórmula con un resultado conocido. La última corrida de `cd api && .venv/bin/python -m pytest -q` entregó la línea `1040 passed, 1 skipped`: 1040 pruebas que pasan (54 de ellas del asistente con IA) y una omitida (una prueba de rutas que exige celdas vacías, que la API limpia antes de calcular). No queda ninguna prueba marcada como fallo esperado: todos los hallazgos de la revisión independiente quedaron corregidos.
 
-El segundo nivel es una **revisión estadística independiente** (`docs/validacion.md`) hecha por un revisor que no participó en la implementación y que recalculó cada resultado por otro camino: otras integrales para las constantes, fórmulas escritas a mano para límites e índices, implementaciones con bucles explícitos para las doce reglas de corrida, cadenas de Markov propias para los ARL con reglas, enumeración exhaustiva para la prueba de rachas y para el plan de muestreo de menor tamaño, y simulación de Monte Carlo para la cobertura de intervalos y el tamaño real de las pruebas. Sus pruebas (`api/tests/validation/`) son parte de las 953.
+El segundo nivel es una **revisión estadística independiente** (`docs/validacion.md`) hecha por un revisor que no participó en la implementación y que recalculó cada resultado por otro camino: otras integrales para las constantes, fórmulas escritas a mano para límites e índices, implementaciones con bucles explícitos para las doce reglas de corrida, cadenas de Markov propias para los ARL con reglas, enumeración exhaustiva para la prueba de rachas y para el plan de muestreo de menor tamaño, y simulación de Monte Carlo para la cobertura de intervalos y el tamaño real de las pruebas. Sus pruebas (`api/tests/validation/`) son parte de las 1040 contadas arriba.
 
 La revisión **encontró errores y se corrigieron**, lo que es evidencia de que el proceso de verificación funciona. En su primera pasada confirmó 16 hallazgos (H1 a H16). Los de mayor efecto en este informe fueron:
 
@@ -210,7 +211,7 @@ La revisión **encontró errores y se corrigieron**, lo que es evidencia de que 
 
 1. *Los hallazgos de la primera pasada quedaron corregidos.* De las 20 pruebas ejecutables con que el revisor documentó esos hallazgos (marcadas `xfail` mientras el error existía), 18 pasaron a verde de inmediato. Las otras dos estaban mal planteadas, porque llamaban a la función del intervalo sin informar con qué estimador se había calculado sigma, y se reescribieron para medir el camino real; hoy pasan.
 2. *La corrección de los intervalos de capacidad se verificó por simulación propia.* Con un proceso normal de Cp = 1,5 y Cpk = 4/3, el intervalo nominal del 95 % cubrió el valor verdadero entre 0,944 y 0,955 de las veces en seis casos (sigma estimada con $\bar{R}/d_2$, con $\bar{S}/c_4$, con $\overline{MR}/d_2$, por desviación combinada con $n$ variable y con límites congelados de X-barra-R y de I-MR), frente a 0,58 a 0,93 con los grados de libertad $N-1$ de la versión anterior. Este es el respaldo empírico de que los intervalos de la sección 12 tienen la confianza que declaran.
-3. *Se registraron diez hallazgos nuevos (H17 a H26)*, casi todos de redacción de la interpretación automática y de gravedad baja o media-baja: una frase de confianza sobre Cpk que se daba también con proceso inestable (H20); un hallazgo de formas de distribución afirmado por ruido de muestreo con $n$ pequeño (H21); la probabilidad de ver algún rezago fuera de banda por azar, sobrestimada al suponer rezagos independientes (H23: 0,64 frente a 0,52 por simulación con $n$ = 120 y 20 rezagos); una advertencia de falsas alarmas que no valía cuando la línea central coincide con un conteo posible (H19) y un hallazgo que contradecía la advertencia sobre N3 y N4 (H18); el texto «no puede señalar mejoras» en el diseño con WE4 aplicada (H22); el texto sobre «variabilidad dentro de los subgrupos» en un gráfico de individuales (H24); una sobrestimación leve de los grados de libertad de I-MR con exclusiones intermedias (H26); errores aritméticos en dos archivos de referencia (H17); y detalles de redacción (H25). Todos se corrigieron y **la suite quedó sin pruebas con fallo esperado**: la línea final es `986 passed, 1 skipped`. Las cifras numéricas de este informe no cambiaron con esas correcciones; cambiaron los textos de interpretación, y las salidas del anexo A se regeneraron con el software corregido.
+3. *Se registraron diez hallazgos nuevos (H17 a H26)*, casi todos de redacción de la interpretación automática y de gravedad baja o media-baja: una frase de confianza sobre Cpk que se daba también con proceso inestable (H20); un hallazgo de formas de distribución afirmado por ruido de muestreo con $n$ pequeño (H21); la probabilidad de ver algún rezago fuera de banda por azar, sobrestimada al suponer rezagos independientes (H23: 0,64 frente a 0,52 por simulación con $n$ = 120 y 20 rezagos); una advertencia de falsas alarmas que no valía cuando la línea central coincide con un conteo posible (H19) y un hallazgo que contradecía la advertencia sobre N3 y N4 (H18); el texto «no puede señalar mejoras» en el diseño con WE4 aplicada (H22); el texto sobre «variabilidad dentro de los subgrupos» en un gráfico de individuales (H24); una sobrestimación leve de los grados de libertad de I-MR con exclusiones intermedias (H26); errores aritméticos en dos archivos de referencia (H17); y detalles de redacción (H25). Todos se corrigieron y **la suite quedó sin pruebas con fallo esperado**: no quedó ninguna prueba con fallo esperado (la línea completa de la suite, ya con las pruebas del asistente con IA, es `1040 passed, 1 skipped`). Las cifras numéricas de este informe no cambiaron con esas correcciones; cambiaron los textos de interpretación, y las salidas del anexo A se regeneraron con el software corregido.
 
 > **Alcance de la verificación de H17 a H26.** El cuerpo de `docs/validacion.md` describe la segunda pasada tal como quedó antes de corregir esos diez hallazgos; su nota inicial registra el estado posterior. Estas últimas correcciones se comprobaron con la prueba ejecutable que el revisor dejó para cada hallazgo, no con una tercera revisión independiente.
 
@@ -232,6 +233,50 @@ Dentro de la aplicación, la cabecera muestra «Invitado» en lugar del correo y
 | El proveedor anónimo está desactivado por defecto en `supabase/config.toml` | En ese proyecto, el botón muestra un error explicativo en lugar de entrar | Habilitar *Anonymous sign-ins* en el proyecto que se use; la interfaz traduce el error a un mensaje en español |
 
 > **Estado de las pruebas de estas funciones.** El modo invitado y el ingreso manual tienen pruebas de extremo a extremo propias (recorridos R9 y R10 de `docs/pruebas-e2e.md`): entrada como invitado, cálculo con esa sesión, conversión a cuenta conservando el estudio, aislamiento frente a otro usuario, y escritura y pegado de datos con límites comparados contra valores calculados aparte. La suite completa (44 pasan, 2 omitidas) se corrió en local y contra producción el 13 de noviembre de 2026. No cubren el cierre de sesión confirmado de un invitado, la conversión con confirmación de correo ni los topes de 2000 filas y 50 columnas. La lógica del ingreso manual es TypeScript de la interfaz y no entra en el conteo de la API.
+
+### 7.6 Asistente con IA
+
+**Propósito.** El asistente es una ayuda de conversación, disponible en todas las pantallas desde el botón «Asistente» de la cabecera, que explica lo que muestra la pantalla, interpreta los resultados ya calculados y orienta sobre el tamaño y la frecuencia del muestreo. Apoya los criterios de la rúbrica de interpretación (ID2) y de juicio de ingeniería (ID3) en el sentido de que ayuda a quien usa el software a formular esas lecturas, pero no los sustituye: la interpretación y las conclusiones de este informe las redactan los autores, y el asistente no interviene en ninguna cifra de él. Las respuestas llevan siempre la nota «Ayuda generada por IA: puede equivocarse. Los cálculos oficiales son los de la aplicación.»
+
+**Arquitectura.** El flujo tiene tres pasos (Figura 1). Primero, cada pantalla de la interfaz entrega a un registro la ficha del estudio, los parámetros elegidos y el resultado ya calculado, reducido a límites, señales, índices, interpretación y advertencias; las listas de filas se sustituyen por su tamaño y nunca se envían las filas de datos (`web/lib/assistant-context.ts`). Segundo, la interfaz envía ese contexto y la conversación a `POST /api/assistant/chat`, que responde con un flujo de eventos para que el texto aparezca a medida que se genera; `GET /api/assistant/status` informa si el servicio está disponible para la sesión (`api/app/routers/assistant.py`, contrato en `api/app/schemas/assistant.py`). Tercero, la API llama al modelo (Claude Opus 5.5, de Anthropic, configurable con `ASSISTANT_MODEL`) con instrucciones fijas (`api/app/assistant_prompt.py`) y con herramientas (`api/app/assistant_tools.py`) que calculan ARL y ATS, comparan diseños X-barra y diseñan y evalúan un plan de muestreo simple. Esas herramientas llaman a las mismas funciones de `api/app/spc/` que usan los módulos Diseño y Muestreo, de modo que sus cifras se calculan y no las inventa el modelo. La conversación vive en la memoria del navegador, una por estudio, y no se guarda en Supabase. La dependencia nueva de la API es `anthropic`.
+
+**Figura 1**
+
+*Flujo de una consulta al asistente con IA*
+
+```
+Pantalla  --(ficha + parámetros + resultado reducido; sin filas)-->  Interfaz web
+Interfaz web  --(contexto + conversación, POST /api/assistant/chat)-->  API (FastAPI)
+API  --(instrucciones + contexto + herramientas)-->  Modelo de IA (servicio externo)
+Modelo  --(solicita cálculo)-->  Herramientas  --(llaman a)-->  api/app/spc/  (mismas funciones que la app)
+Modelo  --(texto en flujo)-->  API  --(eventos)-->  Interfaz web  -->  Panel «Asistente con IA»
+```
+
+*Nota.* Elaboración propia a partir de `docs/arquitectura.md` y del código citado.
+
+**Salvaguardas.**
+
+1. *Cifras desde el contexto o las herramientas.* Las instrucciones piden al modelo usar las herramientas siempre que recomiende un tamaño de subgrupo, un intervalo de muestreo o un plan, y no repetir con ellas lo que ya está en el contexto. Con ello se busca que ninguna cifra de una recomendación sea de memoria del modelo.
+2. *Datos sintéticos tratados como tales.* La ficha del estudio incluye si los datos son sintéticos y las instrucciones indican al modelo presentarlos como ejemplos de práctica y no como conclusiones de una empresa, ni inventar datos, nombres de empresas ni resultados.
+3. *Sin filas crudas.* El contexto se reduce en la interfaz y la API rechaza contextos de más de 60 KB. El panel muestra, en el desplegable «¿Qué se envía al asistente?», qué viaja con cada pregunta.
+4. *Topes por petición.* Hasta 6 llamadas al modelo y 4 herramientas por turno, un presupuesto de tiempo configurable (`ASSISTANT_TIME_BUDGET`) y un máximo de tokens de salida (`ASSISTANT_MAX_TOKENS`).
+5. *Acceso con sesión.* Sin sesión no hay acceso; los invitados solo lo usan si se define `ASSISTANT_ALLOW_GUESTS=1`. En producción se habilitó también para invitados por decisión del titular del proyecto el 18 de noviembre de 2026.
+
+**Verificación.** La suite de la API incluye 54 pruebas del asistente con un doble del modelo, sin red, dentro de las 1040 que pasan. El 18 de noviembre de 2026 se hicieron además cuatro peticiones reales a Claude Opus 5.5: una conversación simple en flujo; el cálculo de ARL para n = 5, h = 1 h y un cambio de 1 sigma, con detección en 4,50 h y una falsa alarma cada 370,4 h, iguales a las del módulo Diseño; el diseño de un plan con AQL de 1 %, LTPD de 6 %, α de 5 % y β de 10 %, con n = 110 y c = 3, igual que el módulo Muestreo; y la lectura de caché de las instrucciones desde la segunda petición. Una prueba de extremo a extremo con conversación real desde la pantalla Variables (recorrido R11, `web/e2e/10-asistente.spec.ts`) completa la verificación. **No se verificaron** el uso con lectores de pantalla ni el comportamiento en Safari o iOS. Estado en producción: comprobado en producción el 18 de noviembre de 2026: como invitado y con cuenta, la respuesta llega en flujo a través de la web, y la suite de extremo a extremo (45 pasan, 2 omitidas) incluye una conversación real.
+
+> **Alcance de la verificación.** Coincidir con el módulo de cálculo en tres casos prueba que las herramientas están bien conectadas; no prueba que cada interpretación en prosa sea correcta. Con un modelo generativo, la redacción de cada respuesta no se puede validar de antemano ni es reproducible; por eso se exige al usuario contrastar con la aplicación, y el asistente no entra en la revisión estadística independiente de `docs/validacion.md`, que cubre el motor de cálculo.
+
+**Limitaciones y riesgos.**
+
+| Riesgo | Efecto | Mitigación o pendiente |
+|---|---|---|
+| El modelo puede equivocarse al interpretar o al resumir | Una lectura errónea del gráfico o un consejo inadecuado | Nota permanente en el panel, cifras desde herramientas, y la regla de que los cálculos oficiales son los de la aplicación. Queda la responsabilidad de quien analiza |
+| Costo por uso y ausencia de cuota por usuario | La API no guarda estado y no limita las preguntas por usuario; con invitados habilitados, cualquier visitante puede generar consumo | Topes por petición y el límite mensual de gasto de la cuenta del proveedor, que es el control real. **Pendiente:** cuota por usuario y alertas de gasto (recomendación 13) |
+| Dependencia de un servicio externo | Si el proveedor falla, cambia o retira el modelo, o se agota el saldo, el asistente deja de responder | El resto del software funciona sin él; el panel muestra mensajes claros y ofrece reintentar |
+| Privacidad: el contexto del estudio sale hacia el proveedor de IA | Con datos reales, la ficha, los parámetros y los resultados reducidos (y lo que se escriba en el chat) salen del sistema de los autores | Nunca se envían las filas. **Pendiente:** con datos reales de la empresa, confirmar que el acuerdo de confidencialidad lo permite o anonimizar la ficha según `docs/empresa/confidencialidad.md` antes de usar el asistente |
+| Respuestas no reproducibles | Dos preguntas iguales pueden recibir textos distintos | No se usan respuestas del asistente como evidencia del informe |
+
+> **POR COMPLETAR CON LA EMPRESA:** si la empresa real autoriza o no enviar el contexto de su estudio a un proveedor de IA externo, y qué campos de la ficha deben anonimizarse. Formato de origen: `docs/empresa/confidencialidad.md`. Mientras no haya empresa, el asistente solo se usa con los estudios sintéticos.
 
 ## 8. Caracterización de los datos
 
@@ -709,6 +754,7 @@ Las conclusiones separan lo que el trabajo logró sobre el software, lo que mues
 9. Extender a CUSUM y EWMA para detectar cambios pequeños, y a un análisis de autocorrelación sobre las medias de subgrupo.
 10. Antes de abrir el modo invitado a un público amplio, programar la limpieza de usuarios anónimos inactivos y configurar límites de tasa y captcha en Supabase (subsección 7.5).
 11. Hecho el 11 de noviembre de 2026: el software se desplegó en Vercel (<https://cep-web.vercel.app>) y la prueba de aislamiento entre usuarios y las demás pruebas de extremo a extremo se repitieron contra producción (`docs/pruebas-e2e.md`).
+13. Antes de dejar el asistente con IA abierto a invitados de forma permanente, añadir una cuota de preguntas por usuario (para lo que haría falta un almacén de estado, que hoy la API no tiene) y configurar un límite de gasto y alertas en la cuenta del proveedor; hoy el único control real es el límite mensual de esa cuenta (subsección 7.6).
 
 ## Referencias
 
@@ -762,6 +808,8 @@ Western Electric Company. (1956). *Statistical quality control handbook*. Wester
 
 > **POR COMPLETAR: verificar contra el ejemplar del curso.** Las referencias se tomaron de `docs/fundamentos-estadisticos.md`, que las escribió de memoria sin acceso a las fuentes; este informe no inventa DOI ni páginas, y por eso **no lleva ningún DOI**. Antes de la entrega hay que confirmar contra las fuentes: (1) de Montgomery (2009), la edición que usa el curso (el informe y el código citan la 6.ª edición; una edición posterior cambia la numeración de capítulos, sobre todo la del muestreo de aceptación, que aquí figura como cap. 15) y que los capítulos citados (3, 5, 6, 7, 8, 10 y 15) correspondan a esa edición; los números de sección que aparecen en los docstrings del código se citaron de memoria y no se usan en este informe; (2) las páginas, volúmenes y números de los artículos de Bartlett, Bissell, Champ y Woodall, Chan et al., Hyndman y Fan, Kane, Ljung y Box, Nelson, Patnaik (el código cita 1949 y esta lista 1950), Shapiro y Wilk, Stephens, Sturges, Tippett y Wald y Wolfowitz; (3) las ediciones y editoriales de Box et al., D'Agostino y Stephens, Schilling y Neubauer, Siegel y Castellan, Tukey y Western Electric Company (la edición de 1956); (4) la lista completa de autores de Harris et al. (2020) y de Virtanen et al. (2020), abreviada aquí con puntos suspensivos; y (5) los DOI de todas las fuentes que los tengan.
 
+> **POR COMPLETAR: referencia del proveedor del modelo de IA.** La subsección 7.6 menciona a Anthropic y su modelo Claude Opus 5.5. No se incluye una entrada de referencia porque no se dispone en el repositorio del título, la fecha ni la URL exactos del documento del proveedor que describe el modelo; hay que añadirla en formato APA (autor corporativo, año o s. f., título, URL) citando la página consultada.
+
 ---
 
 ## Anexos
@@ -811,4 +859,4 @@ Cada archivo contiene la ruta, la petición y la respuesta (carpeta `docs/inform
 
 ### Anexo F. Evidencia de ejecución del software
 
-Las pruebas automáticas de la API se ejecutan con `cd api && .venv/bin/python -m pytest -q`; la última corrida entregó `986 passed, 1 skipped`. La evidencia de validación estadística independiente se documenta en `docs/validacion.md` y los fundamentos en `docs/fundamentos-estadisticos.md` (secciones 6.2 y 7.4). Las capturas de pantalla de cada módulo están en `docs/capturas/`.
+Las pruebas automáticas de la API se ejecutan con `cd api && .venv/bin/python -m pytest -q`; la última corrida entregó `1040 passed, 1 skipped`. La evidencia de validación estadística independiente se documenta en `docs/validacion.md` y los fundamentos en `docs/fundamentos-estadisticos.md` (secciones 6.2 y 7.4). Las capturas de pantalla de cada módulo están en `docs/capturas/`.

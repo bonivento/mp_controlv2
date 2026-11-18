@@ -5,6 +5,7 @@
 Además:
 
 - **Modo invitado:** en la pantalla de acceso, «Continuar como invitado» entra sin correo (inicio de sesión anónimo de Supabase). El invitado es un usuario real con sesión, así que el aislamiento por RLS y la verificación del JWT en la API no cambian; puede convertirse en cuenta con «Crear cuenta para conservar mis datos» sin perder sus estudios.
+- **Asistente con IA:** el botón «Asistente» de la cabecera abre un panel de conversación que explica la pantalla, interpreta los resultados ya calculados y orienta sobre qué muestras tomar; recibe un contexto reducido (nunca las filas de datos) y calcula ARL, comparaciones de diseños y planes de muestreo con las mismas funciones de `api/app/spc/`. Exige sesión; en producción también está habilitado para invitados. Puede equivocarse: los cálculos oficiales son los de la aplicación. Estado en producción: comprobado en producción el 18 de noviembre de 2026: como invitado y con cuenta, la respuesta llega en flujo a través de la web, y la suite de extremo a extremo (45 pasan, 2 omitidas) incluye una conversación real.
 - **Ingreso manual de datos:** la pantalla Datos tiene la pestaña «Escribir o pegar datos», una tabla editable (hasta 2000 filas y 50 columnas) que acepta bloques pegados desde Excel con coma decimal y sigue después el mismo camino que un archivo.
 
 Es el trabajo final de la asignatura Control Estadístico de Procesos. El enunciado y la rúbrica están en [TRABAJO FINAL.md](TRABAJO%20FINAL.md).
@@ -57,10 +58,12 @@ Detalle en [docs/arquitectura.md](docs/arquitectura.md) y en [docs/contrato-api.
 | [api/app/spc/](api/app/spc/) | Librería estadística en Python puro: `constants.py` (d2, d3, c4, A2, A3, B3 a B6, D3, D4), `variables.py` (X-barra-R, X-barra-S, I-MR), `attributes.py` (p, np, c, u), `phases.py` (Fase I y Fase II), `rules.py` (Western Electric y Nelson), `assumptions.py`, `capability.py`, `design.py` (ARL y ATS), `sampling.py`, `descriptive.py`, `interpretation.py` |
 | [api/app/schemas/](api/app/schemas/) | Contrato Pydantic de entradas y salidas, un archivo por módulo |
 | [api/app/routers/](api/app/routers/) | Rutas HTTP que conectan el contrato con `spc/` |
+| [api/app/routers/assistant.py](api/app/routers/assistant.py), [assistant_prompt.py](api/app/assistant_prompt.py), [assistant_tools.py](api/app/assistant_tools.py) | Asistente con IA: ruta de estado y chat en flujo, instrucciones del modelo y herramientas que llaman a `spc/` |
 | [api/app/auth.py](api/app/auth.py), [files.py](api/app/files.py), [excel_report.py](api/app/excel_report.py) | Verificación del JWT de Supabase, lectura de CSV y Excel, exportación a Excel |
 | [api/tests/](api/tests/) | Pruebas con pytest: `spc/` (librería), `routers/` (HTTP) y `test_contract.py` |
 | [web/app/](web/app/) | Páginas de Next.js: acceso, estudios y una página por módulo |
 | [web/components/](web/components/) | Gráficos Plotly, carga de datos, resumen, reporte y componentes de interfaz |
+| [web/components/assistant/](web/components/assistant/) y `web/lib/assistant*.ts` | Panel y botón «Asistente», reducción del contexto que se envía y cliente del flujo de eventos |
 | [web/lib/](web/lib/) | Cliente de la API tipado, acceso a Supabase y modo de demostración |
 | [supabase/](supabase/) | Migraciones SQL, políticas RLS, datos semilla y pruebas de aislamiento |
 | [data/](data/) | Datos sintéticos de prueba y su generador |
@@ -109,11 +112,13 @@ npm run dev
 
 > **Nota sobre el invitado en modo real:** `supabase/config.toml` trae `enable_anonymous_sign_ins = false`. Para que «Continuar como invitado» funcione contra Supabase hay que activar *Anonymous sign-ins* en el proyecto (Authentication, Providers); de lo contrario la web muestra un mensaje de error al pulsarlo.
 
+Variables del asistente con IA (API; detalle en `api/.env.example`): `ANTHROPIC_API_KEY` (sin ella el asistente se desactiva y el resto funciona), `ASSISTANT_MODEL` (por defecto `claude-opus-5-5`), `ASSISTANT_EFFORT`, `ASSISTANT_MAX_TOKENS`, `ASSISTANT_ALLOW_GUESTS` (con `1`, los invitados pueden usarlo) y `ASSISTANT_TIME_BUDGET`. No hay cuota por usuario: el control de gasto es el límite mensual de la cuenta del proveedor.
+
 `API_URL` apunta a la API (en local, `http://localhost:8000`). Las variables completas están en [docs/despliegue.md](docs/despliegue.md).
 
 ## Librerías
 
-**API** (`api/requirements.txt`): `fastapi`, `python-multipart`, `numpy`, `scipy`, `openpyxl`, `pyjwt[crypto]`. No se usan pandas ni statsmodels: el paquete de Vercel no puede superar 250 MB. `requirements-dev.txt` añade las herramientas de prueba.
+**API** (`api/requirements.txt`): `fastapi`, `python-multipart`, `numpy`, `scipy`, `openpyxl`, `pyjwt[crypto]`, `anthropic` (cliente del modelo del asistente con IA). No se usan pandas ni statsmodels: el paquete de Vercel no puede superar 250 MB. `requirements-dev.txt` añade las herramientas de prueba.
 
 **Web** (`web/package.json`): `next`, `react`, `react-dom`, `@supabase/supabase-js`, `@supabase/ssr`, `plotly.js-basic-dist-min`, `react-plotly.js`. Para desarrollo: `typescript`, `tailwindcss`, `eslint`, `openapi-typescript` y `@playwright/test`.
 
@@ -138,7 +143,7 @@ npm run lint && npm run build          # verificación estática y compilación
 npx playwright test                    # extremo a extremo (requiere web y API en marcha)
 ```
 
-La última corrida de la suite de la API entregó `986 passed, 1 skipped`: 986 pruebas que pasan, una omitida y ninguna marcada como fallo esperado (ver [docs/validacion.md](docs/validacion.md)). Esas pruebas incluyen `api/tests/validation/`, la revisión estadística independiente: un revisor recalculó por otro camino constantes, límites, índices, ARL, reglas de corrida y planes de muestreo, encontró errores (por ejemplo, los grados de libertad de los intervalos de capacidad y los valores críticos de Anderson-Darling) y se corrigieron; en una segunda pasada midió por simulación la cobertura de los intervalos corregidos (0,944 a 0,955) y registró otros diez hallazgos, casi todos de redacción de la interpretación, también corregidos.
+La última corrida de la suite de la API entregó `1040 passed, 1 skipped`: 1040 pruebas que pasan (54 del asistente con IA, con un doble del modelo y sin red), una omitida y ninguna marcada como fallo esperado (ver [docs/validacion.md](docs/validacion.md)). Esas pruebas incluyen `api/tests/validation/`, la revisión estadística independiente: un revisor recalculó por otro camino constantes, límites, índices, ARL, reglas de corrida y planes de muestreo, encontró errores (por ejemplo, los grados de libertad de los intervalos de capacidad y los valores críticos de Anderson-Darling) y se corrigieron; en una segunda pasada midió por simulación la cobertura de los intervalos corregidos (0,944 a 0,955) y registró otros diez hallazgos, casi todos de redacción de la interpretación, también corregidos.
 
 ## Reproducir las cifras del informe
 
