@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { InterpretationBlock, RuleSelector, SaveAnalysis } from "@/components/analysis-parts";
+import { useAssistantScreen } from "@/components/assistant/assistant-provider";
 import { CurveChart, TradeoffChart } from "@/components/charts/StatCharts";
 import { useStudy } from "@/components/study-context";
 import { Alert, Badge, Button, Card, EmptyState, Loading, NumberField, PageHeader, SelectField, Table, Td, TextField, Th, fmtNum, numEs } from "@/components/ui";
@@ -56,6 +57,18 @@ export default function DesignPage() {
   const cmp = useLoad(async () => (cmpReq ? api.compareDesigns(cmpReq) : null), [cmpReq ? JSON.stringify(cmpReq) : ""]);
   const a = arlReq ? arl.data : null;
   const c = cmpReq ? cmp.data : null;
+
+  useAssistantScreen({
+    screen: "design",
+    label: "Diseño",
+    hasResult: !!a || !!c,
+    view: {
+      formulario_arl: { grafico: chart, n, L, h, desplazamientos: shifts, p0, c0, reglas: rules, corridas: runs },
+      formulario_comparador: { n_values: cmpN, limit_widths: cmpL, sampling_intervals: cmpH, desplazamiento: cmpShift },
+      arl: arlReq && a ? { peticion: arlReq, resultado: a } : null,
+      comparador: cmpReq && c ? { peticion: cmpReq, resultado: c } : null,
+    },
+  });
 
   const usesN = chart === "xbar" || chart === "p";
   const shiftLabel = chart === "p" ? "Valores de p1 (fracción defectuosa fuera de control)" : chart === "c" ? "Valores de c1 (defectos fuera de control)" : "Desplazamientos δ (en sigmas)";

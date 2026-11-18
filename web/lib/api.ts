@@ -24,7 +24,7 @@ export class ApiError extends Error {
   }
 }
 
-function detailOf(body: unknown, status: number): { detail: string; code?: string } {
+export function detailOf(body: unknown, status: number): { detail: string; code?: string } {
   if (body && typeof body === "object") {
     const b = body as { detail?: unknown; code?: string };
     if (typeof b.detail === "string") return { detail: b.detail, code: b.code };
@@ -41,7 +41,7 @@ function detailOf(body: unknown, status: number): { detail: string; code?: strin
   return { detail: `La API respondió con un error (${status}).` };
 }
 
-async function authHeaders(): Promise<Record<string, string>> {
+export async function authHeaders(): Promise<Record<string, string>> {
   const token = await getStore().auth.getAccessToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
 }

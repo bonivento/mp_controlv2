@@ -44,6 +44,9 @@ Sin Docker se puede trabajar contra el proyecto remoto de Supabase poniendo su U
 | web | `NEXT_PUBLIC_API_MOCK` | `1` solo durante el desarrollo sin API |
 | api | `SUPABASE_URL` | URL del proyecto, para descargar las claves públicas del JWT |
 | api | `AUTH_DISABLED` | `1` solo en local; nunca en Vercel |
+| api | `ANTHROPIC_API_KEY` | clave de la API de Anthropic para el asistente con IA; sin ella el asistente responde «no configurado» y el resto de la app funciona igual |
+| api | `ASSISTANT_ALLOW_GUESTS` | `1` permite el asistente a los invitados (en producción está en `1` desde el 2026-11-18); sin ella solo lo usan las cuentas registradas |
+| api | `ASSISTANT_MODEL`, `ASSISTANT_EFFORT`, `ASSISTANT_MAX_TOKENS`, `ASSISTANT_TIME_BUDGET` | opcionales; por defecto `claude-opus-5-5`, `medium`, 4000 y 240 s |
 
 La clave `service_role` de Supabase no se usa en ninguna parte y no debe copiarse a Vercel.
 

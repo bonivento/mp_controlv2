@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { DatasetSelect, InterpretationBlock, SaveAnalysis } from "@/components/analysis-parts";
+import { useAssistantScreen } from "@/components/assistant/assistant-provider";
 import { AcfChart, HistogramChart, QQChart } from "@/components/charts/StatCharts";
 import { useStudy } from "@/components/study-context";
 import { Alert, Badge, Button, Card, CheckField, EmptyState, Loading, PageHeader, SelectField, Table, Td, Th, fmtNum } from "@/components/ui";
@@ -84,6 +85,20 @@ export default function AssumptionsPage() {
   const req: S["AssumptionsRequest"] | null = run ? { values: run.values, alpha: run.alpha } : null;
   const res = useLoad(async () => (req ? api.assumptions(req) : null), [run?.id, run?.alpha, run?.values.length]);
   const r = req ? res.data : null;
+
+  useAssistantScreen({
+    screen: "assumptions",
+    label: `Supuestos${(runDataset ?? dataset) ? ` · ${(runDataset ?? dataset)!.name}` : ""}`,
+    hasResult: !!r,
+    empty: !!base.data && list.length === 0,
+    view: {
+      conjunto_elegido: dataset ? { name: dataset.name, phase: dataset.phase } : null,
+      alfa_elegido: Number(alpha),
+      datos_a_usar: usedText || null,
+      analisis_en_pantalla: run && r ? { conjunto: runDataset?.name ?? null, alfa: run.alpha, observaciones: run.values.length, datos_usados: run.used } : null,
+      resultado: r ?? null,
+    },
+  });
 
   if (study.data_type !== "variable")
     return <Alert tone="warn" title="Este módulo es para datos de variables">Los supuestos de normalidad e independencia aplican a mediciones continuas.</Alert>;

@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import type { AttributeRow } from "@/lib/db";
 import { useLoad } from "@/lib/use-load";
 import { SaveAnalysis } from "../analysis-parts";
+import { useAssistantScreen } from "../assistant/assistant-provider";
 import { Alert, Badge, Card, Loading, Table, Td, Th, fmtNum } from "../ui";
 
 function signature(rows: AttributeRow[]) {
@@ -29,6 +30,7 @@ export function AttributeSummaryPanel({
 }) {
   const req = { counts: rows.map((r) => r.count), sizes: rows.map((r) => r.size), labels: rows.map((r) => r.label) };
   const { data, loading, error } = useLoad(() => api.attributeSummary(req), [signature(rows)]);
+  useAssistantScreen({ view: { [datasetId ? "resumen_del_conjunto_guardado" : "resumen_de_la_carga"]: data ? { titulo: title, conteo: counting, ...data } : null } });
   if (loading && !data) return <Loading label="Calculando resumen…" />;
   if (error) return <Alert tone="error" title="No se pudo calcular el resumen">{error}</Alert>;
   if (!data) return null;

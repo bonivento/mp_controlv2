@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { InterpretationBlock } from "@/components/analysis-parts";
+import { useAssistantScreen } from "@/components/assistant/assistant-provider";
 import { CurveChart } from "@/components/charts/StatCharts";
 import { useStudy } from "@/components/study-context";
 import { Alert, Badge, Button, Card, ConfirmDialog, EmptyState, Loading, NumberField, PageHeader, SelectField, Table, Td, TextField, Th, errMsg, fmtNum } from "@/components/ui";
@@ -102,6 +103,15 @@ function SingleDesign({ studyId, onSaved }: { studyId: string; onSaved: () => vo
   const [err, setErr] = useState<string | null>(null);
   const res = useLoad(async () => (req ? api.singleDesign(req) : null), [req ? JSON.stringify(req) : ""]);
   const r = req ? res.data : null;
+  useAssistantScreen({
+    hasResult: !!r,
+    view: {
+      pestana: "Diseñar plan simple",
+      formulario: { aql, alpha, ltpd, beta, lot_size: lot, distribution: dist, plan_de_referencia: refN != null || refC != null ? { n: refN, c: refC } : null },
+      peticion: req,
+      resultado: r ?? null,
+    },
+  });
   function run() {
     setErr(null);
     if (!aql || !ltpd || !alpha || !beta) return setErr("AQL, LTPD, α y β son obligatorios.");
@@ -153,6 +163,15 @@ function SingleEvaluate({ studyId, onSaved }: { studyId: string; onSaved: () => 
   const [err, setErr] = useState<string | null>(null);
   const res = useLoad(async () => (req ? api.singleEvaluate(req) : null), [req ? JSON.stringify(req) : ""]);
   const r = req ? res.data : null;
+  useAssistantScreen({
+    hasResult: !!r,
+    view: {
+      pestana: "Evaluar plan simple",
+      formulario: { n, c, lot_size: lot, distribution: dist, aql, ltpd },
+      peticion: req,
+      resultado: r ?? null,
+    },
+  });
   function run() {
     setErr(null);
     if (!n || n < 1 || c == null || c < 0) return setErr("n debe ser positivo y c no puede ser negativo.");
@@ -202,6 +221,15 @@ function DoubleEvaluate({ studyId, onSaved }: { studyId: string; onSaved: () => 
   const [err, setErr] = useState<string | null>(null);
   const res = useLoad(async () => (req ? api.doubleEvaluate(req) : null), [req ? JSON.stringify(req) : ""]);
   const r = req ? res.data : null;
+  useAssistantScreen({
+    hasResult: !!r,
+    view: {
+      pestana: "Evaluar plan doble",
+      formulario: { n1, c1, r1, n2, c2, lot_size: lot, aql, ltpd },
+      peticion: req,
+      resultado: r ?? null,
+    },
+  });
   function run() {
     setErr(null);
     if (!n1 || !n2 || c1 == null || c2 == null || r1 == null) return setErr("Completa n1, c1, r1, n2 y c2.");
@@ -269,6 +297,14 @@ export default function SamplingPage() {
   const plans = useLoad(() => getStore().samplingPlans.list(study.id), [study.id]);
   const [toDelete, setToDelete] = useState<SamplingPlan | null>(null);
   const [busy, setBusy] = useState(false);
+  const tabLabel = { design: "Diseñar plan simple", eval: "Evaluar plan simple", double: "Evaluar plan doble" }[tab];
+  useAssistantScreen({
+    screen: "sampling",
+    label: `Muestreo · ${tabLabel}`,
+    view: {
+      planes_guardados: (plans.data ?? []).slice(0, 20).map((p) => ({ name: p.name, plan_type: p.plan_type })),
+    },
+  });
   const tabs = [
     ["design", "Diseñar plan simple"],
     ["eval", "Evaluar plan simple"],

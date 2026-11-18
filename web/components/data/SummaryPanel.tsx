@@ -5,6 +5,7 @@ import { api } from "@/lib/api";
 import type { VariableRow } from "@/lib/db";
 import { useLoad } from "@/lib/use-load";
 import { SaveAnalysis } from "../analysis-parts";
+import { useAssistantScreen } from "../assistant/assistant-provider";
 import { Alert, Badge, Button, Card, Loading, Modal, Table, Td, TextAreaField, Th, fmtNum } from "../ui";
 import type { components } from "@/lib/api-types";
 
@@ -47,6 +48,7 @@ export function SummaryPanel({
 }) {
   const req = { subgroups: rows.map((r) => r.values), labels: rows.map((r) => r.label) };
   const { data, loading, error } = useLoad(() => api.summary(req), [signature(rows)]);
+  useAssistantScreen({ view: { [datasetId ? "resumen_del_conjunto_guardado" : "resumen_de_la_carga"]: data ? { titulo: title, ...data } : null } });
   const [target, setTarget] = useState<Outlier | null>(null);
   const [kind, setKind] = useState<"keep" | "remove">("keep");
   const [why, setWhy] = useState("");

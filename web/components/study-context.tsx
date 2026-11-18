@@ -3,9 +3,11 @@
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
 import { createContext, useContext, type ReactNode } from "react";
+import { studyToContext } from "@/lib/assistant-context";
 import { getStore } from "@/lib/data";
 import type { Study } from "@/lib/db";
 import { useLoad } from "@/lib/use-load";
+import { useAssistantScreen } from "./assistant/assistant-provider";
 import { Alert, Badge, EmptyState, Loading } from "./ui";
 
 interface Ctx {
@@ -44,6 +46,8 @@ export function StudyShell({ children }: { children: ReactNode }) {
   const { id } = useParams<{ id: string }>();
   const pathname = usePathname();
   const { data: study, loading, error, reload } = useLoad(() => getStore().studies.get(id), [id]);
+  // Ficha del estudio para el asistente; cada página del módulo añade la pantalla y su resultado.
+  useAssistantScreen(study ? { studyId: study.id, study: studyToContext(study) } : {});
 
   if (loading && !study) return <Loading label="Cargando estudio…" />;
   if (error) return <Alert tone="error" title="No se pudo cargar el estudio">{error}</Alert>;

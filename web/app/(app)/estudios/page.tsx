@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useAssistantScreen } from "@/components/assistant/assistant-provider";
 import { SigmalenaMark } from "@/components/logo";
 import { Alert, Badge, Button, Card, ConfirmDialog, EmptyState, Loading, PageHeader, errMsg } from "@/components/ui";
 import { getStore } from "@/lib/data";
@@ -15,6 +16,23 @@ export default function StudiesPage() {
   const [toDelete, setToDelete] = useState<Study | null>(null);
   const [busy, setBusy] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  useAssistantScreen({
+    screen: "studies",
+    label: "Estudios",
+    empty: !!studies && studies.length === 0,
+    view: {
+      studies: (studies ?? []).slice(0, 30).map((s) => ({
+        name: s.name,
+        company: s.company,
+        process: s.process,
+        characteristic: s.characteristic,
+        data_type: s.data_type,
+        synthetic: s.is_synthetic,
+      })),
+      total_studies: studies?.length ?? null,
+    },
+  });
 
   async function confirmDelete() {
     if (!toDelete) return;

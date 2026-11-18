@@ -16,7 +16,7 @@ from app.auth import load_local_env
 
 load_local_env()
 
-from app.routers import assumptions, capability, charts, data, design, reports, sampling  # noqa: E402
+from app.routers import assistant, assumptions, capability, charts, data, design, reports, sampling  # noqa: E402
 from app.routers.errors import install_error_handlers  # noqa: E402
 
 app = FastAPI(
@@ -49,5 +49,5 @@ def health() -> dict:
 
 
 # El orden de montaje fija el orden de las rutas en el OpenAPI.
-for module in (data, charts, assumptions, capability, design, sampling, reports):
+for module in (data, charts, assumptions, capability, design, sampling, reports, assistant):
     app.include_router(module.router)

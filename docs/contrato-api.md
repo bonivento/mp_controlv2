@@ -23,6 +23,12 @@ Todas son `POST` con cuerpo JSON salvo que se indique. Todas exigen `Authorizati
 | 7 Muestreo | `/api/sampling/single/evaluate` | `SingleEvaluateRequest` | `SinglePlanResponse` | `sampling.py` |
 | 7 Muestreo | `/api/sampling/double/evaluate` | `DoubleEvaluateRequest` | `DoublePlanResponse` | `sampling.py` |
 | 8 Reportes | `/api/reports/excel` | `ExcelReportRequest` | archivo `.xlsx` | `reports.py` |
+| Asistente | `GET /api/assistant/status` | — | `AssistantStatus` | `assistant.py` |
+| Asistente | `/api/assistant/chat` | `AssistantRequest` | flujo `text/event-stream` | `assistant.py` |
+
+### Asistente con IA
+
+`/api/assistant/chat` no devuelve JSON sino un flujo de eventos (`delta`, `tool`, `done`, `error`), descrito en el docstring de `api/app/schemas/assistant.py`. La web envía en cada petición la conversación y el contexto de la pantalla (ficha del estudio, parámetros y resultado reducido; nunca las filas de datos); la API sigue sin estado. El contexto completo serializado no puede pasar de 60 KB (422). Antes de abrir el flujo la ruta puede responder 401, 403 (`forbidden`: invitado sin acceso), 422 o 503 (`assistant_unavailable`: sin credencial del proveedor). La respuesta lleva `Cache-Control: no-cache, no-transform`: sin esa cabecera el rewrite de Next comprime y entrega todo de golpe.
 
 ## Convenciones
 

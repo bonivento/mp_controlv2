@@ -316,3 +316,43 @@ body {
     text-decoration: none;
   }
 }
+
+/* ---- Asistente con IA --------------------------------------------------------------
+   Panel lateral en escritorio y hoja a pantalla completa en móvil. Es un <dialog> modal
+   (components/assistant/assistant-panel.tsx): los tokens de color cambian solos en oscuro. */
+.assistant-panel {
+  position: fixed;
+  inset: 0 0 0 auto;
+  margin: 0 0 0 auto;
+  padding: 0;
+  width: min(30rem, 100vw);
+  max-width: 100vw;
+  height: 100dvh;
+  max-height: 100dvh;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: -10px 0 36px rgb(0 20 40 / 0.28);
+  overflow: hidden;
+}
+.assistant-panel::backdrop {
+  background: rgb(0 20 40 / 0.35);
+}
+@media (max-width: 639px) {
+  .assistant-panel {
+    width: 100vw;
+    border-left: 0;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .assistant-panel[open] {
+    animation: assistant-in 0.18s ease-out;
+  }
+  @keyframes assistant-in {
+    from {
+      transform: translateX(1.5rem);
+      opacity: 0;
+    }
+  }
+}

@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "gen:api": "openapi-typescript ../api/openapi.json -o lib/api-types.ts",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "check:assistant": "node --no-warnings --import ./scripts/register.mjs scripts/check-assistant.mts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

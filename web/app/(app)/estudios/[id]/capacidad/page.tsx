@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { DatasetSelect, InterpretationBlock, SaveAnalysis } from "@/components/analysis-parts";
+import { useAssistantScreen } from "@/components/assistant/assistant-provider";
 import { HistogramChart } from "@/components/charts/StatCharts";
 import { useStudy } from "@/components/study-context";
 import { Alert, Badge, Button, Card, CheckField, EmptyState, Loading, NumberField, PageHeader, SelectField, Table, Td, Th, fmtNum } from "@/components/ui";
@@ -84,6 +85,29 @@ export default function CapabilityPage() {
 
   const res = useLoad(async () => (req ? api.capability(req) : null), [req ? JSON.stringify(req) : ""]);
   const r = req ? res.data : null;
+
+  useAssistantScreen({
+    screen: "capability",
+    label: `Capacidad${dataset ? ` · ${dataset.name}` : ""}`,
+    hasResult: !!r,
+    empty: !!base.data && list.length === 0,
+    view: {
+      parametros_elegidos: {
+        conjunto: dataset ? { name: dataset.name, phase: dataset.phase } : null,
+        lsl,
+        usl,
+        objetivo: target,
+        metodo_de_sigma: method,
+        confianza: Number(confidence),
+        proceso_estable: effStable,
+        datos_normales: effNormal,
+        datos_a_usar: dataText || null,
+      },
+      peticion_enviada: req ? { ...req, subgroups: `${req.subgroups.length} subgrupos` , limits: req.limits ?? null } : null,
+      datos_usados_en_el_calculo: r ? runUsed : null,
+      resultado: r ?? null,
+    },
+  });
 
   if (study.data_type !== "variable")
     return <Alert tone="warn" title="Este módulo es para datos de variables">La capacidad con Cp y Cpk requiere mediciones continuas.</Alert>;

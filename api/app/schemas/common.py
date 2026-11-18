@@ -136,4 +136,5 @@ class ErrorResponse(Model):
     code: Literal[
         "invalid_data", "insufficient_data", "missing_limits",
         "unsupported_file", "unauthorized",
+        "forbidden", "assistant_unavailable",
     ]

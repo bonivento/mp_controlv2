@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
+import { useAssistantScreen } from "../assistant/assistant-provider";
 import { api } from "@/lib/api";
 import type { components } from "@/lib/api-types";
 import { getStore } from "@/lib/data";
@@ -140,6 +141,29 @@ export function DataLoader({ study, onSaved }: { study: Study; onSaved: () => vo
   const attrRows = built && built.kind === "attribute" ? built.rows : [];
   const count = attribute ? attrRows.length : rows.length;
   const justOk = justification.trim().length >= 10;
+
+  // Lo que el asistente ve de la carga en curso (sin filas): archivo, hoja, columnas y subgrupos.
+  useAssistantScreen({
+    view: {
+      carga_en_curso: sheet
+        ? {
+            origen: source === "manual" ? "tabla escrita o pegada" : "archivo",
+            archivo: file?.name ?? null,
+            hoja: sheet.name,
+            filas_en_la_hoja: sheet.rows.length,
+            columnas: sheet.columns.slice(0, 30).map((c) => ({ name: c.name, kind: c.kind, missing: c.missing })),
+            avisos_de_lectura: sheet.warnings.slice(0, 10),
+            configuracion_de_subgrupos: cfg,
+            subgrupos_formados: count,
+            avisos_de_subgrupos: built?.warnings.slice(0, 10) ?? [],
+            decisiones_de_limpieza: decisions.length,
+            justificacion_escrita: justification.trim() ? justification.trim().slice(0, 300) : null,
+            nombre: name || null,
+            fase_elegida: phase,
+          }
+        : { estado: parsing ? "leyendo el archivo" : "sin archivo cargado", error_de_lectura: parseError },
+    },
+  });
 
   async function save() {
     setShowErrors(true);

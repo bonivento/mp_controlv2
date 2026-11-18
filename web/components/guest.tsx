@@ -23,7 +23,7 @@ export function GuestBanner() {
   );
 }
 
-function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function UpgradeDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);

@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { useAuth } from "./auth-provider";
+import { AssistantButton, AssistantPanel } from "./assistant/assistant-panel";
+import { AssistantProvider } from "./assistant/assistant-provider";
 import { GuestBanner, GuestSignOutConfirm } from "./guest";
 import { SigmalenaLogo } from "./logo";
 import { Button, Loading } from "./ui";
@@ -35,7 +37,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const demo = getStore().mode === "demo";
   return (
-    <>
+    <AssistantProvider user={user}>
       <header className="no-print on-brand border-b-[3px] border-accent bg-header text-white">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-2.5">
           <Link href="/estudios" className="flex items-center gap-3 rounded-md" aria-label="Sigmalena, ir a estudios">
@@ -53,6 +55,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               </span>
             )}
             <span className={`${user.isGuest ? "" : "hidden "}text-white/85 sm:inline`}>{user.isGuest ? "Invitado" : user.email}</span>
+            <AssistantButton />
             <Button variant="onBrand" loading={leaving} onClick={() => (user.isGuest ? setConfirmLeave(true) : signOut())}>
               Cerrar sesión
             </Button>
@@ -64,6 +67,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       <main id="contenido" className="mx-auto w-full max-w-7xl flex-1 px-4 py-6">
         {children}
       </main>
-    </>
+      <AssistantPanel />
+    </AssistantProvider>
   );
 }

@@ -593,6 +593,70 @@
      }
     }
    }
+  },
+  "/api/assistant/status": {
+   "get": {
+    "tags": [
+     "asistente"
+    ],
+    "summary": "Assistant Status",
+    "operationId": "assistant_status_api_assistant_status_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AssistantStatus"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/assistant/chat": {
+   "post": {
+    "tags": [
+     "asistente"
+    ],
+    "summary": "Assistant Chat",
+    "operationId": "assistant_chat_api_assistant_chat_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AssistantRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Flujo `text/event-stream` con eventos delta, tool, done y error",
+      "content": {
+       "text/event-stream": {}
+      }
+     },
+     "403": {
+      "description": "Los invitados no tienen acceso"
+     },
+     "503": {
+      "description": "El asistente no está configurado"
+     },
+     "422": {
+      "description": "Validation Error",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      }
+     }
+    }
+   }
   }
  },
  "components": {
@@ -888,6 +952,328 @@
     ],
     "title": "ArlRow",
     "description": "Desempeño del gráfico para un estado fuera de control."
+   },
+   "AssistantContext": {
+    "properties": {
+     "screen": {
+      "type": "string",
+      "enum": [
+       "studies",
+       "study",
+       "data",
+       "variables",
+       "attributes",
+       "assumptions",
+       "capability",
+       "design",
+       "sampling",
+       "report"
+      ],
+      "title": "Screen"
+     },
+     "study": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/AssistantStudy"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "view": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "View",
+      "description": "Estado de la pantalla en JSON libre: parámetros elegidos y, si ya se calculó, la respuesta de la API de ese módulo (sin series largas). La ruta limita su tamaño serializado y responde 422 si lo supera."
+     },
+     "datasets": {
+      "anyOf": [
+       {
+        "items": {
+         "additionalProperties": true,
+         "type": "object"
+        },
+        "type": "array",
+        "maxItems": 20
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Datasets",
+      "description": "Resumen de los conjuntos de datos del estudio: nombre, fase, tamaños; nunca las filas"
+     },
+     "frozen_limits": {
+      "anyOf": [
+       {
+        "items": {
+         "additionalProperties": true,
+         "type": "object"
+        },
+        "type": "array",
+        "maxItems": 10
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Frozen Limits",
+      "description": "Límites de Fase I congelados vigentes"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "screen"
+    ],
+    "title": "AssistantContext",
+    "description": "Lo que el usuario está viendo. La web lo arma en cada pantalla."
+   },
+   "AssistantMessage": {
+    "properties": {
+     "role": {
+      "type": "string",
+      "enum": [
+       "user",
+       "assistant"
+      ],
+      "title": "Role"
+     },
+     "content": {
+      "type": "string",
+      "maxLength": 6000,
+      "minLength": 1,
+      "title": "Content"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "role",
+     "content"
+    ],
+    "title": "AssistantMessage"
+   },
+   "AssistantRequest": {
+    "properties": {
+     "messages": {
+      "items": {
+       "$ref": "#/components/schemas/AssistantMessage"
+      },
+      "type": "array",
+      "maxItems": 30,
+      "minItems": 1,
+      "title": "Messages"
+     },
+     "context": {
+      "$ref": "#/components/schemas/AssistantContext"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "messages",
+     "context"
+    ],
+    "title": "AssistantRequest"
+   },
+   "AssistantStatus": {
+    "properties": {
+     "enabled": {
+      "type": "boolean",
+      "title": "Enabled",
+      "description": "Hay credenciales del proveedor de IA configuradas"
+     },
+     "available": {
+      "type": "boolean",
+      "title": "Available",
+      "description": "El usuario de esta sesión puede usarlo"
+     },
+     "reason": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Reason",
+      "description": "Si no está disponible, por qué (en español)"
+     },
+     "guests_allowed": {
+      "type": "boolean",
+      "title": "Guests Allowed"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "required": [
+     "enabled",
+     "available",
+     "guests_allowed"
+    ],
+    "title": "AssistantStatus"
+   },
+   "AssistantStudy": {
+    "properties": {
+     "name": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Name"
+     },
+     "company": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 200
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Company"
+     },
+     "process": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 300
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Process"
+     },
+     "product": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 300
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Product"
+     },
+     "characteristic": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 300
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Characteristic"
+     },
+     "unit": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 40
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Unit"
+     },
+     "data_type": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "variable",
+         "attribute"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Data Type"
+     },
+     "lsl": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Lsl"
+     },
+     "usl": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Usl"
+     },
+     "target": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Target"
+     },
+     "synthetic": {
+      "anyOf": [
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Synthetic",
+      "description": "El estudio está marcado como datos sintéticos"
+     },
+     "notes": {
+      "anyOf": [
+       {
+        "type": "string",
+        "maxLength": 2000
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Notes"
+     }
+    },
+    "additionalProperties": false,
+    "type": "object",
+    "title": "AssistantStudy",
+    "description": "Ficha del estudio abierto. Todos los campos son opcionales."
    },
    "AssumptionsRequest": {
     "properties": {

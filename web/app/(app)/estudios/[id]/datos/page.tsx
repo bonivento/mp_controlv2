@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAssistantScreen } from "@/components/assistant/assistant-provider";
 import { DataLoader } from "@/components/data/DataLoader";
 import { AttributeSummaryPanel } from "@/components/data/AttributeSummaryPanel";
 import { SummaryPanel } from "@/components/data/SummaryPanel";
@@ -21,6 +22,24 @@ export default function DataPage() {
   const [busy, setBusy] = useState(false);
   const [delError, setDelError] = useState<string | null>(null);
   const viewing = datasets?.find((d) => d.id === viewId) ?? null;
+  useAssistantScreen({
+    screen: "data",
+    label: viewing ? `Datos · ${viewing.name}` : "Datos",
+    empty: !!datasets && datasets.length === 0,
+    hasResult: !!viewing,
+    view: {
+      conjuntos_guardados: datasets?.length ?? null,
+      conjunto_abierto: viewing
+        ? {
+            name: viewing.name,
+            phase: viewing.phase,
+            n_subgroups: viewing.rows.length,
+            subgrouping: viewing.subgrouping,
+            bitacora_de_limpieza: viewing.cleaning_log.slice(0, 20).map((l) => ({ action: l.action, detail: l.detail })),
+          }
+        : null,
+    },
+  });
 
   async function remove() {
     if (!toDelete) return;

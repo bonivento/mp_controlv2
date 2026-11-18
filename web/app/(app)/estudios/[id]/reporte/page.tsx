@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useAssistantScreen } from "@/components/assistant/assistant-provider";
 import { ReportDocument } from "@/components/report/ReportDocument";
 import { useStudy } from "@/components/study-context";
 import { Alert, Button, Card, CheckField, ConfirmDialog, EmptyState, Loading, PageHeader, Table, Td, Th, errMsg } from "@/components/ui";
@@ -34,6 +35,23 @@ export default function ReportPage() {
   const included = all
     .filter((a) => a.in_report)
     .sort((a, b) => MODULE_ORDER.indexOf(a.module) - MODULE_ORDER.indexOf(b.module) || a.created_at.localeCompare(b.created_at));
+
+  useAssistantScreen({
+    screen: "report",
+    label: "Reporte",
+    empty: !!data && all.length === 0,
+    hasResult: included.length > 0,
+    view: {
+      analisis_guardados: all.length,
+      en_el_reporte: included.slice(0, 20).map((a) => ({
+        module: a.module,
+        title: a.title,
+        saved_at: a.created_at,
+        interpretation: (a.result as { interpretation?: unknown }).interpretation ?? null,
+      })),
+      fuera_del_reporte: all.filter((x) => !x.in_report).slice(0, 20).map((x) => ({ module: x.module, title: x.title })),
+    },
+  });
 
   async function toggle(a: Analysis, on: boolean) {
     try {

@@ -47,6 +47,7 @@ Ejemplo con un gráfico X-barra-R en Fase I:
 - El navegador solo tiene la clave pública de Supabase. Lo que protege los datos son las políticas RLS: `user_id = auth.uid()` en todas las tablas.
 - La API exige el JWT de la sesión en cada ruta salvo `/api/health` y lo verifica con las claves públicas del proyecto de Supabase. No recibe ni usa ninguna clave de servicio.
 - Los archivos subidos se procesan en memoria y no se almacenan.
+- El asistente con IA es la única parte de la API que llama a un servicio externo (la API de Anthropic, modelo Claude Opus 5.5). La clave vive solo en el proyecto `cep-api` de Vercel. Hacia ese servicio sale el contexto reducido de la pantalla (ficha del estudio, parámetros, resultados), no las filas de datos. Las cifras que da el asistente vienen de ese contexto o de herramientas que llaman a `api/app/spc/`. No hay cuota por usuario porque la API no tiene estado: el tope de gasto se fija en la cuenta del proveedor.
 
 ## Límites de la plataforma que condicionan el diseño
 
@@ -55,6 +56,7 @@ Ejemplo con un gráfico X-barra-R en Fase I:
 | Paquete Python de 250 MB como máximo | Sin pandas ni statsmodels; CSV con la biblioteca estándar; Ljung-Box y autocorrelación escritos con numpy |
 | Tiempo máximo por función | La simulación de ARL es vectorizada y tiene tope de corridas y de longitud |
 | Cuerpo de petición de unos 4.5 MB | Archivos de hasta 5 MB no caben con holgura: el límite efectivo de carga se fija en 4 MB y 20 000 filas |
+| Respuestas largas en flujo | El asistente responde con `text/event-stream`; tiene presupuesto de tiempo (`ASSISTANT_TIME_BUDGET`) y tope de llamadas al modelo por petición |
 | Sin disco persistente | La API no guarda nada; todo estado vive en Supabase |
 
 ## Estructura del código

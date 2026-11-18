@@ -17,6 +17,7 @@ import { isVariableRow, type ChartType, type Dataset, type Phase } from "@/lib/d
 import { CHART_TYPE_LABEL, PARAM_LABEL } from "@/lib/labels";
 import { useLoad } from "@/lib/use-load";
 import { DatasetSelect, InterpretationBlock, RuleSelector, SaveAnalysis } from "../analysis-parts";
+import { useAssistantScreen } from "../assistant/assistant-provider";
 import { useStudy } from "../study-context";
 import { Alert, Badge, Button, Card, EmptyState, Loading, Modal, NumberField, PageHeader, SelectField, Table, Td, TextAreaField, Th, errMsg, fmtNum } from "../ui";
 import type { ReactNode } from "react";
@@ -202,6 +203,32 @@ export function ChartWorkbench({ kind }: { kind: Kind }) {
   const exSet = new Set(excluded.map((e) => e.index));
   const clickable = phase === "I" ? [...signals.keys()].filter((i) => !exSet.has(i)) : [];
   const signalRows = [...signals.entries()].sort((a, b) => a[0] - b[0]);
+
+  // Lo que el asistente ve: fase, gráfico, conjunto, reglas, exclusiones y, si ya se calculó, el resultado.
+  useAssistantScreen({
+    screen: kind,
+    label: `${isVar ? "Variables" : "Atributos"} · Fase ${phase} · ${TYPE_LABEL[chartType]}`,
+    hasResult: !!result,
+    empty: !!base.data && base.data.datasets.length === 0,
+    view: {
+      fase: phase === "I" ? "Fase I (límites de prueba, se recalculan al excluir)" : "Fase II (límites congelados, no se recalculan)",
+      grafico: chartType,
+      conjunto_de_datos: dataset ? { name: dataset.name, phase: dataset.phase, n_subgroups: dataset.rows.length } : null,
+      ancho_de_limites_L: L,
+      reglas_activas: enabled,
+      puntos_excluidos_con_causa: phase === "I" ? excluded : [],
+      limites_congelados_vigentes: frozen ? { created_at: frozen.created_at, limits: frozen.limits } : null,
+      bloqueo:
+        blocker === "no-limits"
+          ? "Fase II sin límites congelados para este gráfico"
+          : typeof blocker === "string"
+            ? blocker
+            : blocker
+              ? "X-barra necesita subgrupos del mismo tamaño y este conjunto tiene subgrupos de otro tamaño"
+              : null,
+      resultado: result ?? null,
+    },
+  });
 
   const phaseTabs = (
     <div role="tablist" aria-label="Fase del análisis" className="grid max-w-xl grid-cols-2 gap-1 rounded-md bg-surface-2 p-1">
@@ -487,6 +514,11 @@ function AttributeAssistant({ dataset, onUse }: { dataset?: Dataset; onUse: (t: 
   const effConst = constant ?? (sizes.length > 0 && new Set(sizes).size === 1);
 
   const rec = useLoad(async () => (asked ? api.recommendAttributes(asked) : null), [asked?.counting, asked?.constant_size]);
+  useAssistantScreen({
+    view: {
+      asistente_de_seleccion: asked ? { pregunta: asked, recomendacion: !rec.loading ? (rec.data ?? null) : null } : null,
+    },
+  });
 
   return (
     <Card title="Asistente: ¿qué gráfico necesito?">

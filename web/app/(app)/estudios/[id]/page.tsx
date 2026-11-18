@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useAssistantScreen } from "@/components/assistant/assistant-provider";
 import { useStudy } from "@/components/study-context";
 import { Alert, Badge, Card, Loading, PageHeader, fmtNum } from "@/components/ui";
 import { getStore } from "@/lib/data";
@@ -20,6 +21,21 @@ export default function StudyOverviewPage() {
   }, [study.id]);
 
   const isVar = study.data_type === "variable";
+  useAssistantScreen({
+    screen: "study",
+    label: "Resumen del estudio",
+    empty: !!data && data.datasets.length === 0,
+    view: data
+      ? {
+          avance: {
+            conjuntos_fase_I: data.datasets.filter((d) => d.phase === "I").length,
+            conjuntos_fase_II: data.datasets.filter((d) => d.phase === "II").length,
+            limites_congelados: data.limits.map((l) => l.chart_type),
+            analisis_guardados: data.analyses.map((a) => ({ module: a.module, title: a.title, in_report: a.in_report })).slice(0, 30),
+          },
+        }
+      : undefined,
+  });
   const steps: { href: string; title: string; text: string }[] = [
     { href: `${base}/datos`, title: "1. Datos", text: "Carga el archivo, define los subgrupos racionales y guarda un conjunto de Fase I y otro de Fase II." },
     isVar
